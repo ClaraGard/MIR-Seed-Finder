@@ -242,7 +242,7 @@ enum {
     SAMPLE_NO_BIOME = 0x4,  // do not apply climate noise to biome mapping
 };
 void initBiomeNoise(BiomeNoise *bn, int mc);
-void setBiomeSeed(BiomeNoise *bn, uint64_t seed, int large);
+void setBiomeSeedCustom(BiomeNoise *bn, uint64_t seed, int large, int smallBiomes);
 void setBetaBiomeSeed(BiomeNoiseBeta *bnb, uint64_t seed);
 int sampleBiomeNoise(const BiomeNoise *bn, int64_t *np, int x, int y, int z,
     uint64_t *dat, uint32_t sample_flags);
@@ -270,7 +270,7 @@ int climateToBiome(int mc, const uint64_t np[6], uint64_t *dat);
  * A maximum of nmax octaves is set, initializing only the most contributing
  * octaves up to that point. Use -1 for a full initialization.
  */
-void setClimateParaSeed(BiomeNoise *bn, uint64_t seed, int large, int nptype, int nmax);
+void setClimateParaSeed(BiomeNoise *bn, uint64_t seed, int large, int small_biomes, int nptype, int nmax);
 double sampleClimatePara(const BiomeNoise *bn, int64_t *np, double x, double z);
 
 /**

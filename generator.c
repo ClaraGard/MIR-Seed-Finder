@@ -67,6 +67,7 @@ void setupGenerator(Generator *g, int mc, uint32_t flags)
     g->flags = flags;
     g->seed = 0;
     g->sha = 0;
+    g->smallBiomes = 0;
 
     if (mc >= MC_B1_8 && mc <= MC_1_17)
     {
@@ -116,7 +117,7 @@ void applySeed(Generator *g, int dim, uint64_t seed)
         }
         else // if (g->mc >= MC_1_18)
         {
-            setBiomeSeed(&g->bn, seed, g->flags & LARGE_BIOMES);
+            setBiomeSeedCustom(&g->bn, seed, g->flags & LARGE_BIOMES, g->smallBiomes);
         }
     }
     else if (dim == DIM_NETHER && g->mc >= MC_1_16_1)

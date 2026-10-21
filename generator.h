@@ -19,7 +19,8 @@ STRUCT(Generator)
     uint32_t flags;
     uint64_t seed;
     uint64_t sha;
-
+    int smallBiomes;
+    
     union {
         struct { // MC 1.0 - 1.17
             LayerStack ls;
