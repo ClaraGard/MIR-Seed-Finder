@@ -1,0 +1,33 @@
+Toutes les maps:
+foret bleu au spawn > 15000 blocks²
+forteresse au spawn < 100 blocks
+bastion au spawn > 75 < 200 blocks
+Foret à moins de 75 blocks
+Bouffe à moins de 75 blocks
+Biomes interdit au 00 ocean, mushroom, snowy, taiga, montagnes 1.18, swamp, mangrove, jungle, rivière < 50 blocks
+basalt interdit sur -100/100
+interdire les structures proches du spawn: desert pyramid < 300, shipwreck < 150
+interdire stronghold > 3 yeux first ring (optionel)
+hauteur du 00 > 63
+
+Map longue:
+end city au spawn
+4 manoirs dans toute la map
+au moins 25 desert pyramid dans toute la map
+mycelium > 2 quadrants
+
+
+Map intermédiaire:
+end city au spawn
+Tous les bois < 2000 blocks > 3000 blocks²
+mesa et desert < 1000 blocks > 35000 blocks² 
+
+Map courte:
+foret rouge < 150 blocks
+Tous les bois < 1500 blocks > 3000 blocks²
+Mesa & desert < 250 > 35000 blocks² 
+
+
+
+//TODO
+Accepter seeds negatives en input

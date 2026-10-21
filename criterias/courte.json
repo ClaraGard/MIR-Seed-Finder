@@ -1,0 +1,201 @@
+
+{
+  "biomes": [
+    {
+      "name": "warped_forest_at_nether_origin",
+      "biome_ids": [172],
+      "origin": {
+        "dimension": "nether",
+        "x": 0,
+        "z": 0
+      },
+      "radius": 100,
+      "min_area": 15000,
+      "max_area": -1
+    },
+    {
+      "name": "wood_near_spawn",
+      "biome_ids": [4, 5, 18, 19, 21, 22, 23, 27, 28, 29, 30, 31, 32, 33, 34, 51, 52, 53, 132, 133, 149, 151, 155, 156, 157, 158, 160, 161, 162, 168, 169, 185, 186, 188],
+      "origin": {
+        "dimension": "overworld",
+        "spawn": true
+      },
+      "radius": 100,
+      "min_area": 5000,
+      "max_area": -1
+    },
+    {
+      "name": "food_biome_near_spawn",
+      "biome_ids": [1, 2, 4, 5, 21, 35, 36, 37, 129, 168],
+      "origin": {
+        "dimension": "overworld",
+        "spawn": true
+      },
+      "radius": 100,
+      "min_area": 5000,
+      "max_area": -1
+    },
+    {
+      "name": "red_forest_near_spawn",
+      "biome_ids": [171],
+      "origin": {
+        "dimension": "nether",
+        "x": 0,
+        "z": 0
+      },
+      "radius": 150,
+      "min_area": 5000,
+      "max_area": -1
+    },
+    {
+        "name": "oak_wood_area",
+        "biome_ids": [1, 4, 6, 7, 21, 22, 23, 29, 35, 36, 37, 38, 39, 51, 52, 129, 132, 149, 151, 163, 164, 166, 167, 177, 182],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+        "name": "spruce_wood_area",
+        "biome_ids": [5, 12, 13, 19, 30, 31, 32, 33, 34, 133, 158, 160, 161, 178, 179],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+        "name": "birch_wood_area",
+        "biome_ids": [4, 27, 28, 132, 155, 156],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+        "name": "jungle_wood_area",
+        "biome_ids": [21, 22, 23, 149, 151, 168, 169],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+        "name": "acacia_wood_area",
+        "biome_ids": [35, 36, 163, 164],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+        "name": "dark_oak_wood_area",
+        "biome_ids": [29, 157],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+        "name": "mangrove_wood_area",
+        "biome_ids": [184],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+        "name": "cherry_wood_area",
+        "biome_ids": [185],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+        "name": "pale_oak_wood_area",
+        "biome_ids": [186],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+        "name": "bamboo_area",
+        "biome_ids": [168, 169],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+      "name": "desert_and_mesa_area",
+      "biome_ids": [2, 17, 37, 38, 39, 130, 165, 166, 167],
+      "origin": {
+        "dimension": "overworld",
+        "spawn": true
+      },
+      "radius": 250,
+      "min_area": 35000,
+      "max_area": -1
+    },
+    {
+      "name": "forbidden_biomes_near_spawn",
+      "biome_ids": [0, 10, 24, 44, 45, 46, 47, 48, 49, 50, 14, 15, 7, 11, 12, 13, 26, 30, 31, 140, 158, 179, 181, 6, 134, 184, 21, 22, 23, 149, 151, 168, 169, 177, 178, 179, 180, 181, 182],
+      "origin": {
+        "dimension": "overworld",
+        "spawn": true
+      },
+      "radius": 50,
+      "min_area": -1,
+      "max_area": 0
+    },
+    {
+      "name": "forbidden_basalt_near_nether_origin",
+      "biome_ids": [173],
+      "origin": {
+        "dimension": "nether",
+        "x": 0,
+        "z": 0
+      },
+      "radius": 100,
+      "min_area": -1,
+      "max_area": 0
+    }
+  ],
+  "structures": [
+    {
+      "name": "fortress_near_nether_origin",
+      "structure_id": "fortress",
+      "dimension": "nether",
+      "x": 0,
+      "z": 0,
+      "min_distance": -1,
+      "max_distance": 100
+    },
+    {
+      "name": "bastion_distance",
+      "structure_id": "bastion",
+      "dimension": "nether",
+      "x": 0,
+      "z": 0,
+      "min_distance": 75,
+      "max_distance": 200
+    },
+    {
+      "name": "desert_pyramid_not_too_close",
+      "structure_id": "desert_pyramid",
+      "dimension": "overworld",
+      "spawn": true,
+      "min_distance": 300,
+      "max_distance": -1
+    },
+    {
+      "name": "shipwreck_not_too_close",
+      "structure_id": "shipwreck",
+      "dimension": "overworld",
+      "spawn": true,
+      "min_distance": 150,
+      "max_distance": -1
+    }
+  ]
+}
