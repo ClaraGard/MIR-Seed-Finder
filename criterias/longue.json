@@ -108,7 +108,7 @@
       "name": "minimum_mansions",
       "structure_id": "mansion",
       "dimension": "overworld",
-      "count_radius": -1,
+      "count_radius": 10000,
       "min_count": 4,
       "max_count": -1
     },
@@ -116,7 +116,7 @@
       "name": "minimum_desert_pyramids",
       "structure_id": "desert_pyramid",
       "dimension": "overworld",
-      "count_radius": -1,
+      "count_radius": 10000,
       "min_count": 25,
       "max_count": -1
     }

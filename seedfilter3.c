@@ -5,6 +5,8 @@
 #include "noise.h"
 #include "util.h"
 #include "biomeareachecker.h"
+#include "criterialoader.h"
+#include "structurechecker.h"
 #include "rng.h"
 
 #include <stdint.h>
@@ -28,8 +30,6 @@
 #endif
 
 #define MC MC_1_21
-#define MAX_CITY_DIST       128
-#define MAX_FORTRESS_DIST   128
 
 static int64_t seed_as_i64(uint64_t bits)
 {
@@ -88,85 +88,6 @@ static int init_rng(Xoroshiro *rng)
 }
 
 
-static int floor_div(int a, int b)
-{
-    int q = a / b;
-    int r = a % b;
-    return q - (r != 0 && ((r < 0) != (b < 0)));
-}
-
-static double dist2(int x1, int z1, int x2, int z2)
-{
-    double dx = (double)x1 - x2;
-    double dz = (double)z1 - z2;
-    return dx * dx + dz * dz;
-}
-
-void freeBiomeResult(BiomeResult *result)
-{
-    if (!result)
-        return;
-
-    free(result->checks);
-    result->checks = NULL;
-    result->checkCount = 0;
-    result->evaluatedCount = 0;
-    result->passedCount = 0;
-    result->failedCount = 0;
-    result->allPassed = 0;
-    result->hasError = 0;
-}
-
-static int find_near_structure(
-    int structure, Generator *g, uint64_t seed,
-    int cx, int cz, int radius, Pos *best, double *best_d2,
-    const SurfaceNoise *end_surface)
-{
-    StructureConfig sc;
-
-    if (!getStructureConfig(structure, MC, &sc))
-        return 0;
-
-    int region_blocks = sc.regionSize * 16;
-    int rx0 = floor_div(cx - radius, region_blocks) - 1;
-    int rz0 = floor_div(cz - radius, region_blocks) - 1;
-    int rx1 = floor_div(cx + radius, region_blocks) + 1;
-    int rz1 = floor_div(cz + radius, region_blocks) + 1;
-
-    double nearest2 = (double)radius * radius;
-    int found = 0;
-
-    for (int rz = rz0; rz <= rz1; rz++) {
-        for (int rx = rx0; rx <= rx1; rx++) {
-            Pos p;
-
-            if (!getStructurePos(structure, MC, seed, rx, rz, &p))
-                continue;
-
-            double d = dist2(p.x, p.z, cx, cz);
-
-            if (d > nearest2)
-                continue;
-
-            if (!isViableStructurePos(structure, g, p.x, p.z, 0))
-                continue;
-
-            if (structure == End_City &&
-                !isViableEndCityTerrain(g, end_surface, p.x, p.z))
-                continue;
-
-            nearest2 = d;
-            *best = p;
-            found = 1;
-        }
-    }
-
-    if (found && best_d2)
-        *best_d2 = nearest2;
-
-    return found;
-}
-
 static void write_biome_results(
     FILE *out, uint64_t seed, const BiomeResult *result)
 {
@@ -203,95 +124,110 @@ static void write_biome_results(
     fputc('\n', out);
 }
 
-/*
- * Returns 1 if the seed passes every check, 0 otherwise.
- * Debug candidates are written only when passedCount reaches threshold.
- */
-static int test_seed(
-    uint64_t seed,
-    int smallBiomes,
-    const BiomeCriteria *criteria,
-    size_t biomethreshold,
-    FILE *out)
+/* Writes position/distance or count results for diagnostics and matches. */
+static void write_structure_results(FILE *out, uint64_t seed,
+                                    const char *label,
+                                    const StructureResult *result,
+                                    int isAmount)
+{
+    fprintf(out, "%s seed=%" PRId64
+                 " passed=%zu failed=%zu evaluated=%zu total=%zu\n",
+            label, seed_as_i64(seed), result->passedCount, result->failedCount,
+            result->evaluatedCount, result->checkCount);
+    for (size_t i = 0; i < result->checkCount; i++) {
+        const StructureCheckEntry *c = &result->checks[i];
+        const char *status = c->status == STRUCTURE_CHECK_PASSED ? "PASS" :
+                             c->status == STRUCTURE_CHECK_FAILED ? "FAIL" :
+                             c->status == STRUCTURE_CHECK_ERROR ? "ERROR" : "NOT EVALUATED";
+        if (c->status == STRUCTURE_CHECK_NOT_EVALUATED) {
+            fprintf(out, "  [%s] status=%s\n",
+                    c->name ? c->name : "(unnamed)", status);
+        } else if (isAmount) {
+            fprintf(out, "  [%s] count=%s%zu status=%s\n",
+                    c->name ? c->name : "(unnamed)",
+                    c->countExact ? "" : ">=", c->count, status);
+        } else if (c->distance >= 0) {
+            fprintf(out, "  [%s] pos=(%d,%d) distance=%.2f status=%s\n",
+                    c->name ? c->name : "(unnamed)",
+                    c->position.x, c->position.z, c->distance, status);
+        } else {
+            fprintf(out, "  [%s] no structure in checked radius status=%s\n",
+                    c->name ? c->name : "(unnamed)", status);
+        }
+    }
+    fputc('\n', out);
+}
+
+/* Cheap distance filters first, then biome maps, finally unbounded counts. */
+static int test_seed(uint64_t seed, int smallBiomes,
+                     const CriteriaConfig *config, size_t biomethreshold,
+                     FILE *out)
 {
     Generator ow, nether, end;
-
     setupGenerator(&ow, MC, 0);
     setupGenerator(&nether, MC, 0);
     setupGenerator(&end, MC, 0);
-
     ow.smallBiomes = smallBiomes;
-
     applySeed(&ow, DIM_OVERWORLD, seed);
     applySeed(&nether, DIM_NETHER, seed);
     applySeed(&end, DIM_END, seed);
 
-    Pos spawn = {0, 0};
-
-    Pos fortress;
-    double fortress_d2;
-
-    if (!find_near_structure(
-            Fortress, &nether, seed,
-            0, 0, MAX_FORTRESS_DIST,
-            &fortress, &fortress_d2, NULL))
+    StructureResult distances = checkStructureDistanceRequirements(
+        &config->structuresDistance, MC, seed,
+        &ow, &nether, &end, 0);
+    if (distances.hasError) {
+        fprintf(stderr, "Structure distance criteria error for seed %" PRIu64 "\n", seed);
+        freeStructureResult(&distances);
         return 0;
-
-    Pos sources[20];
-    getFixedEndGateways(MC, seed, sources);
-
-    EndNoise en;
-    setEndSeed(&en, MC, seed);
-
-    SurfaceNoise end_surface;
-    initSurfaceNoise(&end_surface, DIM_END, seed);
-
-    Pos gateway = getLinkedGatewayPos(
-        &en, &end_surface, seed, sources[0]);
-
-    Pos city;
-    double city_d2;
-
-    if (!find_near_structure(
-            End_City, &end, seed,
-            gateway.x, gateway.z, MAX_CITY_DIST,
-            &city, &city_d2, &end_surface))
-        return 0;
-
-
-    BiomeResult biomeCheck = checkBiomeRequirements(
-        criteria, &ow, &nether, &end,
-        spawn.x, spawn.z, 16, 0);
-
-    if (biomeCheck.hasError) {
-        fprintf(stderr,
-            "Biome criteria error for seed %" PRIu64 "\n", seed);
-        freeBiomeResult(&biomeCheck);
+    }
+    if (!distances.allPassed) {
+        freeStructureResult(&distances);
         return 0;
     }
 
-    if (!biomeCheck.allPassed) {
-        if (biomeCheck.passedCount >= biomethreshold)
-            write_biome_results(out, seed, &biomeCheck);
-
-        freeBiomeResult(&biomeCheck);
+    BiomeResult biomes = checkBiomeRequirements(
+        &config->biomes, &ow, &nether, &end,
+        seed, 16, 0);
+    if (biomes.hasError) {
+        fprintf(stderr, "Biome criteria error for seed %" PRIu64 "\n", seed);
+        freeBiomeResult(&biomes);
+        freeStructureResult(&distances);
+        return 0;
+    }
+    if (!biomes.allPassed) {
+        if (biomes.passedCount >= biomethreshold)
+            write_biome_results(out, seed, &biomes);
+        freeBiomeResult(&biomes);
+        freeStructureResult(&distances);
         return 0;
     }
 
-    freeBiomeResult(&biomeCheck);
+    StructureResult amounts = checkStructureAmountRequirements(
+        &config->structuresAmount, MC, seed,
+        &ow, &nether, &end, 0);
+    if (amounts.hasError) {
+        fprintf(stderr, "Structure amount criteria error for seed %" PRIu64 "\n", seed);
+        freeStructureResult(&amounts);
+        freeBiomeResult(&biomes);
+        freeStructureResult(&distances);
+        return 0;
+    }
+    if (!amounts.allPassed) {
+        if (biomes.passedCount >= biomethreshold)
+            write_structure_results(out, seed, "STRUCTURE_AMOUNT_DEBUG", &amounts, 1);
+        freeStructureResult(&amounts);
+        freeBiomeResult(&biomes);
+        freeStructureResult(&distances);
+        return 0;
+    }
 
-    fprintf(out,
-        "FOUND seed=%" PRId64
-        " | fortress=%d,%d distance=%.0f"
-        " | gateway=%d,%d"
-        " | city=%d,%d distance=%.0f\n\n",
-        seed_as_i64(seed),
-        fortress.x, fortress.z, sqrt(fortress_d2),
-        gateway.x, gateway.z,
-        city.x, city.z, sqrt(city_d2));
-
+    fprintf(out, "FOUND seed=%" PRId64 "\n", seed_as_i64(seed));
+    write_structure_results(out, seed, "STRUCTURES_DISTANCE", &distances, 0);
+    write_structure_results(out, seed, "STRUCTURES_AMOUNT", &amounts, 1);
     fflush(out);
-
+    freeStructureResult(&amounts);
+    freeBiomeResult(&biomes);
+    freeStructureResult(&distances);
     return 1;
 }
 
@@ -347,10 +283,10 @@ static int run_worker(int argc, char **argv)
         return 2;
     }
 
-    BiomeCriteria criteria = {0};
+    CriteriaConfig criteria = {0};
     char error[512];
 
-    if (!loadBiomeCriteria(argv[3], &criteria, error, sizeof(error))) {
+    if (!loadCriteriaConfig(argv[3], &criteria, error, sizeof(error))) {
         fprintf(stderr, "Could not load criteria: %s\n", error);
         return 2;
     }
@@ -359,7 +295,7 @@ static int run_worker(int argc, char **argv)
 
     if (!out) {
         perror("Could not open worker output");
-        freeBiomeCriteria(&criteria);
+        freeCriteriaConfig(&criteria);
         return 2;
     }
 
@@ -368,7 +304,7 @@ static int run_worker(int argc, char **argv)
     if (!init_rng(&rng)) {
         fprintf(stderr, "Failed to initialize worker RNG.\n");
         fclose(out);
-        freeBiomeCriteria(&criteria);
+        freeCriteriaConfig(&criteria);
         return 2;
     }
 
@@ -390,7 +326,7 @@ static int run_worker(int argc, char **argv)
     if (fclose(out) != 0)
         failed = 1;
 
-    freeBiomeCriteria(&criteria);
+    freeCriteriaConfig(&criteria);
     return failed ? 2 : 0;
 }
 

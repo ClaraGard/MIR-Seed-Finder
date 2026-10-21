@@ -1,27 +1,24 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <limits.h>
 #include <math.h>
 #include "finders.h"
 #include "generator.h"
 #include "biomeareachecker.h"
-#include "cJSON.h"
+#include "structurechecker.h"
+
+void freeBiomeResult(BiomeResult *result)
+{
+    if (!result) return;
+    free(result->checks);
+    *result = (BiomeResult){0};
+}
 
 static int floor_div(int a, int b)
 {
     int q = a / b;
     int r = a % b;
     return q - (r != 0 && ((r < 0) != (b < 0)));
-}
-
-static double dist2(int x1, int z1, int x2, int z2)
-{
-    double dx = (double)x1 - x2;
-    double dz = (double)z1 - z2;
-    return dx * dx + dz * dz;
 }
 
 BiomeMap generateBiomeMap(
@@ -233,307 +230,6 @@ int checkBiomeAreaConditions(
 }
 
 
-static void setError(char *error, size_t errorSize,
-                     const char *format, ...)
-{
-    if (!error || errorSize == 0)
-        return;
-
-    va_list args;
-    va_start(args, format);
-    vsnprintf(error, errorSize, format, args);
-    va_end(args);
-}
-
-static char *duplicateString(const char *s)
-{
-    size_t n = strlen(s) + 1;
-    char *copy = malloc(n);
-
-    if (copy)
-        memcpy(copy, s, n);
-
-    return copy;
-}
-
-void freeBiomeCriteria(BiomeCriteria *criteria)
-{
-    if (!criteria)
-        return;
-
-    for (size_t i = 0; i < criteria->count; i++) {
-        free(criteria->items[i].name);
-        free(criteria->items[i].biomeIds);
-    }
-
-    free(criteria->items);
-    criteria->items = NULL;
-    criteria->count = 0;
-}
-
-static cJSON *requiredField(const cJSON *object, const char *name)
-{
-    return cJSON_GetObjectItemCaseSensitive(object, name);
-}
-
-static int readInteger(const cJSON *object, const char *name,
-                       int *result)
-{
-    cJSON *value = requiredField(object, name);
-
-    if (!cJSON_IsNumber(value) ||
-        !isfinite(value->valuedouble) ||
-        value->valuedouble < INT_MIN ||
-        value->valuedouble > INT_MAX ||
-        floor(value->valuedouble) != value->valuedouble)
-        return 0;
-
-    *result = value->valueint;
-    return 1;
-}
-
-static int readDouble(const cJSON *object, const char *name,
-                      double *result)
-{
-    cJSON *value = requiredField(object, name);
-
-    if (!cJSON_IsNumber(value) || !isfinite(value->valuedouble))
-        return 0;
-
-    *result = value->valuedouble;
-    return 1;
-}
-
-static int readDimension(const cJSON *origin,
-                         BiomeDimension *dimension)
-{
-    cJSON *value = requiredField(origin, "dimension");
-
-    if (!cJSON_IsString(value))
-        return 0;
-
-    if (strcmp(value->valuestring, "overworld") == 0)
-        *dimension = CRITERION_DIM_OVERWORLD;
-    else if (strcmp(value->valuestring, "nether") == 0)
-        *dimension = CRITERION_DIM_NETHER;
-    else if (strcmp(value->valuestring, "end") == 0)
-        *dimension = CRITERION_DIM_END;
-    else
-        return 0;
-
-    return 1;
-}
-
-static int readBiomeCriterion(const cJSON *json,
-                              BiomeCriterion *out,
-                              char *error, size_t errorSize)
-{
-    memset(out, 0, sizeof(*out));
-
-    cJSON *name = requiredField(json, "name");
-    cJSON *ids = requiredField(json, "biome_ids");
-    cJSON *origin = requiredField(json, "origin");
-
-    if (!cJSON_IsString(name) ||
-        !cJSON_IsArray(ids) ||
-        !cJSON_IsObject(origin)) {
-        setError(error, errorSize,
-                 "Criterion requires name, biome_ids, and origin.");
-        return 0;
-    }
-
-    out->name = duplicateString(name->valuestring);
-    if (!out->name) {
-        setError(error, errorSize, "Out of memory reading criterion name.");
-        return 0;
-    }
-
-    if (!readDimension(origin, &out->dimension)) {
-        setError(error, errorSize,
-                 "Invalid dimension in criterion '%s'.", out->name);
-        return 0;
-    }
-
-    cJSON *spawn = requiredField(origin, "spawn");
-
-    if (spawn) {
-        if (!cJSON_IsBool(spawn)) {
-            setError(error, errorSize,
-                     "origin.spawn must be a boolean in '%s'.", out->name);
-            return 0;
-        }
-
-        out->useSpawn = cJSON_IsTrue(spawn);
-    }
-
-    if (!out->useSpawn &&
-        (!readInteger(origin, "x", &out->x) ||
-         !readInteger(origin, "z", &out->z))) {
-        setError(error, errorSize,
-                 "Origin needs x and z, or spawn:true, in '%s'.",
-                 out->name);
-        return 0;
-    }
-
-    if (!readInteger(json, "radius", &out->radius) ||
-        out->radius <= 0 ||
-        out->radius > INT_MAX / 2) {
-        setError(error, errorSize,
-                 "Invalid radius in criterion '%s'.", out->name);
-        return 0;
-    }
-
-    if (!readDouble(json, "min_area", &out->minArea) ||
-        !readDouble(json, "max_area", &out->maxArea) ||
-        (out->minArea < 0 && out->minArea != -1) ||
-        (out->maxArea < 0 && out->maxArea != -1) ||
-        (out->minArea >= 0 && out->maxArea >= 0 &&
-         out->minArea > out->maxArea)) {
-        setError(error, errorSize,
-                 "Invalid area bounds in criterion '%s'.", out->name);
-        return 0;
-    }
-
-    out->biomeIdCount = (size_t)cJSON_GetArraySize(ids);
-
-    if (out->biomeIdCount == 0) {
-        setError(error, errorSize,
-                 "Empty biome_ids array in criterion '%s'.", out->name);
-        return 0;
-    }
-
-    out->biomeIds = malloc(out->biomeIdCount * sizeof(int));
-    if (!out->biomeIds) {
-        setError(error, errorSize,
-                 "Out of memory reading biome IDs.");
-        return 0;
-    }
-
-    size_t i = 0;
-    cJSON *id;
-
-    cJSON_ArrayForEach(id, ids) {
-        if (!cJSON_IsNumber(id) ||
-            !isfinite(id->valuedouble) ||
-            floor(id->valuedouble) != id->valuedouble ||
-            id->valuedouble < 0 ||
-            id->valuedouble > INT_MAX) {
-            setError(error, errorSize,
-                     "Invalid biome ID in criterion '%s'.", out->name);
-            return 0;
-        }
-
-        out->biomeIds[i++] = id->valueint;
-    }
-
-    return 1;
-}
-
-/*
- * Returns 1 on success, 0 on failure.
- *
- * Loads only the "biomes" array. The "structures" array is ignored here.
- * On failure, error receives a diagnostic if its buffer is provided.
- */
-int loadBiomeCriteria(const char *filename,
-                      BiomeCriteria *out,
-                      char *error, size_t errorSize)
-{
-    if (!out || !filename) {
-        setError(error, errorSize, "Invalid loader arguments.");
-        return 0;
-    }
-
-    out->items = NULL;
-    out->count = 0;
-
-    if (error && errorSize)
-        error[0] = '\0';
-
-    FILE *file = fopen(filename, "rb");
-    if (!file) {
-        setError(error, errorSize, "Cannot open '%s'.", filename);
-        return 0;
-    }
-
-    if (fseek(file, 0, SEEK_END) != 0) {
-        fclose(file);
-        setError(error, errorSize, "Cannot seek in '%s'.", filename);
-        return 0;
-    }
-
-    long fileSize = ftell(file);
-    if (fileSize < 0 || fseek(file, 0, SEEK_SET) != 0 ||
-        (unsigned long)fileSize >= (unsigned long)SIZE_MAX) {
-        fclose(file);
-        setError(error, errorSize, "Invalid file size for '%s'.", filename);
-        return 0;
-    }
-
-    char *buffer = malloc((size_t)fileSize + 1);
-    if (!buffer) {
-        fclose(file);
-        setError(error, errorSize, "Out of memory reading '%s'.", filename);
-        return 0;
-    }
-
-    size_t bytesRead = fread(buffer, 1, (size_t)fileSize, file);
-    fclose(file);
-
-    if (bytesRead != (size_t)fileSize) {
-        free(buffer);
-        setError(error, errorSize, "Failed to read '%s'.", filename);
-        return 0;
-    }
-
-    buffer[bytesRead] = '\0';
-
-    cJSON *root = cJSON_Parse(buffer);
-    free(buffer);
-
-    if (!root) {
-        setError(error, errorSize, "Invalid JSON in '%s'.", filename);
-        return 0;
-    }
-
-    cJSON *biomes = requiredField(root, "biomes");
-
-    if (!cJSON_IsArray(biomes)) {
-        cJSON_Delete(root);
-        setError(error, errorSize,
-                 "Configuration must contain a 'biomes' array.");
-        return 0;
-    }
-
-    out->count = (size_t)cJSON_GetArraySize(biomes);
-    out->items = calloc(out->count, sizeof(BiomeCriterion));
-
-    if (out->count > 0 && !out->items) {
-        out->count = 0;
-        cJSON_Delete(root);
-        setError(error, errorSize, "Out of memory allocating criteria.");
-        return 0;
-    }
-
-    size_t i = 0;
-    cJSON *entry;
-
-    cJSON_ArrayForEach(entry, biomes) {
-        if (!cJSON_IsObject(entry) ||
-            !readBiomeCriterion(entry, &out->items[i],
-                                error, errorSize)) {
-            cJSON_Delete(root);
-            freeBiomeCriteria(out);
-            return 0;
-        }
-        i++;
-    }
-
-    cJSON_Delete(root);
-    return 1;
-}
-
-
 typedef struct {
     const Generator *generator;
     int centerX;
@@ -611,7 +307,7 @@ static BiomeMap *getCachedBiomeMap(
 /*
  * Checks all biome requirements.
  *
- * spawnX/spawnZ are the actual coordinates to use for origin.spawn:true.
+ * End spawn:true markers resolve to the seed-dependent first gateway.
  * Configure each Generator for the appropriate dimension before calling.
  *
  * scale should be one of the scales supported by generateBiomeMap(),
@@ -622,8 +318,7 @@ BiomeResult checkBiomeRequirements(
     const Generator *overworld,
     const Generator *nether,
     const Generator *end,
-    int spawnX,
-    int spawnZ,
+    uint64_t seed,
     int scale,
     int verbose)
 {
@@ -659,7 +354,22 @@ BiomeResult checkBiomeRequirements(
         goto error;
 
     size_t cacheCount = 0;
-    int result = 1;
+
+    /* The End gateway position changes with the seed; only compute it when
+       an End biome criterion actually uses the loader's reserved marker. */
+    Pos endGateway = {0, 0};
+    for (size_t i = 0; i < criteria->count; ++i) {
+        const BiomeCriterion *c = &criteria->items[i];
+        if (criterionUsesFirstEndGateway(c->dimension, c->x, c->z)) {
+            if (!end) {
+                out.hasError = 1;
+                out.allPassed = 0;
+                goto cleanup;
+            }
+            endGateway = firstLinkedEndGateway(end->mc, seed, NULL);
+            break;
+        }
+    }
 
     /*
      * Dimension indices:
@@ -693,7 +403,8 @@ BiomeResult checkBiomeRequirements(
                 break;
 
             default:
-                result = -1;
+                out.hasError = 1;
+                out.allPassed = 0;
                 goto cleanup;
         }
 
@@ -701,12 +412,15 @@ BiomeResult checkBiomeRequirements(
             criterion->dimension, overworld, nether, end);
 
         if (!generator) {
-            result = -1;
+            out.hasError = 1;
+            out.allPassed = 0;
             goto cleanup;
         }
 
-        int centerX = criterion->useSpawn ? spawnX : criterion->x;
-        int centerZ = criterion->useSpawn ? spawnZ : criterion->z;
+        int useGateway = criterionUsesFirstEndGateway(
+            criterion->dimension, criterion->x, criterion->z);
+        int centerX = useGateway ? endGateway.x : criterion->x;
+        int centerZ = useGateway ? endGateway.z : criterion->z;
         int radius = criterion->radius;
 
         int left   = centerX - radius;
@@ -823,7 +537,8 @@ BiomeResult checkBiomeRequirements(
             scale);
 
         if (!map) {
-            result = -1;
+            out.hasError = 1;
+            out.allPassed = 0;
             goto cleanup;
         }
 
@@ -836,10 +551,10 @@ BiomeResult checkBiomeRequirements(
             if ((int)criterion->dimension != dim)
                 continue;
 
-            int centerX = criterion->useSpawn
-                ? spawnX : criterion->x;
-            int centerZ = criterion->useSpawn
-                ? spawnZ : criterion->z;
+            int useGateway = criterionUsesFirstEndGateway(
+                criterion->dimension, criterion->x, criterion->z);
+            int centerX = useGateway ? endGateway.x : criterion->x;
+            int centerZ = useGateway ? endGateway.z : criterion->z;
             int width = criterion->radius * 2;
 
             /*
