@@ -108,14 +108,6 @@
         "max_area": -1
     },
     {
-        "name": "poplar_wood_area",
-        "biome_ids": [188],
-        "origin": {"dimension": "overworld", "spawn": true},
-        "radius": 2000,
-        "min_area": 3000,
-        "max_area": -1
-    },
-    {
         "name": "bamboo_area",
         "biome_ids": [168, 169],
         "origin": {"dimension": "overworld", "spawn": true},

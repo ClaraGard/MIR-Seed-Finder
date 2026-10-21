@@ -89,12 +89,12 @@ static int init_rng(Xoroshiro *rng)
 
 
 static void write_biome_results(
-    FILE *out, uint64_t seed, const BiomeResult *result)
+    FILE *out, uint64_t seed, const char *label, const BiomeResult *result)
 {
     fprintf(out,
-        "BIOME_DEBUG seed=%" PRId64
+        "%s seed=%" PRId64
         " passed=%zu failed=%zu evaluated=%zu total=%zu\n",
-        seed_as_i64(seed), result->passedCount, result->failedCount,
+        label, seed_as_i64(seed), result->passedCount, result->failedCount,
         result->evaluatedCount, result->checkCount);
 
     for (size_t i = 0; i < result->checkCount; i++) {
@@ -196,7 +196,7 @@ static int test_seed(uint64_t seed, int smallBiomes,
     }
     if (!biomes.allPassed) {
         if (biomes.passedCount >= biomethreshold)
-            write_biome_results(out, seed, &biomes);
+            write_biome_results(out, seed, "BIOME_DEBUG", &biomes);
         freeBiomeResult(&biomes);
         freeStructureResult(&distances);
         return 0;
@@ -223,6 +223,7 @@ static int test_seed(uint64_t seed, int smallBiomes,
 
     fprintf(out, "FOUND seed=%" PRId64 "\n", seed_as_i64(seed));
     write_structure_results(out, seed, "STRUCTURES_DISTANCE", &distances, 0);
+    write_biome_results(out, seed, "BIOMES", &biomes);
     write_structure_results(out, seed, "STRUCTURES_AMOUNT", &amounts, 1);
     fflush(out);
     freeStructureResult(&amounts);

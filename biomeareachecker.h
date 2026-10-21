@@ -2,6 +2,7 @@
 #define BIOMEAREACHECKER_H
 
 #include <stddef.h>
+#include <stdint.h>
 #include "generator.h"
 #include "criterialoader.h"
 
@@ -46,12 +47,21 @@ double estimateBiomeArea(const BiomeMap *map, int biomeId,
                          int queryCenterX, int queryCenterZ,
                          int queryWidth, int queryHeight);
 
+/* Combined area of biomeIds: 1=pass, 0=fail, -1=error.
+ * areaOut receives the exact total area (also for failed criteria).
+ */
+int checkBiomeAreaConditions(const BiomeMap *map,
+                             const int *biomeIds, size_t biomeIdCount,
+                             int queryCenterX, int queryCenterZ,
+                             int queryWidth, int queryHeight,
+                             double minSize, double maxSize,
+                             double *areaOut);
+
 void freeBiomeResult(BiomeResult *result);
 BiomeResult checkBiomeRequirements(const BiomeCriteria *criteria,
                            const Generator *overworld,
                            const Generator *nether,
                            const Generator *end,
-                           uint64_t seed,
-                           int scale, int verbose);
+                           uint64_t seed, int scale, int verbose);
 
 #endif
