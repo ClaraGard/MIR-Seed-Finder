@@ -148,6 +148,91 @@ double estimateBiomeArea(
     return area;
 }
 
+int checkBiomeAreaConditions(
+    const BiomeMap *map,
+    int biomeId,
+    int queryCenterX,
+    int queryCenterZ,
+    int queryWidth,
+    int queryHeight,
+    int minSize,
+    int maxSize
+) {
+    if (!map || !map->ids ||
+        map->sx <= 0 || map->sz <= 0 ||
+        map->scale <= 0 ||
+        queryWidth <= 0 || queryHeight <= 0)
+        return -1;
+
+    long long left = (long long)queryCenterX - queryWidth / 2;
+    long long top = (long long)queryCenterZ - queryHeight / 2;
+    long long right = left + queryWidth;
+    long long bottom = top + queryHeight;
+
+    long long mapLeft = (long long)map->x0 * map->scale;
+    long long mapTop = (long long)map->z0 * map->scale;
+    long long mapRight =
+        ((long long)map->x0 + map->sx) * map->scale;
+    long long mapBottom =
+        ((long long)map->z0 + map->sz) * map->scale;
+
+    if (left < mapLeft || right > mapRight ||
+        top < mapTop || bottom > mapBottom)
+        return -1;
+
+    if (minSize == -1 && maxSize == -1)
+        return 1;
+
+    double area = 0.0;
+    int scale = map->scale;
+
+    for (int iz = 0; iz < map->sz; iz++) {
+        long long cellTop =
+            ((long long)map->z0 + iz) * scale;
+        long long cellBottom = cellTop + scale;
+
+        long long overlapZ =
+            (cellBottom < bottom ? cellBottom : bottom) -
+            (cellTop > top ? cellTop : top);
+
+        if (overlapZ <= 0)
+            continue;
+
+        for (int ix = 0; ix < map->sx; ix++) {
+            if (map->ids[(size_t)iz * map->sx + ix] != biomeId)
+                continue;
+
+            long long cellLeft =
+                ((long long)map->x0 + ix) * scale;
+            long long cellRight = cellLeft + scale;
+
+            long long overlapX =
+                (cellRight < right ? cellRight : right) -
+                (cellLeft > left ? cellLeft : left);
+
+            if (overlapX <= 0)
+                continue;
+
+            area += (double)overlapX * overlapZ;
+
+            if (maxSize != -1 && area > maxSize)
+                return 0;
+
+            if (minSize != -1 && area >= minSize && maxSize == -1)
+                return 1;
+        }
+    }
+
+    if (minSize != -1 && area < minSize)
+        return 0;
+
+    if (maxSize != -1 && area > maxSize)
+        return 0;
+
+    return 1;
+}
+
+
 static void setError(char *error, size_t errorSize,
                      const char *format, ...)
 {
