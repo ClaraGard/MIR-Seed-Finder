@@ -5,6 +5,7 @@
 #include "noise.h"
 #include "util.h"
 #include "biomeareachecker.h"
+#include "rng.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -17,16 +18,75 @@
 
 #ifdef _WIN32
 #include <process.h>
-#include <io.h>
+#include <windows.h>
+#include <bcrypt.h>
 #else
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/random.h>
 #endif
 
 #define MC MC_1_21
 #define MAX_CITY_DIST       128
 #define MAX_FORTRESS_DIST   128
+
+static int64_t seed_as_i64(uint64_t bits)
+{
+    if (bits <= INT64_MAX)
+        return (int64_t)bits;
+
+    return INT64_MIN +
+        (int64_t)(bits - (UINT64_C(1) << 63));
+}
+
+static int os_random_bytes(void *buffer, size_t length)
+{
+#ifdef _WIN32
+    if (length > ULONG_MAX)
+        return 0;
+
+    return BCryptGenRandom(
+        NULL,
+        (PUCHAR)buffer,
+        (ULONG)length,
+        BCRYPT_USE_SYSTEM_PREFERRED_RNG
+    ) == 0;
+#else
+    unsigned char *p = (unsigned char *)buffer;
+
+    while (length > 0) {
+        ssize_t n = getrandom(p, length, 0);
+
+        if (n < 0) {
+            if (errno == EINTR)
+                continue;
+            return 0;
+        }
+
+        if (n == 0)
+            return 0;
+
+        p += (size_t)n;
+        length -= (size_t)n;
+    }
+
+    return 1;
+#endif
+}
+
+/* Initialize each worker's PRNG from the OS random number generator. */
+static int init_rng(Xoroshiro *rng)
+{
+    uint64_t seed;
+
+    if (!os_random_bytes(&seed, sizeof(seed)))
+        return 0;
+
+    xSetSeed(rng, seed);
+    return 1;
+}
+
 
 static int floor_div(int a, int b)
 {
@@ -111,9 +171,9 @@ static void write_biome_results(
     FILE *out, uint64_t seed, const BiomeResult *result)
 {
     fprintf(out,
-        "BIOME_DEBUG seed=%" PRIu64
+        "BIOME_DEBUG seed=%" PRId64
         " passed=%zu failed=%zu evaluated=%zu total=%zu\n",
-        seed, result->passedCount, result->failedCount,
+        seed_as_i64(seed), result->passedCount, result->failedCount,
         result->evaluatedCount, result->checkCount);
 
     for (size_t i = 0; i < result->checkCount; i++) {
@@ -168,27 +228,6 @@ static int test_seed(
 
     Pos spawn = {0, 0};
 
-    BiomeResult biomeCheck = checkBiomeRequirements(
-        criteria, &ow, &nether, &end,
-        spawn.x, spawn.z, 16, 0);
-
-    if (biomeCheck.hasError) {
-        fprintf(stderr,
-            "Biome criteria error for seed %" PRIu64 "\n", seed);
-        freeBiomeResult(&biomeCheck);
-        return 0;
-    }
-
-    if (!biomeCheck.allPassed) {
-        if (biomeCheck.passedCount >= biomethreshold)
-            write_biome_results(out, seed, &biomeCheck);
-
-        freeBiomeResult(&biomeCheck);
-        return 0;
-    }
-
-    freeBiomeResult(&biomeCheck);
-
     Pos fortress;
     double fortress_d2;
 
@@ -219,12 +258,34 @@ static int test_seed(
             &city, &city_d2, &end_surface))
         return 0;
 
+
+    BiomeResult biomeCheck = checkBiomeRequirements(
+        criteria, &ow, &nether, &end,
+        spawn.x, spawn.z, 16, 0);
+
+    if (biomeCheck.hasError) {
+        fprintf(stderr,
+            "Biome criteria error for seed %" PRIu64 "\n", seed);
+        freeBiomeResult(&biomeCheck);
+        return 0;
+    }
+
+    if (!biomeCheck.allPassed) {
+        if (biomeCheck.passedCount >= biomethreshold)
+            write_biome_results(out, seed, &biomeCheck);
+
+        freeBiomeResult(&biomeCheck);
+        return 0;
+    }
+
+    freeBiomeResult(&biomeCheck);
+
     fprintf(out,
-        "FOUND seed=%" PRIu64
+        "FOUND seed=%" PRId64
         " | fortress=%d,%d distance=%.0f"
         " | gateway=%d,%d"
         " | city=%d,%d distance=%.0f\n\n",
-        seed,
+        seed_as_i64(seed),
         fortress.x, fortress.z, sqrt(fortress_d2),
         gateway.x, gateway.z,
         city.x, city.z, sqrt(city_d2));
@@ -268,22 +329,20 @@ static int parse_small_biomes(const char *s, int *value)
 
 /*
  * Internal worker mode:
- * executable --worker START COUNT CRITERIA THRESHOLD TEMP_FILE SMALL_BIOMES
- */
+* executable --worker COUNT CRITERIA THRESHOLD TEMP_FILE SMALL_BIOMES 
+*/
 static int run_worker(int argc, char **argv)
 {
-    if (argc != 8)
+    if (argc != 7)
         return 2;
 
-    uint64_t start, count, threshold64;
+    uint64_t count, threshold64;
     int smallBiomes;
 
-    if (!parse_u64(argv[2], &start) ||
-        !parse_u64(argv[3], &count) || count == 0 ||
-        !parse_u64(argv[5], &threshold64) ||
+    if (!parse_u64(argv[2], &count) || count == 0 ||
+        !parse_u64(argv[4], &threshold64) ||
         threshold64 > SIZE_MAX ||
-        !parse_small_biomes(argv[7], &smallBiomes) ||
-        start > UINT64_MAX - (count - 1)) {
+        !parse_small_biomes(argv[6], &smallBiomes)) {
         fprintf(stderr, "Invalid worker arguments.\n");
         return 2;
     }
@@ -291,12 +350,12 @@ static int run_worker(int argc, char **argv)
     BiomeCriteria criteria = {0};
     char error[512];
 
-    if (!loadBiomeCriteria(argv[4], &criteria, error, sizeof(error))) {
+    if (!loadBiomeCriteria(argv[3], &criteria, error, sizeof(error))) {
         fprintf(stderr, "Could not load criteria: %s\n", error);
         return 2;
     }
 
-    FILE *out = fopen(argv[6], "w");
+    FILE *out = fopen(argv[5], "w");
 
     if (!out) {
         perror("Could not open worker output");
@@ -304,19 +363,30 @@ static int run_worker(int argc, char **argv)
         return 2;
     }
 
+    Xoroshiro rng;
+
+    if (!init_rng(&rng)) {
+        fprintf(stderr, "Failed to initialize worker RNG.\n");
+        fclose(out);
+        freeBiomeCriteria(&criteria);
+        return 2;
+    }
+
     for (uint64_t i = 0; i < count; i++) {
-        test_seed(start + i, smallBiomes, &criteria,
-                  (size_t)threshold64, out);
+        uint64_t seed = xNextLong(&rng);
+
+        test_seed(seed, smallBiomes, &criteria,
+                (size_t)threshold64, out);
 
         if ((i + 1) % 100000 == 0) {
             fprintf(stderr,
-                "Worker starting at %" PRIu64
-                ": checked %" PRIu64 " seeds\n",
-                start, i + 1);
+                "Worker checked %" PRIu64 " seeds\n",
+                i + 1);
         }
     }
 
     int failed = ferror(out);
+
     if (fclose(out) != 0)
         failed = 1;
 
@@ -371,24 +441,22 @@ int main(int argc, char **argv)
     if (argc > 1 && !strcmp(argv[1], "--worker"))
         return run_worker(argc, argv);
 
-    if (argc < 7 || argc > 8) {
+    if (argc < 6 || argc > 7) {
         fprintf(stderr,
-            "Usage: %s <starting-seed> <number-of-seeds> "
-            "<criteria.json> <biomethreshold> <output-file> "
+            "Usage: %s <number-of-seeds> <criteria.json> "
+            "<biomethreshold> <output-file> "
             "<processes> [true|false]\n",
             argv[0]);
         return 1;
     }
 
-    uint64_t start, count, threshold64, processes64;
+    uint64_t count, threshold64, processes64;
 
-    if (!parse_u64(argv[1], &start) ||
-        !parse_u64(argv[2], &count) || count == 0 ||
-        !parse_u64(argv[4], &threshold64) ||
-        !parse_u64(argv[6], &processes64) || processes64 == 0 ||
-        processes64 > INT_MAX ||
-        start > UINT64_MAX - (count - 1)) {
-        fprintf(stderr, "Invalid numeric argument or seed range.\n");
+    if (!parse_u64(argv[1], &count) || count == 0 ||
+        !parse_u64(argv[3], &threshold64) ||
+        !parse_u64(argv[5], &processes64) ||
+        processes64 == 0 || processes64 > INT_MAX) {
+        fprintf(stderr, "Invalid numeric argument.\n");
         return 1;
     }
 
@@ -399,7 +467,7 @@ int main(int argc, char **argv)
 
     int smallBiomes = 0;
 
-    if (argc == 8 && !parse_small_biomes(argv[7], &smallBiomes)) {
+    if (argc == 7 && !parse_small_biomes(argv[6], &smallBiomes)) {
         fprintf(stderr, "Biome option must be true, false, 1, or 0.\n");
         return 1;
     }
@@ -416,7 +484,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    size_t path_len = strlen(argv[5]) + 48;
+    size_t path_len = strlen(argv[4]) + 48;
 
     for (int i = 0; i < workers; i++) {
         temp_paths[i] = malloc(path_len);
@@ -430,12 +498,11 @@ int main(int argc, char **argv)
         }
 
         snprintf(temp_paths[i], path_len,
-                 "%s.worker.%d.tmp", argv[5], i);
+                 "%s.worker.%d.tmp", argv[4], i);
     }
 
     uint64_t base = count / (uint64_t)workers;
     uint64_t remainder = count % (uint64_t)workers;
-    uint64_t offset = 0;
 
 #ifdef _WIN32
     intptr_t *pids = calloc((size_t)workers, sizeof(intptr_t));
@@ -445,6 +512,9 @@ int main(int argc, char **argv)
 
     if (!pids) {
         perror("calloc");
+        for (int i = 0; i < workers; i++)
+            free(temp_paths[i]);
+        free(temp_paths);
         return 1;
     }
 
@@ -457,21 +527,18 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < workers; i++) {
         uint64_t chunk = base + ((uint64_t)i < remainder ? 1 : 0);
-        uint64_t chunk_start = start + offset;
-        offset += chunk;
 
-        char start_str[32], count_str[32], threshold_str[32];
+        char count_str[32], threshold_str[32];
         char small_str[8];
 
-        snprintf(start_str, sizeof(start_str), "%" PRIu64, chunk_start);
         snprintf(count_str, sizeof(count_str), "%" PRIu64, chunk);
         snprintf(threshold_str, sizeof(threshold_str),
-                 "%" PRIu64, threshold64);
+                "%" PRIu64, threshold64);
         snprintf(small_str, sizeof(small_str), "%d", smallBiomes);
 
         char *child_argv[] = {
-            argv[0], "--worker", start_str, count_str,
-            argv[3], threshold_str, temp_paths[i], small_str, NULL
+            argv[0], "--worker", count_str,
+            argv[2], threshold_str, temp_paths[i], small_str, NULL
         };
 
 #ifdef _WIN32
@@ -523,8 +590,8 @@ int main(int argc, char **argv)
     }
 
     if (!failed && launched == workers) {
-        if (merge_files(argv[5], temp_paths, workers))
-            fprintf(stderr, "Results written to %s\n", argv[5]);
+        if (merge_files(argv[4], temp_paths, workers))
+            fprintf(stderr, "Results written to %s\n", argv[4]);
         else
             failed = 1;
     } else {

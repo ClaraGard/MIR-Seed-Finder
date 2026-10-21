@@ -9,4 +9,6 @@ docs/LayerSummary.toc
 *.o
 *.a
 a.out
-
+*.txt
+*.tmp
+*.exe

@@ -59,7 +59,7 @@
       "max_area": 0
     }
   ],
-  "structures": [
+  "structures_distance": [
     {
       "name": "fortress_near_nether_origin",
       "structure_id": "fortress",
@@ -98,11 +98,12 @@
       "name": "end_city_near_spawn",
       "structure_id": "end_city",
       "dimension": "end",
-      "x": 0,
-      "z": 0,
+      "spawn": true,
       "min_distance": -1,
       "max_distance": 500
-    },
+    }
+  ],
+  "structures_amount": [
     {
       "name": "minimum_mansions",
       "structure_id": "mansion",
