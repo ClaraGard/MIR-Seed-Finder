@@ -160,22 +160,25 @@ int checkBiomeAreaConditions(
     int queryWidth,
     int queryHeight,
     double minSize,
-    double maxSize,
-    double *areaOut)
+    double maxSize)
 {
-    if (areaOut)
-        *areaOut = -1.0;
-
     if (!map || !map->ids || !biomeIds || biomeIdCount == 0 ||
         map->sx <= 0 || map->sz <= 0 || map->scale <= 0 ||
         queryWidth <= 0 || queryHeight <= 0 ||
         !isfinite(minSize) || !isfinite(maxSize) ||
         (minSize < 0.0 && minSize != -1.0) ||
         (maxSize < 0.0 && maxSize != -1.0) ||
-        (minSize != -1.0 && maxSize != -1.0 && minSize > maxSize))
+        (minSize != -1.0 && maxSize != -1.0 &&
+         minSize > maxSize))
         return -1;
 
-    /* The rectangle is [left, right) x [top, bottom) in block units. */
+    const int hasMin = (minSize != -1.0);
+    const int hasMax = (maxSize != -1.0);
+
+    /* No constraints. */
+    if (!hasMin && !hasMax)
+        return 1;
+
     long long left = (long long)queryCenterX - queryWidth / 2;
     long long top = (long long)queryCenterZ - queryHeight / 2;
     long long right = left + queryWidth;
@@ -183,50 +186,100 @@ int checkBiomeAreaConditions(
 
     long long mapLeft = (long long)map->x0 * map->scale;
     long long mapTop = (long long)map->z0 * map->scale;
-    long long mapRight = ((long long)map->x0 + map->sx) * map->scale;
-    long long mapBottom = ((long long)map->z0 + map->sz) * map->scale;
+    long long mapRight =
+        ((long long)map->x0 + map->sx) * map->scale;
+    long long mapBottom =
+        ((long long)map->z0 + map->sz) * map->scale;
 
     if (left < mapLeft || right > mapRight ||
         top < mapTop || bottom > mapBottom)
         return -1;
 
-    /* Cubiomes biome IDs fit in a byte in current versions. Fall back to
-       linear matching for any future IDs beyond the fast lookup table. */
     unsigned char included[256] = {0};
     int hasLargeIds = 0;
+
     for (size_t i = 0; i < biomeIdCount; ++i) {
-        if (biomeIds[i] < 0)
+        int id = biomeIds[i];
+
+        if (id < 0)
             return -1;
-        if (biomeIds[i] < 256)
-            included[biomeIds[i]] = 1;
+
+        if (id < 256)
+            included[id] = 1;
         else
             hasLargeIds = 1;
     }
 
     const int scale = map->scale;
-    /* Only visit cells overlapping the query rectangle. All quotients are
-       nonnegative because the query has already been bounds-checked. */
+
     int x0 = (int)((left - mapLeft) / scale);
     int z0 = (int)((top - mapTop) / scale);
     int x1 = (int)((right - mapLeft + scale - 1) / scale);
     int z1 = (int)((bottom - mapTop + scale - 1) / scale);
+
     if (x1 > map->sx) x1 = map->sx;
     if (z1 > map->sz) z1 = map->sz;
 
     double area = 0.0;
+
+    /*
+     * Maximum possible matching area in the query.
+     * Decreases as cells are processed.
+     */
+    double remaining =
+        (double)queryWidth * (double)queryHeight;
+
+    /* Impossible to reach the minimum. */
+    if (hasMin && remaining < minSize)
+        return 0;
+
+    /*
+     * If the minimum is already met and even the
+     * entire query fits under the maximum, succeed.
+     */
+    if ((!hasMin || minSize <= 0.0) &&
+        (!hasMax || remaining <= maxSize))
+        return 1;
+
+    const double fullCellArea = (double)scale * scale;
+
     for (int iz = z0; iz < z1; ++iz) {
-        long long cellTop = ((long long)map->z0 + iz) * scale;
+        long long cellTop =
+            ((long long)map->z0 + iz) * scale;
         long long cellBottom = cellTop + scale;
+
         long long overlapZ =
             (cellBottom < bottom ? cellBottom : bottom) -
             (cellTop > top ? cellTop : top);
-        if (overlapZ <= 0)
-            continue;
 
         for (int ix = x0; ix < x1; ++ix) {
+            long long overlapArea;
+
+            /*
+             * Interior cells have full area.
+             * Only boundary cells need clipping.
+             */
+            if (overlapZ == scale &&
+                ix > x0 && ix < x1 - 1) {
+                overlapArea = (long long)scale * scale;
+            } else {
+                long long cellLeft =
+                    ((long long)map->x0 + ix) * scale;
+                long long cellRight = cellLeft + scale;
+
+                long long overlapX =
+                    (cellRight < right ? cellRight : right) -
+                    (cellLeft > left ? cellLeft : left);
+
+                overlapArea = overlapX * overlapZ;
+            }
+
             int id = map->ids[(size_t)iz * map->sx + ix];
-            int matches = (id >= 0 && id < 256 && included[id]);
-            if (!matches && hasLargeIds) {
+
+            int matches =
+                (id >= 0 && id < 256 && included[id]);
+
+            if (!matches && hasLargeIds && id >= 256) {
                 for (size_t k = 0; k < biomeIdCount; ++k) {
                     if (biomeIds[k] == id) {
                         matches = 1;
@@ -234,24 +287,36 @@ int checkBiomeAreaConditions(
                     }
                 }
             }
-            if (!matches)
-                continue;
 
-            long long cellLeft = ((long long)map->x0 + ix) * scale;
-            long long cellRight = cellLeft + scale;
-            long long overlapX =
-                (cellRight < right ? cellRight : right) -
-                (cellLeft > left ? cellLeft : left);
-            if (overlapX > 0)
-                area += (double)overlapX * overlapZ;
+            if (matches) {
+                area += (double)overlapArea;
+
+                /* Maximum exceeded: impossible. */
+                if (hasMax && area > maxSize)
+                    return 0;
+            }
+
+            remaining -= (double)overlapArea;
+
+            /*
+             * Even if every remaining cell matches,
+             * the minimum cannot be reached.
+             */
+            if (hasMin && area + remaining < minSize)
+                return 0;
+
+            /*
+             * Minimum reached, and the maximum
+             * cannot be exceeded by remaining cells.
+             */
+            if ((!hasMin || area >= minSize) &&
+                (!hasMax || area + remaining <= maxSize))
+                return 1;
         }
     }
 
-    if (areaOut)
-        *areaOut = area;
-
-    return (minSize == -1.0 || area >= minSize) &&
-           (maxSize == -1.0 || area <= maxSize);
+    return (!hasMin || area >= minSize) &&
+           (!hasMax || area <= maxSize);
 }
 
 
@@ -584,7 +649,6 @@ BiomeResult checkBiomeRequirements(
 
             /* OR semantics: sum all matching biomes in one map pass,
                counting each sampled cell only once. */
-            double area = -1.0;
             int passed = checkBiomeAreaConditions(
                 map,
                 criterion->biomeIds,
@@ -594,8 +658,7 @@ BiomeResult checkBiomeRequirements(
                 width,
                 width,
                 criterion->minArea,
-                criterion->maxArea,
-                &area
+                criterion->maxArea
             );
 
             if (passed < 0) {
@@ -618,7 +681,6 @@ BiomeResult checkBiomeRequirements(
             /* Record this check's result. */
             BiomeCheckResult *check = &out.checks[i];
 
-            check->area = area;
             check->status = passed
                 ? BIOME_CHECK_PASSED
                 : BIOME_CHECK_FAILED;
@@ -634,9 +696,8 @@ BiomeResult checkBiomeRequirements(
             }
 
             if (verbose) {
-                printf("[%s] area = %.2f blocks^2 : %s\n",
+                printf("[%s] : %s\n",
                     criterion->name,
-                    area,
                     passed ? "PASS" : "FAIL");
             }
 

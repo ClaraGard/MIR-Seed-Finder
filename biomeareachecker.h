@@ -54,8 +54,7 @@ int checkBiomeAreaConditions(const BiomeMap *map,
                              const int *biomeIds, size_t biomeIdCount,
                              int queryCenterX, int queryCenterZ,
                              int queryWidth, int queryHeight,
-                             double minSize, double maxSize,
-                             double *areaOut);
+                             double minSize, double maxSize);
 
 void freeBiomeResult(BiomeResult *result);
 BiomeResult checkBiomeRequirements(const BiomeCriteria *criteria,
