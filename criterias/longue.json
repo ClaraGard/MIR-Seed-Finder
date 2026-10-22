@@ -86,7 +86,7 @@
       "dimension": "nether",
       "x": 0,
       "z": 0,
-      "min_distance": 75,
+      "min_distance": 50,
       "max_distance": 200
     },
     {
@@ -111,7 +111,7 @@
       "dimension": "end",
       "spawn": true,
       "min_distance": -1,
-      "max_distance": 500
+      "max_distance": 128
     }
   ],
   "structures_amount": [
