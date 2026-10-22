@@ -1,310 +1,286 @@
-# cubiomes
+# Minecraft Seed Filter
 
-Cubiomes is a standalone library, written in C, that mimics the biome and feature generation of Minecraft Java Edition.
-It is intended as a powerful tool to devise very fast, custom seed-finding applications and large-scale map viewers with minimal memory usage.
+A multithreaded Minecraft seed search tool written in C, built on [Cubiomes](https://github.com/Cubitect/cubiomes). It tests randomly generated 64-bit seeds against configurable biome-area and structure requirements defined in JSON.
 
+The current source targets **Minecraft Java Edition 1.21** (`#define MC MC_1_21`). If you are targeting a different version, review the version selection and compatibility of the Cubiomes code before building.
 
-#### Cubiomes-Viewer
+## Features
 
-If you want to get started without coding, there is now also a [graphical application](https://github.com/Cubitect/cubiomes-viewer) based on this library.
+- Tests random 64-bit Minecraft seeds using multiple worker processes.
+- Filters by the total area covered by one or more biome IDs in a region.
+- Filters by the distance to structures and the number of structures within a radius.
+- Supports the Overworld, Nether and End, including an origin based on the first linked End gateway.
+- Writes fully matching seeds and optional near-match diagnostics to a text file.
+- Supports an optional custom small-biomes Overworld generation mode.
 
+## Requirements
 
-#### Audience
+- A C compiler such as GCC (MinGW-w64 on Windows).
+- The Cubiomes sources and the project's custom `.c`/`.h` files in your build directory.
+- `cJSON.c` and `cJSON.h`.
+- On Windows, the system BCrypt library (linked with `-lbcrypt`).
 
-You should be familiar with the C programming language. A basic understanding of the Minecraft biome generation process would also be helpful.
+## Building
 
+Run the following command from the directory containing the source files.
 
-## Getting Started
+### Windows (MinGW-w64 / GCC)
 
-This section is meant to give you a quick starting point with small example programs if you want to use this library to find your own biome-dependent features.
+```bash
+gcc -O3 -o seedfilter.exe seedfilter3.c biomes.c biomenoise.c finders.c generator.c layers.c noise.c quadbase.c util.c biomeareachecker.c criterialoader.c structurechecker.c cJSON.c -lm -lbcrypt
+```
 
+### Linux (GCC)
 
-### Biome Generator
+```bash
+gcc -O3 -o seedfilter seedfilter3.c biomes.c biomenoise.c finders.c generator.c layers.c noise.c quadbase.c util.c biomeareachecker.c criterialoader.c structurechecker.c cJSON.c -lm
+```
 
-Let's create a simple program called `find_biome_at.c` which tests seeds for a Mushroom Fields biome at a predefined location.
+The Linux implementation uses `getrandom()`, so this command is intended for Linux rather than macOS. If you have renamed `seedfilter3.c` or your source files, update the command accordingly. You can add `-march=native` for a machine-specific optimized build.
 
-```C
-// check the biome at a block position
-#include "generator.h"
-#include <stdio.h>
+## Running
 
-int main()
+```text
+seedfilter <number-of-seeds> <criteria.json> <biomethreshold> <output-file> <processes> [true|false]
+```
+
+On Windows, use `seedfilter.exe`; on Linux, use `./seedfilter`.
+
+| Argument | Meaning |
+| --- | --- |
+| `number-of-seeds` | Total number of random seeds to test, across all workers (positive integer). |
+| `criteria.json` | Path to a JSON file containing the filter rules. |
+| `biomethreshold` | Minimum number of passed biome criteria needed to save diagnostics for a rejected candidate. `0` logs many more rejected candidates. It does **not** relax the requirements for a `FOUND` seed. |
+| `output-file` | Destination text file (for example, `results.txt`). |
+| `processes` | Number of parallel worker processes. |
+| `true|false` | Optional small-biomes mode; defaults to `false`. Also accepts `1` or `0`. |
+
+**Example (Windows):**
+
+```bash
+./seedfilter.exe 1000000 filters.json 5 results.txt 8 false
+```
+
+**Example (Linux):**
+
+```bash
+./seedfilter 1000000 filters.json 5 results.txt 8 false
+```
+
+This tests **1,000,000 seeds in total** using **8 processes**, loads `filters.json`, and saves fully matching seeds plus qualifying diagnostic entries to `results.txt`.
+
+Each worker generates its own pseudorandom sequence, initialized from operating-system randomness. The command does not take a starting seed, and repeated runs do not search a reproducible sequence. Workers write separate temporary files, which are merged into the final output when they finish.
+
+## Creating filter JSON files
+
+The JSON root object contains three arrays:
+
+- `biomes` — biome area requirements (**required**, but may be empty).
+- `structures_distance` — nearest-structure distance requirements (optional).
+- `structures_amount` — structure count requirements (optional).
+
+**All criteria must pass** for a seed to be written as `FOUND`. Within a *single* `biome_ids` array, however, the IDs are treated as alternatives: the filter measures the **combined area** of any of those biomes. To require separate biome types, put them in separate criteria.
+
+Create a file named `filters.json`:
+
+```json
 {
-    // Set up a biome generator that reflects the biome generation of
-    // Minecraft 1.18.
-    Generator g;
-    setupGenerator(&g, MC_1_18, 0);
-
-    // Seeds are internally represented as unsigned 64-bit integers.
-    uint64_t seed;
-    for (seed = 0; ; seed++)
+  "biomes": [
     {
-        // Apply the seed to the generator for the Overworld dimension.
-        applySeed(&g, DIM_OVERWORLD, seed);
-
-        // To get the biome at a single block position, we can use getBiomeAt().
-        int scale = 1; // scale=1: block coordinates, scale=4: biome coordinates
-        int x = 0, y = 63, z = 0;
-        int biomeID = getBiomeAt(&g, scale, x, y, z);
-        if (biomeID == mushroom_fields)
-        {
-            printf("Seed %" PRId64 " has a Mushroom Fields biome at "
-                "block position (%d, %d).\n", (int64_t) seed, x, z);
-            break;
-        }
-    }
-
-    return 0;
-}
-```
-
-You can compile this code either by directly adding a target to the makefile via
-```
-$ cd cubiomes
-$ make
-```
-...or you can compile and link to a cubiomes archive using either of the following commands.
-```
-$ gcc find_biome_at.c libcubiomes.a -fwrapv -lm   # static
-$ gcc find_biome_at.c -L. -lcubiomes -fwrapv -lm  # dynamic
-```
-Both commands assume that your source code is saved as `find_biome_at.c` in the cubiomes working directory. If your makefile is configured to use pthreads, you may also need to add the `-lpthread` option for the compiler.
-The option `-fwrapv` enforces two's complement for signed integer overflow, which is otherwise undefined behavior. It is not really necessary for this example, but it is a common pitfall when dealing with code that emulates the behavior of Java.
-Running the program should output:
-```
-$ ./a.out
-Seed 262 has a Mushroom Fields biome at block position (0, 0).
-```
-
-### Biome Generation in a Range
-
-We can also generate biomes for an area or volume using `genBiomes()`. This will utilize whatever optimizations are available for the generator, which can be much faster than generating each position individually. (The layered generators for versions up to 1.17 will benefit significantly more from this than the noise-based ones.)
-
-Before we can generate the biomes for an area or volume, we need to define the bounds with a `Range` structure and allocate the necessary buffer using `allocCache()`. The `Range` is described by a scale, position, and size, where each cell inside the `Range` represents an amount of `scale` blocks in the horizontal axes. The vertical direction is treated separately and always follows the biome coordinate scaling of 1:4, except for when `scale == 1`, in which case the vertical scaling is also 1:1.
-
-The only supported values for `scale` are 1, 4, 16, 64, and (for the Overworld) 256. For versions up to 1.17, the scale is matched to an appropriate biome layer and will influence the biomes that can generate.
-
-```C
-// generate an image of the world
-#include "generator.h"
-#include "util.h"
-
-int main()
-{
-    Generator g;
-    setupGenerator(&g, MC_1_18, LARGE_BIOMES);
-
-    uint64_t seed = 123LL;
-    applySeed(&g, DIM_OVERWORLD, seed);
-
-    Range r;
-    // 1:16, a.k.a. horizontal chunk scaling
-    r.scale = 16;
-    // Define the position and size for a horizontal area:
-    r.x = -60, r.z = -60;   // position (x,z)
-    r.sx = 120, r.sz = 120; // size (width,height)
-    // Set the vertical range as a plane near sea level at scale 1:4.
-    r.y = 15, r.sy = 1;
-
-    // Allocate the necessary cache for this range.
-    int *biomeIds = allocCache(&g, r);
-
-    // Generate the area inside biomeIds, indexed as:
-    // biomeIds[i_y*r.sx*r.sz + i_z*r.sx + i_x]
-    // where (i_x, i_y, i_z) is a position relative to the range cuboid.
-    genBiomes(&g, biomeIds, r);
-
-    // Map the biomes to an image buffer, with 4 pixels per biome cell.
-    int pix4cell = 4;
-    int imgWidth = pix4cell*r.sx, imgHeight = pix4cell*r.sz;
-    unsigned char biomeColors[256][3];
-    initBiomeColors(biomeColors);
-    unsigned char *rgb = (unsigned char *) malloc(3*imgWidth*imgHeight);
-    biomesToImage(rgb, biomeColors, biomeIds, r.sx, r.sz, pix4cell, 2);
-
-    // Save the RGB buffer to a PPM image file.
-    savePPM("map.ppm", rgb, imgWidth, imgHeight);
-
-    // Clean up.
-    free(biomeIds);
-    free(rgb);
-
-    return 0;
-}
-```
-
-
-### Structure Generation
-
-The generation of structures can usually be regarded as a two-stage process: generation attempts and biome checks. For most structures, Minecraft divides the world into a grid of regions (usually 32x32 chunks) and performs one generation attempt in each. We can use `getStructurePos()` to get the position of such a generation attempt, and then test whether a structure will actually generate there with `isViableStructurePos()`; however, this is more expensive to compute (requiring many microseconds instead of nanoseconds).
-
-Note: some structures (in particular desert pyramids, jungle temples, and woodland mansions) in 1.18 no longer depend solely on the biomes and can also fail to generate based on the surface height near the generation attempt. Unfortunately, cubiomes does not provide block-level world generation and cannot check for this, and may therefore yield false positive positions. Support for an approximation of the surface height might be added in the future to improve accuracy.
-
-
-```C
-// find a seed with a certain structure at the origin chunk
-#include "finders.h"
-#include <stdio.h>
-
-int main()
-{
-    int structType = Outpost;
-    int mc = MC_1_18;
-
-    Generator g;
-    setupGenerator(&g, mc, 0);
-
-    uint64_t lower48;
-    for (lower48 = 0; ; lower48++)
+      "name": "Plains or forest near origin",
+      "biome_ids": [1, 4],
+      "origin": { "dimension": "overworld", "spawn": true },
+      "radius": 256,
+      "min_area": 10000,
+      "max_area": -1
+    },
     {
-        // The structure position depends only on the region coordinates and
-        // the lower 48-bits of the world seed.
-        Pos p;
-        if (!getStructurePos(structType, mc, lower48, 0, 0, &p))
-            continue;
-
-        // Look for a seed with the structure at the origin chunk.
-        if (p.x >= 16 || p.z >= 16)
-            continue;
-
-        // Look for a full 64-bit seed with viable biomes.
-        uint64_t upper16;
-        for (upper16 = 0; upper16 < 0x10000; upper16++)
-        {
-            uint64_t seed = lower48 | (upper16 << 48);
-            applySeed(&g, DIM_OVERWORLD, seed);
-            if (isViableStructurePos(structType, &g, p.x, p.z, 0))
-            {
-                printf("Seed %" PRId64 " has a Pillager Outpost at (%d, %d).\n",
-                    (int64_t) seed, p.x, p.z);
-                return 0;
-            }
-        }
+      "name": "Warped forest near Nether origin",
+      "biome_ids": [172],
+      "origin": { "dimension": "nether", "spawn": true },
+      "radius": 128,
+      "min_area": 1,
+      "max_area": -1
     }
+  ],
+  "structures_distance": [
+    {
+      "name": "Fortress near Nether origin",
+      "structure_id": "fortress",
+      "dimension": "nether",
+      "spawn": true,
+      "min_distance": -1,
+      "max_distance": 128
+    },
+    {
+      "name": "End city near gateway",
+      "structure_id": "end_city",
+      "dimension": "end",
+      "spawn": true,
+      "min_distance": -1,
+      "max_distance": 256
+    }
+  ],
+  "structures_amount": [
+    {
+      "name": "At least two villages",
+      "structure_id": "village",
+      "dimension": "overworld",
+      "spawn": true,
+      "count_radius": 1024,
+      "min_count": 2,
+      "max_count": -1
+    }
+  ]
 }
 ```
 
-#### Quad-Witch-Huts
+> **Biome IDs are Cubiomes numeric IDs**, not Minecraft namespaced identifiers (such as `minecraft:plains`). Verify IDs in the `enum BiomeID` in `biomes.h` for your Cubiomes version. The JSON example is illustrative; check the numeric ID of any biome you change or add.
 
-A commonly desired feature is Quad-Witch-Huts or similar multi-structure clusters. To test for these types of seeds, we can look a little deeper into how the generation attempts are determined. Notice that the positions depend only on the structure type, region coordinates, and the lower 48 bits of the seed. Also, once we have found a seed with the desired generation attempts, we can move them around by transforming the 48-bit seed using `moveStructure()`. This means there is a set of seed bases that can function as a starting point to generate all other seeds with similar structure placement.
+### 1. Biome area criteria
 
-The function `searchAll48()` can be used to find a complete set of 48-bit seed bases for a custom criterion. Given that in general, it can take a very long time to check all 2^48 seeds (days or weeks), the function provides some functionality to save the results to disk which can be loaded again using `loadSavedSeeds()`. Luckily, it is possible in some cases to reduce the search space even further: for Swamp Huts and structures with a similar structure configuration, there are only a handful of constellations where the structures are close enough together to run simultaneously. Conveniently, these constellations differ uniquely at the lower 20 bits. (This is hard to prove, or at least I haven't found a rigorous proof that doesn't rely on brute forcing.) By specifying a list of lower 20-bit values, we can reduce the search space to the order of 2^28, which can be checked in a reasonable amount of time.
-
-
-```C
-// find seeds with a quad-witch-hut about the origin
-#include "quadbase.h"
-#include <stdio.h>
-
-int check(uint64_t s48, void *data)
+```json
 {
-    const StructureConfig sconf = *(const StructureConfig*) data;
-    return isQuadBase(sconf, s48 - sconf.salt, 128);
-}
-
-int main()
-{
-    int styp = Swamp_Hut;
-    int mc = MC_1_18;
-    uint64_t basecnt = 0;
-    uint64_t *bases = NULL;
-    int threads = 8;
-    Generator g;
-
-    StructureConfig sconf;
-    getStructureConfig(styp, mc, &sconf);
-
-    printf("Preparing seed bases...\n");
-    // Get all 48-bit quad-witch-hut bases, but consider only the best 20-bit
-    // constellations where the structures are the closest together.
-    int err = searchAll48(&bases, &basecnt, NULL, threads,
-        low20QuadIdeal, 20, check, &sconf);
-
-    if (err || !bases)
-    {
-        printf("Failed to generate seed bases.\n");
-        exit(1);
-    }
-
-    setupGenerator(&g, mc, 0);
-
-    uint64_t i;
-    for (i = 0; i < basecnt; i++)
-    {
-        // The quad bases by themselves have structures in regions (0,0)-(1,1)
-        // so we can move them by -1 regions to have them around the origin.
-        uint64_t s48 = moveStructure(bases[i] - sconf.salt, -1, -1);
-
-        Pos pos[4];
-        getStructurePos(styp, mc, s48, -1, -1, &pos[0]);
-        getStructurePos(styp, mc, s48, -1,  0, &pos[1]);
-        getStructurePos(styp, mc, s48,  0, -1, &pos[2]);
-        getStructurePos(styp, mc, s48,  0,  0, &pos[3]);
-
-        uint64_t high;
-        for (high = 0; high < 0x10000; high++)
-        {
-            uint64_t seed = s48 | (high << 48);
-            applySeed(&g, DIM_OVERWORLD, seed);
-
-            if (isViableStructurePos(styp, &g, pos[0].x, pos[0].z, 0) &&
-                isViableStructurePos(styp, &g, pos[1].x, pos[1].z, 0) &&
-                isViableStructurePos(styp, &g, pos[2].x, pos[2].z, 0) &&
-                isViableStructurePos(styp, &g, pos[3].x, pos[3].z, 0))
-            {
-                printf("%" PRId64 "\n", (int64_t) seed);
-            }
-        }
-    }
-
-    free(bases);
-    return 0;
+  "name": "Forest coverage",
+  "biome_ids": [4, 27, 29],
+  "origin": { "dimension": "overworld", "x": 1000, "z": -500 },
+  "radius": 512,
+  "min_area": 50000,
+  "max_area": -1
 }
 ```
 
-#### Strongholds and Spawn
+| Field | Meaning |
+| --- | --- |
+| `name` | Nonempty label shown in diagnostics. |
+| `biome_ids` | Nonempty array of nonnegative Cubiomes biome IDs; matching area is combined. |
+| `origin` | Object specifying `dimension` and either `spawn: true` or both `x` and `z`. |
+| `radius` | Positive search-region radius in blocks. |
+| `min_area` | Minimum matching area in square blocks (`-1` disables lower limit). |
+| `max_area` | Maximum matching area in square blocks (`-1` disables upper limit). |
 
-Strongholds, as well as the world spawn point, actually search until they find a suitable location, rather than checking a single spot like most other structures. This causes them to be particularly performance expensive to find. Furthermore, the positions of strongholds have to be generated in a certain order, which can be done in iteratively with `initFirstStronghold()` and `nextStronghold()`. For the world spawn, the generation starts with a search for a suitable biome near the origin and will continue until a grass or podzol block is found. There is no reliable way to check actual blocks, so the search relies on a statistic, matching grass presence to biomes. Alternatively, we can simply use `estimateSpawn()` and terminate the search after the first biome check under the assumption that grass is nearby.
+The area is **estimated** from generated biome samples, rather than counted block-by-block. Consequently, very small required areas and boundaries can be sensitive to the sampling scale. The current program's biome check uses scale `16`.
 
+**Examples of area constraints:**
 
-```C
-// find spawn and the first N strongholds
-#include "finders.h"
-#include <stdio.h>
+- `"min_area": 1, "max_area": -1` — require some matching biome coverage.
+- `"min_area": -1, "max_area": 0` — require no matching biome coverage.
+- `"min_area": 10000, "max_area": 50000` — require estimated area within that interval.
 
-int main()
+The values `-1` disable an individual bound; do **not** omit the fields.
+
+### 2. Structure distance criteria
+
+```json
 {
-    int mc = MC_1_18;
-    uint64_t seed = 3055141959546LL;
-
-    // Only the first stronghold has a position that can be estimated
-    // (+/-112 blocks) without biome check.
-    StrongholdIter sh;
-    Pos pos = initFirstStronghold(&sh, mc, seed);
-
-    printf("Seed: %" PRId64 "\n", (int64_t) seed);
-    printf("Estimated position of first stronghold: (%d, %d)\n", pos.x, pos.z);
-
-    Generator g;
-    setupGenerator(&g, mc, 0);
-    applySeed(&g, DIM_OVERWORLD, seed);
-
-    pos = getSpawn(&g);
-    printf("Spawn: (%d, %d)\n", pos.x, pos.z);
-
-    int i, N = 12;
-    for (i = 1; i <= N; i++)
-    {
-        if (nextStronghold(&sh, &g) <= 0)
-            break;
-        printf("Stronghold #%-3d: (%6d, %6d)\n", i, sh.pos.x, sh.pos.z);
-    }
-
-    return 0;
+  "name": "Bastion within 200 blocks",
+  "structure_id": "bastion",
+  "dimension": "nether",
+  "spawn": true,
+  "min_distance": -1,
+  "max_distance": 200
 }
 ```
 
+| Field | Meaning |
+| --- | --- |
+| `name` | Diagnostic label. |
+| `structure_id` | Supported structure name (see below). |
+| `dimension` | `overworld`, `nether`, or `end`; must match the structure's dimension. |
+| `spawn` or `x`, `z` | Origin for the distance check. |
+| `min_distance` | Minimum distance in blocks, or `-1` for no lower bound. |
+| `max_distance` | Maximum distance in blocks, or `-1` for no upper bound. |
 
+Distances are measured in the X/Z plane. For a nearby-structure requirement, use `min_distance: -1` and a positive `max_distance`.
 
+### 3. Structure count criteria
 
+```json
+{
+  "name": "Three or more villages",
+  "structure_id": "village",
+  "dimension": "overworld",
+  "x": 0,
+  "z": 0,
+  "count_radius": 2000,
+  "min_count": 3,
+  "max_count": -1
+}
+```
 
+| Field | Meaning |
+| --- | --- |
+| `name` | Diagnostic label. |
+| `structure_id` | Supported structure name. |
+| `dimension` | Dimension containing the structure. |
+| `spawn` or `x`, `z` | Center of the count search; omitted origin defaults to `(0, 0)` for counts. |
+| `count_radius` | Radius in blocks around that origin; `-1` is an unbounded special case. |
+| `min_count` | Minimum required number, or `-1` to disable. |
+| `max_count` | Maximum allowed number, or `-1` to disable. |
+
+**Important:** If `count_radius` is `-1`, `max_count` must also be `-1`. Unbounded counting cannot enforce an upper limit.
+
+### Origins and dimensions
+
+Origins use different JSON shapes depending on the filter type.
+
+For a biome criterion, place the origin in a nested `origin` object:
+
+```json
+"origin": { "dimension": "overworld", "spawn": true }
+```
+
+or
+
+```json
+"origin": { "dimension": "overworld", "x": 250, "z": -1000 }
+```
+
+For structure criteria, put `dimension`, `spawn` or `x`/`z` **directly on the criterion** (no nested `origin` object).
+
+`"spawn": true` follows these conventions in this implementation:
+
+| Dimension | Reference point |
+| --- | --- |
+| `overworld` | `(0, 0)` — **not** an exact calculation of the game's actual player spawn. |
+| `nether` | `(0, 0)`. |
+| `end` | The first linked End gateway, calculated for the seed. |
+
+To target an exact coordinate in any dimension, provide both `x` and `z` instead of `spawn: true`.
+
+### Supported structure IDs
+
+Use the following **strings** in `structure_id` (not the numeric C enum values):
+
+| Dimension | Structure IDs |
+| --- | --- |
+| Overworld | `desert_pyramid`, `jungle_temple`, `jungle_pyramid`, `swamp_hut`, `igloo`, `village`, `ocean_ruin`, `shipwreck`, `monument`, `mansion`, `outpost`, `ruined_portal`, `ancient_city`, `treasure`, `buried_treasure`, `mineshaft`, `trail_ruins`, `trial_chambers` |
+| Nether | `fortress`, `bastion`, `ruined_portal_n` |
+| End | `end_city`, `end_gateway`, `end_island` |
+
+`jungle_pyramid` is an alias of `jungle_temple`, and `buried_treasure` is an alias of `treasure`. These strings are validated and mapped to Cubiomes structure enum IDs by `criterialoader.c`.
+
+## Output and diagnostics
+
+A fully matching seed is written with a `FOUND` line, followed by structure check details where implemented:
+
+```text
+FOUND seed=123456789
+STRUCTURES_DISTANCE ...
+STRUCTURES_AMOUNT ...
+```
+
+Rejected candidates can also be recorded if they reached the chosen `biomethreshold`. Diagnostic sections may include `BIOME_DEBUG`, `STRUCTURE_DISTANCE_DEBUG`, or `STRUCTURE_AMOUNT_DEBUG`, showing which checks passed or failed, estimated areas, distances, positions, or structure counts.
+
+**`biomethreshold` is a logging threshold, not a filter requirement.** All configured checks still have to pass for a `FOUND` result. Setting it too low can make output files extremely large; setting it higher reduces diagnostic noise.
+
+The output file is overwritten on a new run. Temporary worker outputs are combined after the workers finish, so results in the final file are grouped by worker, not necessarily ordered by discovery time or seed number.
+
+## Tips and limitations
+
+- Start with a small seed count to verify that the JSON loads and the output is sensible.
+- Choose a process count that leaves enough CPU capacity for other work; `processes` is a number of processes, not threads per process.
+- Larger biome regions and larger structure search radii can cost considerably more CPU time.
+- Multiple entries in `biomes` enforce **AND** logic; multiple IDs within one entry enforce **OR/combined-area** logic. This matters when requiring multiple wood-supporting biomes or separate biome families.
+- Standard JSON does not support comments or trailing commas.
+- This is a seed-based **approximation/search** tool. Structure viability and sampled biome coverage are not a substitute for checking important finds in the actual Minecraft version and world settings you intend to play.
