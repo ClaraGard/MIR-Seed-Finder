@@ -286,20 +286,6 @@ static int test_seed(uint64_t seed, int smallBiomes,
         return 0;
     }
 
-    /* Mandatory spawn altitude prefilter, after structure distance checks.
-     * Cubiomes gives an approximate surface Y, not exact Minecraft blocks. */
-    Pos spawn = getSpawn(&ow);
-    float approxSpawnY = -1.0f;
-    SurfaceNoise noise;
-    initSurfaceNoise(&noise, DIM_OVERWORLD, seed);
-    if (mapApproxHeight(&approxSpawnY, NULL, &ow, &noise,
-                        spawn.x >> 2, spawn.z >> 2, 1, 1) != 0 ||
-        !isfinite(approxSpawnY) ||
-        approxSpawnY < MIN_SPAWN_SURFACE_Y) {
-        freeStructureResult(&distances);
-        return 0;
-    }
-
     BiomeResult biomes = checkBiomeRequirements(
         &config->biomes, &ow, &nether, &end,
         seed, 16, &groups, 0);
@@ -313,6 +299,20 @@ static int test_seed(uint64_t seed, int smallBiomes,
         if (biomes.passedCount >= biomethreshold)
             write_biome_results(out, seed, "BIOME_DEBUG", &biomes);
         freeBiomeResult(&biomes);
+        freeStructureResult(&distances);
+        return 0;
+    }
+
+    /* Mandatory spawn altitude prefilter, after structure distance checks.
+     * Cubiomes gives an approximate surface Y, not exact Minecraft blocks. */
+    Pos spawn = getSpawn(&ow);
+    float approxSpawnY = -1.0f;
+    SurfaceNoise noise;
+    initSurfaceNoise(&noise, DIM_OVERWORLD, seed);
+    if (mapApproxHeight(&approxSpawnY, NULL, &ow, &noise,
+                        spawn.x >> 2, spawn.z >> 2, 1, 1) != 0 ||
+        !isfinite(approxSpawnY) ||
+        approxSpawnY < MIN_SPAWN_SURFACE_Y) {
         freeStructureResult(&distances);
         return 0;
     }
