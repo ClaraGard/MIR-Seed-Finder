@@ -2,7 +2,7 @@
 #define FINDERS_H_
 
 
-#include "generator.h"
+#include "terrainnoise.h"
 
 
 #ifdef __cplusplus
@@ -10,6 +10,9 @@ extern "C"
 {
 #endif
 
+#ifdef MASK48
+#undef MASK48
+#endif
 #define MASK48 (((int64_t)1 << 48) - 1)
 
 enum StructureType
@@ -34,11 +37,14 @@ enum StructureType
     Geode,
     Fortress,
     Bastion,
+    Nether_Fossil,
     End_City,
     End_Gateway,
     End_Island,
     Trail_Ruins,
     Trial_Chambers,
+    Abandoned_Camp,
+    Stronghold, // not like the other structures, but nice to have a constant for it
     FEATURE_NUM
 };
 
@@ -54,10 +60,61 @@ STRUCT(StructureConfig)
     float   rarity;
 };
 
+STRUCT(StructureSaltConfig) {
+    int32_t generationStep;
+    int32_t decoratorIndex;
+};
+
 
 STRUCT(Pos)  { int x, z; };
 STRUCT(Pos3) { int x, y, z; };
 
+static inline void orientBox(Pos3 pos, Pos3 offset, Pos3 size, int facing, Pos3 *b0, Pos3 *b1) {
+    *b0 = pos, *b1 = pos;
+    Pos3 d0 = offset, d1 = size;
+    b0->y += d0.y;
+    b1->y += d0.y+d1.y-1;
+
+    switch (facing) {
+    case 0: // 0, north
+        b0->x += d0.x;       b0->z += d0.z-d1.z+1;
+        b1->x += d0.x+d1.x-1;  b1->z += d0.z;
+        break;
+    case 1: // 90, east
+        b0->x += d0.z;       b0->z += d0.x;
+        b1->x += d0.z+d1.z-1;  b1->z += d0.x+d1.x-1;
+        break;
+    case 2: // 180, south
+        b0->x += d0.x;       b0->z += d0.z;
+        b1->x += d0.x+d1.x-1;  b1->z += d0.z+d1.z-1;
+        break;
+    case 3: // 270, west
+        b0->x += d0.z-d1.z+1;  b0->z += d0.x;
+        b1->x += d0.z;       b1->z += d0.x+d1.x-1;
+        break;
+    default: UNREACHABLE();
+    }
+}
+
+ATTR(always_inline)
+static inline int hasIntersection(Pos3 bmin0, Pos3 bmax0, Pos3 bmin1, Pos3 bmax1) {
+    return bmax0.x >= bmin1.x && bmin0.x <= bmax1.x &&
+           bmax0.z >= bmin1.z && bmin0.z <= bmax1.z &&
+           bmax0.y >= bmin1.y && bmin0.y <= bmax1.y;
+}
+
+STRUCT(Pos3List)
+{
+    Pos3* pos3s;
+    int capacity;
+    int size;
+};
+
+void createPos3List(Pos3List* list, int initialCapacity);
+
+void appendPos3List(Pos3List* list, Pos3 pos3);
+
+void freePos3List(Pos3List* list);
 
 STRUCT(StrongholdIter)
 {
@@ -76,12 +133,12 @@ STRUCT(StrongholdIter)
 
 STRUCT(StructureVariant)
 {
-    uint8_t abandoned   :1; // is zombie village
-    uint8_t giant       :1; // giant portal variant
-    uint8_t underground :1; // underground portal
-    uint8_t airpocket   :1; // portal with air pocket
-    uint8_t basement    :1; // igloo with basement
-    uint8_t cracked     :1; // geode with crack
+    uint8_t abandoned;      // is zombie village
+    uint8_t giant;          // giant portal variant
+    uint8_t underground;    // underground portal
+    uint8_t airpocket;      // portal with air pocket
+    uint8_t basement;       // igloo with basement
+    uint8_t cracked;        // geode with crack
     uint8_t size;           // geode size | igloo middel pieces
     uint8_t start;          // starting piece index
     short   biome;          // biome variant
@@ -93,11 +150,16 @@ STRUCT(StructureVariant)
 
 STRUCT(Piece)
 {
-    const char *name;   // structure piece name
-    Pos3 pos, bb0, bb1; // position and bounding box limits
-    uint8_t rot;        // rotation
+    const char *name;         // structure piece name
+    Pos3 pos, bb0, bb1;       // position and bounding box limits
+    uint8_t rot;              // rotation
     int8_t depth;
     int8_t type;
+    int chestCount;
+    Pos chestPoses[4];        // assume a maximum of four chests
+    uint64_t lootSeeds[4];
+    const char* lootTables[4];
+    int additionalData;
     Piece *next;
 };
 
@@ -144,7 +206,6 @@ STRUCT(BiomeFilter)
     uint64_t biomeToPick, biomeToPickM;
 };
 
-
 /***************************** Structure Positions *****************************
  *
  *  For most structure positions, Minecraft divides the world into a grid of
@@ -184,21 +245,38 @@ static inline uint64_t moveStructure(uint64_t baseSeed, int regX, int regZ)
 // Finding Structure Positions
 //==============================================================================
 
+/* Always returns vanilla structure config. Use setStructureConfigProvider
+ * and getStructureConfig for customisability.
+ */
+int getStructureConfig_default(int structureType, int mc, StructureConfig *sconf);
+
+typedef int (*StructureConfigProvider)(int structureType, int mc, StructureConfig *sconf);
+
+/* The library can be configured to use a custom internal getter for structure
+ * configurations. However, note this is experimental and not all structure
+ * configs may work. (Ideally only change structure salts.)
+ *
+ * Passing NULL resets the provider.
+ */
+void setStructureConfigProvider(StructureConfigProvider fn);
 
 /* Selects the structure configuration for a given version. Returns zero upon
  * failure (e.g. version does not support structure type).
  */
 int getStructureConfig(int structureType, int mc, StructureConfig *sconf);
 
-/* The library can be compiled to use a custom internal getter for structure
- * configurations. For this, the macro STRUCT_CONFIG_OVERRIDE should be defined
- * as true and the function getStructureConfig_override() should be defined
- * with a custom function body. However, note this is experimental and not all
- * structure configs may work. (Ideally only change structure salts.)
+/**
+ * Get the structure salt config (step and index) for a given feature. Currently
+ * only supports those features for which loot is supported. Returns zero upon
+ * failure (version is below 1.13, or structure does not exist in that version).
+ *
+ * @param structureType the structure type to get the config for
+ * @param mc the Minecraft version
+ * @param biome the biome variant as returned by getVariant, or in <1.18 the biome itself
+ * @param ssconf the output config
+ * @return zero upon failure
  */
-#if STRUCT_CONFIG_OVERRIDE
-int getStructureConfig_override(int stype, int mc, StructureConfig *sconf);
-#endif
+int getStructureSaltConfig(int structureType, int mc, int biome, StructureSaltConfig *ssconf);
 
 /* Finds the block position of the structure generation attempt in a given
  * region. You can use isViableStructurePos() to test if the necessary biome
@@ -240,6 +318,10 @@ Pos getLargeStructureChunkInRegion(StructureConfig config, uint64_t seed, int re
  */
 int getMineshafts(int mc, uint64_t seed, int chunkX, int chunkZ,
         int chunkW, int chunkH, Pos *out, int nout);
+
+void setAttemptSeed(uint64_t *s, int cx, int cz);
+
+uint64_t getPopulationSeed(int mc, uint64_t ws, int x, int z);
 
 // not exacly a structure
 static inline ATTR(const)
@@ -316,6 +398,105 @@ Pos estimateSpawn(const Generator *g, uint64_t *rng);
 Pos getSpawn(const Generator *g);
 
 
+enum Blocks {
+    ANCIENT_DEBRIS,
+    ANDESITE,
+    BASALT,
+    BLACKSTONE,
+    CLAY,
+    COAL_ORE,
+    COPPER_ORE,
+    DEEPSLATE,
+    DIAMOND_ORE,
+    DIORITE,
+    DIRT,
+    EMERALD_ORE,
+    GOLD_ORE,
+    GRANITE,
+    GRAVEL,
+    INFESTED_STONE,
+    IRON_ORE,
+    LAPIS_ORE,
+    MAGMA_BLOCK,
+    NETHERRACK,
+    NETHER_GOLD_ORE,
+    NETHER_QUARTZ_ORE,
+    RAW_COPPER_BLOCK,
+    RAW_IRON_BLOCK,
+    REDSTONE_ORE,
+    SOUL_SAND,
+    STONE,
+    TUFF,
+    BLOCK_NUM,
+};
+
+enum OreVeins {
+    CopperVein,
+    IronVein,
+};
+
+STRUCT(OreVeinConfig)
+{
+    uint32_t oreBlock;
+    uint32_t rawOreBlock;
+    uint32_t fillerBlock;
+    int32_t  minY;
+    int32_t  maxY;
+};
+
+STRUCT(OreVeinParameters)
+{
+    PerlinNoise oct[2*4];
+    DoublePerlinNoise oreVeininess;
+    DoublePerlinNoise oreVeinA;
+    DoublePerlinNoise oreVeinB;
+    DoublePerlinNoise oreGap;
+    Xoroshiro         posRandom;
+};
+
+int initOreVeinNoise(OreVeinParameters *params, uint64_t ws, int mc);
+
+int32_t getOreVeinBlockAt(int x, int y, int z, OreVeinParameters* params);
+
+//==============================================================================
+// Random providers
+//==============================================================================
+
+static inline int providerUniformIntBetween(uint64_t* rnd, int minInclusive, int maxInclusive, int unused_) {
+    (void)(unused_);
+    if (minInclusive > maxInclusive) {
+        return minInclusive;
+    }
+    return nextInt(rnd, maxInclusive - minInclusive + 1) + minInclusive;
+}
+
+static inline int providerBiasedToBottom(uint64_t* rnd, int minInclusive, int maxInclusive, int inner) {
+    if (maxInclusive - minInclusive - inner + 1 <= 0) {
+        return minInclusive;
+    }
+    int k = nextInt(rnd, maxInclusive - minInclusive - inner + 1);
+    return nextInt(rnd, k + inner) + minInclusive;
+}
+
+static inline float providerConstantFloat(uint64_t* unused1_, float value, float unused2_) {
+    (void)(unused1_);
+    (void)(unused2_);
+    return value;
+}
+
+static inline float providerUniformFloatBetween(uint64_t* rnd, float minInclusive, float maxExclusive) {
+    return nextFloat(rnd) * (maxExclusive - minInclusive) + minInclusive;
+}
+
+static inline float providerTrapezoidFloatBetween(uint64_t* rnd, float min, float max, float plateau) {
+    float f = max - min;
+    float g = (f - plateau) / 2.0F;
+    float h = f - g;
+    float a = nextFloat(rnd);
+    float b = nextFloat(rnd);
+    return min + a * h + b * g;
+}
+
 /* Finds a suitable pseudo-random location in the specified area.
  * This function is used to determine the positions of spawn and strongholds.
  * Warning: accurate, but slow!
@@ -377,6 +558,32 @@ int isViableStructureTerrain(int structType, Generator *g, int blockX, int block
 int isViableEndCityTerrain(const Generator *g, const SurfaceNoise *sn,
         int blockX, int blockZ);
 
+/**
+ * Verifies whether the terrain is viable for the nether fossil to generate.
+ *
+ * Populates sv.y with the accurate y coordinate.
+ *
+ * @param cx the chunk X coordinate
+ * @param cz the chunk Z coordinate
+ * @param sv the structure variant info
+ * @param base3dNoise the nether terrain noise
+ * @param mc
+ * @return 1 if viable
+ */
+int isViableNetherFossilTerrain(int cx, int cz, StructureVariant *sv, BlendedNoise *base3dNoise, int mc);
+
+/**
+ * Checks whether the nether fossil has a dried ghast. Before calling this function,
+ * call isViableNetherFossilTerrain first.
+ *
+ * @param cx the chunk X coordinate
+ * @param cz the chunk Z coordinate
+ * @param seed the world seed
+ * @param sv the structure variant info
+ * @return 1 if the nether fossil has a dried ghast
+ */
+int netherFossilHasGhast(int cx, int cz, uint64_t seed, StructureVariant* sv);
+
 
 //==============================================================================
 // Finding Properties of Structures
@@ -402,65 +609,32 @@ uint64_t chunkGenerateRnd(uint64_t worldSeed, int chunkX, int chunkZ)
 int getVariant(StructureVariant *sv, int structType, int mc, uint64_t seed,
         int blockX, int blockZ, int biomeID);
 
-/* Generate the structure pieces of an End City. This pieces buffer should be
- * large enough to hold END_CITY_PIECES_MAX elements.
- * @pieces          : output buffer
- * @seed            : world seed
- * @chunkX, chunkZ  : 16x16 chunk position
+/**
+ * Get the distinct loot table count for chests in the structure.
  *
- * Returns the number of structure pieces generated.
+ * @param structure the structure type
+ * @param mc the Minecraft version
+ * @return the distinct count
  */
-int getEndCityPieces(Piece *pieces, uint64_t seed, int chunkX, int chunkZ);
-enum
-{   // End City piece types
-    BASE_FLOOR,
-    BASE_ROOF,
-    BRIDGE_END,
-    BRIDGE_GENTLE_STAIRS,
-    BRIDGE_PIECE,
-    BRIDGE_STEEP_STAIRS,
-    FAT_TOWER_BASE,
-    FAT_TOWER_MIDDLE,
-    FAT_TOWER_TOP,
-    SECOND_FLOOR_1,
-    SECOND_FLOOR_2,
-    SECOND_ROOF,
-    END_SHIP,
-    THIRD_FLOOR_1,
-    THIRD_FLOOR_2,
-    THIRD_ROOF,
-    TOWER_BASE,
-    TOWER_FLOOR, // unused
-    TOWER_PIECE,
-    TOWER_TOP,
-    END_CITY_PIECES_MAX = 421
-};
+int getLootTableCountForStructure(int structure, int mc);
 
-/* Generate the structure pieces of a Nether Fortress. The maximum number of
- * pieces that are generated is limited to 'n'. A buffer length of around 400
- * should be sufficient in practice, but a fortress can in theory contain many
- * more than that. The number of generated pieces is given by the return value.
+/**
+ * Get a list of structure pieces for the given structure. Not all structures are supported.
+ * For the supported structures, each structure piece has information about the name, (basic)
+ * position, chest count, and loot table and seeds for each chest. The number of pieces is returned.
+ *
+ * @param list the output list of pieces
+ * @param n either for fortresses the maximum size of the output list, or for end cities a value at least END_CITY_PIECES_MAX
+ * @param stype the structure type
+ * @param ssconf the structure salt config from getStructureSaltConfig
+ * @param sv the structure variant (if available)
+ * @param mc the Minecraft version
+ * @param seed the world seed
+ * @param posX the block X-coordinate as yielded by getStructurePos
+ * @param posZ the block Z-coordinate as yielded by getStructurePos
+ * @return the number of pieces
  */
-int getFortressPieces(Piece *list, int n, int mc, uint64_t seed, int chunkX, int chunkZ);
-enum
-{   // Fortress piece types
-    FORTRESS_START,
-    BRIDGE_STRAIGHT,
-    BRIDGE_CROSSING,
-    BRIDGE_FORTIFIED_CROSSING,
-    BRIDGE_STAIRS,
-    BRIDGE_SPAWNER,
-    BRIDGE_CORRIDOR_ENTRANCE,
-    CORRIDOR_STRAIGHT,
-    CORRIDOR_CROSSING,
-    CORRIDOR_TURN_RIGHT,
-    CORRIDOR_TURN_LEFT,
-    CORRIDOR_STAIRS,
-    CORRIDOR_T_CROSSING,
-    CORRIDOR_NETHER_WART,
-    FORTRESS_END,
-    PIECE_COUNT,
-};
+int getStructurePieces(Piece *list, int n, int stype, StructureSaltConfig ssconf, StructureVariant *sv, int mc, uint64_t seed, int posX, int posZ);
 
 /* Find the 20 fixed inner positions where End Gateways generate upon defeating
  * the Dragon. The positions are written to 'src' in generation order.

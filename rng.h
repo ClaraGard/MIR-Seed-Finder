@@ -1,11 +1,16 @@
 #ifndef RNG_H_
 #define RNG_H_
 
+#ifdef __STDC_FORMAT_MACROS
+#undef __STDC_FORMAT_MACROS
+#endif
 #define __STDC_FORMAT_MACROS 1
 
 #include <stdlib.h>
 #include <stddef.h>
 #include <inttypes.h>
+
+#include "xrms.h"
 
 
 ///=============================================================================
@@ -24,9 +29,37 @@ typedef float       f32;
 typedef double      f64;
 
 
+#ifdef STRUCT
+#undef STRUCT
+#endif
 #define STRUCT(S) typedef struct S S; struct S
+#ifdef UNION
+#undef UNION
+#endif
+#define UNION(S) typedef union S S; union S
 
-#if __GNUC__
+#ifdef IABS
+#undef IABS
+#endif
+#ifdef PREFETCH
+#undef PREFETCH
+#endif
+#ifdef likely
+#undef likely
+#endif
+#ifdef unlikely
+#undef unlikely
+#endif
+#ifdef ATTR
+#undef ATTR
+#endif
+#ifdef BSWAP32
+#undef BSWAP32
+#endif
+#ifdef UNREACHABLE
+#undef UNREACHABLE
+#endif
+#ifdef __GNUC__
 
 #define IABS(X)                 __builtin_abs(X)
 #define PREFETCH(PTR,RW,LOC)    __builtin_prefetch(PTR,RW,LOC)
@@ -48,12 +81,16 @@ static inline uint32_t BSWAP32(uint32_t x) {
         ((x & 0x00ff0000) >>  8) | ((x & 0xff000000) >> 24);
     return x;
 }
-#if _MSC_VER
+#ifdef _MSC_VER
 #define UNREACHABLE()           __assume(0)
 #else
 #define UNREACHABLE()           exit(1) // [[noreturn]]
 #endif
 
+#endif
+
+#ifndef __restrict
+#define __restrict
 #endif
 
 /// imitate amd64/x64 rotate instructions
@@ -77,6 +114,19 @@ int32_t floordiv(int32_t a, int32_t b)
     int32_t q = a / b;
     int32_t r = a % b;
     return q - ((a ^ b) < 0 && !!r);
+}
+
+/// integer floor modulo
+static inline ATTR(const, always_inline)
+int32_t floormod(int32_t a, int32_t b) {
+    int32_t r = a % b;
+    return r + ((a ^ b) < 0 && !!r) * b;
+}
+
+static inline uint64_t getSeedAt(int x, int y, int z) {
+    int64_t l = (int64_t)(x * 3129871) ^ (int64_t)z * 116129781L ^ (int64_t)y;
+    l = l * l * 42317861L + l * 11L;
+    return (uint64_t) (l >> 16);
 }
 
 ///=============================================================================
@@ -130,6 +180,9 @@ static inline double nextDouble(uint64_t *seed)
     return (int64_t) x / (double) (1ULL << 53);
 }
 
+#ifdef JAVA_NEXT_INT24
+#undef JAVA_NEXT_INT24
+#endif
 /* A macro to generate the ideal assembly for X = nextInt(*S, 24)
  * This is a macro and not an inline function, as many compilers can make use
  * of the additional optimisation passes for the surrounding code.
@@ -170,6 +223,22 @@ static inline void skipNextN(uint64_t *seed, uint64_t n)
 
     *seed = *seed * m + a;
     *seed &= 0xffffffffffffULL;
+}
+
+static inline int nextIntBetween(uint64_t *seed, const int min, const int max)
+{
+    return nextInt(seed, max - min + 1) + min;
+}
+
+static inline float nextFloatBetween(uint64_t *seed, const float minInclusive, const float maxExclusive) {
+    return nextFloat(seed) * (maxExclusive - minInclusive) + minInclusive;
+}
+
+static inline uint64_t jAtPos(uint64_t seed, int x, int y, int z)
+{
+    uint64_t rnd = getSeedAt(x, y, z) ^ seed;
+    setSeed(&rnd, rnd);
+    return rnd;
 }
 
 
@@ -234,10 +303,44 @@ static inline float xNextFloat(Xoroshiro *xr)
     return (xNextLong(xr) >> (64-24)) * 5.9604645E-8F;
 }
 
-static inline void xSkipN(Xoroshiro *xr, int count)
+static inline void calcVecMul(const uint64_t m[128][2], Xoroshiro* xr) {
+    // see xradv.c for details
+    uint64_t hi = 0, lo = 0;
+
+    #pragma GCC unroll 64
+    for (int r = 0; r < 64; ++r) {
+        const int bit = __builtin_popcountll((m[r][0] & xr->hi) ^ (m[r][1] & xr->lo)) & 1;
+        if (bit) {
+            hi |= 1ULL << (64 - r - 1);
+        }
+    }
+    #pragma GCC unroll 64
+    for (int r = 0; r < 64; ++r) {
+        const int bit = __builtin_popcountll((m[r + 64][0] & xr->hi) ^ (m[r + 64][1] & xr->lo)) & 1;
+        if (bit) {
+            lo |= 1ULL << (64 - r - 1);
+        }
+    }
+
+    xr->hi = hi;
+    xr->lo = lo;
+}
+
+static inline void xSkipN(Xoroshiro *xr, uint64_t count)
 {
-    while (count --> 0)
-        xNextLong(xr);
+    int pow = 0;
+    while (count > 0) {
+        if (count & 1) {
+            calcVecMul(xrms[pow], xr);
+        }
+        count >>= 1;
+        ++pow;
+    }
+}
+
+static inline int xNextIntBetween(Xoroshiro *xr, const int min, const int max)
+{
+    return xNextInt(xr, max - min + 1) + min;
 }
 
 static inline uint64_t xNextLongJ(Xoroshiro *xr)
@@ -265,6 +368,117 @@ static inline int xNextIntJ(Xoroshiro *xr, uint32_t n)
     return val;
 }
 
+static inline double xNextDoubleJ(Xoroshiro *xr)
+{
+    uint64_t a = xNextLong(xr);
+    uint64_t b = xNextLong(xr);
+    return ((a >> (64-26) << 27) + (b >> (64-27))) * 1.1102230246251565E-16;
+}
+
+static inline int xNextIntJBetween(Xoroshiro *xr, const int min, const int max)
+{
+    return xNextIntJ(xr, max - min + 1) + min;
+}
+
+static inline Xoroshiro xAtPos(Xoroshiro xr, int x, int y, int z)
+{
+    uint64_t l = getSeedAt(x, y, z);
+    Xoroshiro xr2 = {l ^ xr.lo, xr.hi};
+    return xr2;
+}
+
+enum {
+    JAVA_RANDOM,
+    XOROSHIRO,
+    XOROSHIRO_J,
+};
+
+UNION(RandomState)
+{
+    uint64_t jr;
+    Xoroshiro xr;
+};
+
+STRUCT(RandomSource)
+{
+    int type;
+    union {
+        uint64_t jr;
+        Xoroshiro xr;
+    };
+};
+
+static inline void absSetSeed(RandomSource *rnd, uint64_t seed) {
+    switch (rnd->type) {
+        case JAVA_RANDOM: setSeed(&rnd->jr, seed); return;
+        case XOROSHIRO: xSetSeed(&rnd->xr, seed); return;
+        case XOROSHIRO_J: xSetSeed(&rnd->xr, seed); return;
+        default: UNREACHABLE();
+    }
+}
+
+static inline void absSetSeedInternal(RandomSource *rnd, RandomState seed) {
+    switch (rnd->type) {
+    case JAVA_RANDOM: rnd->jr = seed.jr; return;
+    case XOROSHIRO: rnd->xr = seed.xr; return;
+    case XOROSHIRO_J: rnd->xr = seed.xr; return;
+    default: UNREACHABLE();
+    }
+}
+
+static inline uint64_t absNextLong(RandomSource *rnd) {
+    switch (rnd->type) {
+        case JAVA_RANDOM: return nextLong(&rnd->jr);
+        case XOROSHIRO: return xNextLong(&rnd->xr);
+        case XOROSHIRO_J: return xNextLongJ(&rnd->xr);
+        default: UNREACHABLE();
+    }
+}
+
+static inline int absNextInt(RandomSource *rnd, int n) {
+    switch (rnd->type) {
+        case JAVA_RANDOM: return nextInt(&rnd->jr, n);
+        case XOROSHIRO: return xNextInt(&rnd->xr, n);
+        case XOROSHIRO_J: return xNextIntJ(&rnd->xr, n);
+        default: UNREACHABLE();
+    }
+}
+
+static inline float absNextFloat(RandomSource *rnd) {
+    switch (rnd->type) {
+        case JAVA_RANDOM: return nextFloat(&rnd->jr);
+        case XOROSHIRO: return xNextFloat(&rnd->xr);
+        case XOROSHIRO_J: return xNextFloat(&rnd->xr);
+        default: UNREACHABLE();
+    }
+}
+
+static inline double absNextDouble(RandomSource *rnd) {
+    switch (rnd->type) {
+        case JAVA_RANDOM: return nextDouble(&rnd->jr);
+        case XOROSHIRO: return xNextDouble(&rnd->xr);
+        case XOROSHIRO_J: return xNextDoubleJ(&rnd->xr);
+        default: UNREACHABLE();
+    }
+}
+
+static inline int absNextIntBetween(RandomSource *rnd, int min, int max) {
+    switch (rnd->type) {
+        case JAVA_RANDOM: return nextIntBetween(&rnd->jr, min, max);
+        case XOROSHIRO: return xNextIntBetween(&rnd->xr, min, max);
+        case XOROSHIRO_J: return xNextIntJBetween(&rnd->xr, min, max);
+        default: UNREACHABLE();
+    }
+}
+
+static inline void absSkipN(RandomSource *rnd, uint64_t n) {
+    switch (rnd->type) {
+        case JAVA_RANDOM: skipNextN(&rnd->jr, n); return;
+        case XOROSHIRO: xSkipN(&rnd->xr, n); return;
+        case XOROSHIRO_J: xSkipN(&rnd->xr, n); return;
+        default: UNREACHABLE();
+    }
+}
 
 //==============================================================================
 //                              MC Seed Helpers
@@ -365,11 +579,30 @@ static inline double lerp3(
     return lerp(dz, v000, v001);
 }
 
+static inline double clamp(double value, double min, double max)
+{
+    const double t = value < min ? min : value;
+    return t > max ? max : t;
+}
+
+static inline double inverseLerp(double delta, double start, double end)
+{
+    return (delta - start) / (end - start);
+}
+
+static inline double map(double input, double inputMin, double inputMax, double outputMin, double outputMax) {
+    return lerp(inverseLerp(input, inputMin, inputMax), outputMin, outputMax);
+}
+
 static inline double clampedLerp(double part, double from, double to)
 {
     if (part <= 0) return from;
     if (part >= 1) return to;
     return lerp(part, from, to);
+}
+
+static inline double clampedMap(double input, double inputMin, double inputMax, double ouputMin, double outputMax) {
+    return clampedLerp(inverseLerp(input, inputMin, inputMax), ouputMin, outputMax);
 }
 
 /* Find the modular inverse: (1/x) | mod m.

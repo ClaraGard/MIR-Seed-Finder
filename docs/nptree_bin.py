@@ -140,6 +140,12 @@ bdic['deep_dark']                       = 183
 bdic['mangrove_swamp']                  = 184
 #    // 1.20
 bdic['cherry_grove']                    = 185
+#    // 1.21.5
+bdic['pale_garden']                     = 186
+#    // 26.2
+bdic['sulfur_caves']                    = 187
+#    // 26.3
+bdic['dappled_forest']                  = 188
 
 
 with open(in_file) as f:

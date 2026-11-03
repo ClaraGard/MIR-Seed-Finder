@@ -1,5 +1,8 @@
 #include "util.h"
+#include "biomes.h"
 #include "finders.h"
+#include "carver.h"
+#include "features/ore.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -48,42 +51,57 @@ const char* mc2str(int mc)
 {
     switch (mc)
     {
-    case MC_B1_7:   return "Beta 1.7"; break;
-    case MC_B1_8:   return "Beta 1.8"; break;
-    case MC_1_0:    return "1.0"; break;
-    case MC_1_1:    return "1.1"; break;
-    case MC_1_2:    return "1.2"; break;
-    case MC_1_3:    return "1.3"; break;
-    case MC_1_4:    return "1.4"; break;
-    case MC_1_5:    return "1.5"; break;
-    case MC_1_6:    return "1.6"; break;
-    case MC_1_7:    return "1.7"; break;
-    case MC_1_8:    return "1.8"; break;
-    case MC_1_9:    return "1.9"; break;
-    case MC_1_10:   return "1.10"; break;
-    case MC_1_11:   return "1.11"; break;
-    case MC_1_12:   return "1.12"; break;
-    case MC_1_13:   return "1.13"; break;
-    case MC_1_14:   return "1.14"; break;
-    case MC_1_15:   return "1.15"; break;
-    case MC_1_16_1: return "1.16.1"; break;
-    case MC_1_16:   return "1.16"; break;
-    case MC_1_17:   return "1.17"; break;
-    case MC_1_18:   return "1.18"; break;
-    case MC_1_19_2: return "1.19.2"; break;
-    case MC_1_19:   return "1.19"; break;
-    case MC_1_20:   return "1.20"; break;
-    case MC_1_21_1: return "1.21.1"; break;
-    case MC_1_21_3: return "1.21.3"; break;
-    case MC_1_21_WD: return "1.21 WD"; break;
-    default:        return "?";
+    case MC_B1_7:    return "Beta 1.7"; break;
+    case MC_B1_8:    return "Beta 1.8"; break;
+    case MC_1_0:     return "1.0"; break;
+    case MC_1_1:     return "1.1"; break;
+    case MC_1_2:     return "1.2"; break;
+    case MC_1_3:     return "1.3"; break;
+    case MC_1_4:     return "1.4"; break;
+    case MC_1_5:     return "1.5"; break;
+    case MC_1_6:     return "1.6"; break;
+    case MC_1_7:     return "1.7"; break;
+    case MC_1_8:     return "1.8"; break;
+    case MC_1_9:     return "1.9"; break;
+    case MC_1_10:    return "1.10"; break;
+    case MC_1_11:    return "1.11"; break;
+    case MC_1_12:    return "1.12"; break;
+    case MC_1_13:    return "1.13"; break;
+    case MC_1_14:    return "1.14"; break;
+    case MC_1_15:    return "1.15"; break;
+    case MC_1_16_1:  return "1.16.1"; break;
+    case MC_1_16:    return "1.16"; break;
+    case MC_1_17:    return "1.17"; break;
+    case MC_1_18:    return "1.18"; break;
+    case MC_1_19_2:  return "1.19.2"; break;
+    case MC_1_19:    return "1.19"; break;
+    case MC_1_20:    return "1.20"; break;
+    case MC_1_21_1:  return "1.21.1"; break;
+    case MC_1_21_3:  return "1.21.3"; break;
+    case MC_1_21_4:  return "1.21.4"; break;
+    case MC_1_21_5:  return "1.21.5"; break;
+    case MC_1_21_6:  return "1.21.6"; break;
+    case MC_1_21_9:  return "1.21.9"; break;
+    case MC_1_21_11: return "1.21.11"; break;
+    case MC_26_1:    return "26.1"; break;
+    case MC_26_2:    return "26.2"; break;
+    case MC_26_3:    return "26.3"; break;
+    default:         return "?";
     }
 }
 
 int str2mc(const char *s)
 {
+    if (!strcmp(s, "26.3"))     return MC_26_3;
+    if (!strcmp(s, "26.2"))     return MC_26_2;
+    if (!strcmp(s, "26.1"))     return MC_26_1;
     if (!strcmp(s, "1.21"))     return MC_1_21;
-    if (!strcmp(s, "1.21 WD"))  return MC_1_21_WD;
+    if (!strcmp(s, "1.21.11"))  return MC_1_21_11;
+    if (!strcmp(s, "1.21.9"))   return MC_1_21_9;
+    if (!strcmp(s, "1.21.6"))   return MC_1_21_6;
+    if (!strcmp(s, "1.21.5"))   return MC_1_21_5;
+    if (!strcmp(s, "1.21.4"))   return MC_1_21_4;
+    if (!strcmp(s, "1.21 WD"))  return MC_1_21_4;
     if (!strcmp(s, "1.21.3"))   return MC_1_21_3;
     if (!strcmp(s, "1.21.2"))   return MC_1_21_3; // backwards compatibility
     if (!strcmp(s, "1.21.1"))   return MC_1_21_1;
@@ -271,6 +289,10 @@ const char *biome2str(int mc, int id)
     case cherry_grove: return "cherry_grove";
     // 1.21.4 (Winter Drop)
     case pale_garden: return "pale_garden";
+    // 26.2 (Chaos Cubed Drop)
+    case sulfur_caves: return "sulfur_caves";
+    // 26.3
+    case dappled_forest: return "dappled_forest";
     }
     return NULL;
 }
@@ -298,12 +320,126 @@ const char* struct2str(int stype)
     case Ancient_City:      return "ancient_city";
     case Trail_Ruins:       return "trail_ruins";
     case Trial_Chambers:    return "trial_chambers";
+    case Abandoned_Camp:    return "abandoned_camp";
+    case Stronghold:        return "stronghold";
     case Fortress:          return "fortress";
     case Bastion:           return "bastion_remnant";
+    case Nether_Fossil:     return "nether_fossil";
     case End_City:          return "end_city";
     case End_Gateway:       return "end_gateway";
+    default:                return NULL;
     }
-    return NULL;
+}
+
+const char* block2str(int btype) {
+    switch (btype) {
+    case ANCIENT_DEBRIS:      return "ancient_debris";
+    case ANDESITE:            return "andesite";
+    case BASALT:              return "basalt";
+    case BLACKSTONE:          return "blackstone";
+    case CLAY:                return "clay";
+    case COAL_ORE:            return "coal_ore";
+    case COPPER_ORE:          return "copper_ore";
+    case DEEPSLATE:           return "deepslate";
+    case DIAMOND_ORE:         return "diamond_ore";
+    case DIORITE:             return "diorite";
+    case DIRT:                return "dirt";
+    case EMERALD_ORE:         return "emerald_ore";
+    case GOLD_ORE:            return "gold_ore";
+    case GRANITE:             return "granite";
+    case GRAVEL:              return "gravel";
+    case INFESTED_STONE:      return "infested_stone";
+    case IRON_ORE:            return "iron_ore";
+    case LAPIS_ORE:           return "lapis_ore";
+    case MAGMA_BLOCK:         return "magma_block";
+    case NETHERRACK:          return "netherrack";
+    case NETHER_GOLD_ORE:     return "nether_gold_ore";
+    case NETHER_QUARTZ_ORE:   return "nether_quartz_ore";
+    case RAW_COPPER_BLOCK:    return "raw_copper_block";
+    case RAW_IRON_BLOCK:      return "raw_iron_block";
+    case REDSTONE_ORE:        return "redstone_ore";
+    case SOUL_SAND:           return "soul_sand";
+    case STONE:               return "stone";
+    case TUFF:                return "tuff";
+    default: return NULL;
+    }
+}
+
+const char* ore2str(int otype)
+{
+    switch (otype)
+    {
+    case AndesiteOre:        return "ore_andesite";
+    case BlackstoneOre:      return "ore_blackstone";
+    case BuriedDiamondOre:   return "ore_diamond_buried";
+    case BuriedLapisOre:     return "ore_lapis_buried";
+    case ClayOre:            return "ore_clay";
+    case CoalOre:            return "ore_coal";
+    case CopperOre:          return "ore_copper";
+    case DeepslateOre:       return "ore_deepslate";
+    case DeltasGoldOre:      return "ore_gold_deltas";
+    case DeltasQuartzOre:    return "ore_quartz_deltas";
+    case DiamondOre:         return "ore_diamond";
+    case DioriteOre:         return "ore_diorite";
+    case DirtOre:            return "ore_dirt";
+    case EmeraldOre:         return "ore_emerald";
+    case ExtraGoldOre:       return "ore_gold_extra";
+    case GoldOre:            return "ore_gold";
+    case GraniteOre:         return "ore_granite";
+    case GravelOre:          return "ore_gravel";
+    case InfestedOre:        return "ore_infested";
+    case IronOre:            return "ore_iron";
+    case LapisOre:           return "ore_lapis";
+    case LargeCopperOre:     return "ore_copper_large";
+    case LargeDebrisOre:     return "ore_debris_large";
+    case LargeDiamondOre:    return "ore_diamond_large";
+    case LowerAndesiteOre:   return "ore_andesite_lower";
+    case LowerCoalOre:       return "ore_coal_lower";
+    case LowerDioriteOre:    return "ore_diorite_lower";
+    case LowerGoldOre:       return "ore_gold_lower";
+    case LowerGraniteOre:    return "ore_granite_lower";
+    case LowerRedstoneOre:   return "ore_redstone_lower";
+    case MagmaOre:           return "ore_magma";
+    case MediumDiamondOre:   return "ore_diamond_medium";
+    case MiddleIronOre:      return "ore_iron_middle";
+    case NetherGoldOre:      return "ore_gold_nether";
+    case NetherGravelOre:    return "ore_gravel_nether";
+    case NetherQuartzOre:    return "ore_quartz_nether";
+    case RedstoneOre:        return "ore_redstone";
+    case SmallDebrisOre:     return "ore_debris_small";
+    case SmallIronOre:       return "ore_iron_small";
+    case SoulSandOre:        return "ore_soul_sand";
+    case TuffOre:            return "ore_tuff";
+    case UpperAndesiteOre:   return "ore_andesite_upper";
+    case UpperCoalOre:       return "ore_coal_upper";
+    case UpperDioriteOre:    return "ore_diorite_upper";
+    case UpperGraniteOre:    return "ore_granite_upper";
+    case UpperIronOre:       return "ore_iron_upper";
+    default: return NULL;
+    }
+}
+
+/// get the resource id name for an ore
+const char* canyon2str(int ctype)
+{
+    switch (ctype) {
+    case CANYON_CARVER: return "canyon";
+    case UNDERWATER_CAVE_CARVER: return "underwater_canyon";
+    default: return NULL;
+    }
+}
+
+/// get the resource id name for an ore
+const char* cave2str(int ctype)
+{
+    switch (ctype) {
+    case CAVE_CARVER: return "cave";
+    case CAVE_EXTRA_UNDERGROUND_CARVER: return "cave_extra_underground";
+    case OCEAN_CAVE_CARVER: return "ocean_cave";
+    case UNDERWATER_CAVE_CARVER: return "underwater_cave";
+    case NETHER_CAVE_CARVER: return "nether_cave";
+    default: return NULL;
+    }
 }
 
 static void setColor(unsigned char colors[256][3], int id, uint32_t hex)
@@ -321,7 +457,7 @@ void initBiomeColors(unsigned char colors[256][3])
     // improve contrast for the new world generation.
 
     memset(colors, 0, 256*3);
-    
+
     //               biome                             hex color     AMIDST
     setColor(colors, ocean,                            0x000070);
     setColor(colors, plains,                           0x8db360);
@@ -417,6 +553,8 @@ void initBiomeColors(unsigned char colors[256][3])
     setColor(colors, mangrove_swamp,                   0x2ccc8e); // -
     setColor(colors, cherry_grove,                     0xff91c8); // -
     setColor(colors, pale_garden,                      0x696d95); // -
+    setColor(colors, sulfur_caves,                     0xc8d232); // -
+    setColor(colors, dappled_forest,                   0xeb9234); // -
 }
 
 void initBiomeTypeColors(unsigned char colors[256][3])

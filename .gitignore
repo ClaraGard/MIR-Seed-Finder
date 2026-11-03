@@ -8,7 +8,14 @@ docs/LayerSummary.synctex.gz
 docs/LayerSummary.toc
 *.o
 *.a
-a.out
+*.out
 *.txt
 *.tmp
 *.exe
+*.so
+*.dylib
+*.dll
+
+build/
+
+.idea/
