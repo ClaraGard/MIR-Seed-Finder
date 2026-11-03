@@ -26,7 +26,7 @@
     },
     {
       "name": "food_biome_near_spawn",
-      "biome_ids": [1, 3, 4, 5, 6, 27, 29, 30, 32, 34, 35, 36, 129, 131, 132, 155, 160, 163, 177, 185],
+      "biome_ids": [1, 3, 4, 5, 6, 27, 29, 30, 32, 34, 35, 36, 129, 131, 132, 155, 160, 163, 177, 185, 188],
       "origin": {
         "dimension": "overworld",
         "spawn": true
@@ -114,6 +114,14 @@
     {
         "name": "pale_oak_wood_area",
         "biome_ids": [186],
+        "origin": {"dimension": "overworld", "spawn": true},
+        "radius": 1500,
+        "min_area": 3000,
+        "max_area": -1
+    },
+    {
+        "name": "poplar_wood_area",
+        "biome_ids": [188],
         "origin": {"dimension": "overworld", "spawn": true},
         "radius": 1500,
         "min_area": 3000,

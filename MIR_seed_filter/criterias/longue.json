@@ -26,7 +26,7 @@
     },
     {
       "name": "food_biome_near_spawn",
-      "biome_ids": [1, 3, 4, 5, 6, 27, 29, 30, 32, 34, 35, 36, 129, 131, 132, 155, 160, 163, 177, 185],
+      "biome_ids": [1, 3, 4, 5, 6, 27, 29, 30, 32, 34, 35, 36, 129, 131, 132, 155, 160, 163, 177, 185, 188],
       "origin": {
         "dimension": "overworld",
         "spawn": true
@@ -140,14 +140,6 @@
       "min_count": 2,
       "vaults_per_window": 10,
       "repetitions": 4
-    },
-    {
-      "name": "One wind burst in first ten ominous vaults",
-      "vault_type": "ominous",
-      "enchantment": "minecraft:wind_burst",
-      "min_count": 1,
-      "vaults_per_window": 10,
-      "repetitions": 1
     }
   ]
 }
