@@ -377,21 +377,6 @@ static BiomeMap *getCachedBiomeMap(
     return &cache[(*cacheCount)++].map;
 }
 
-/* How many group members have passed, and how many remain unevaluated?
- * A criterion with a group may fail individually without rejecting the seed. */
-static void groupProgress(const BiomeCriteria *criteria,
-                          const BiomeResult *result, const char *group,
-                          int *passed, int *pending)
-{
-    *passed = *pending = 0;
-    for (size_t i = 0; i < criteria->count; ++i) {
-        if (!criteria->items[i].group ||
-            strcmp(criteria->items[i].group, group)) continue;
-        if (result->checks[i].status == BIOME_CHECK_PASSED) ++*passed;
-        if (result->checks[i].status == BIOME_CHECK_NOT_EVALUATED) ++*pending;
-    }
-}
-
 /* Lazy map generation with priority order determined during JSON loading.
  * A small map need not be inflated by a later 5000-block biome requirement.
  * Group members each contribute at most one passing criterion, regardless
@@ -403,6 +388,7 @@ BiomeResult checkBiomeRequirements(
     const Generator *end,
     uint64_t seed,
     int scale,
+    CriterionGroupRuntime *groups,
     int verbose)
 {
     BiomeResult out = {0};
@@ -434,12 +420,8 @@ BiomeResult checkBiomeRequirements(
     for (size_t i = 0; i < criteria->count; ++i) {
         const BiomeCriterion *c = &criteria->items[i];
         BiomeCheckResult *check = &out.checks[i];
-        if (c->group) {
-            int passed, pending;
-            groupProgress(criteria, &out, c->group, &passed, &pending);
-            if (passed >= c->groupMinCount)
-                continue; /* group already satisfied */
-        }
+        if (!criterionGroupShouldCheck(groups, c->groupIndex))
+            continue; /* group already satisfied by ANY prior phase */
         const Generator *generator = getDimensionGenerator(
             c->dimension, overworld, nether, end);
         if (!generator) {
@@ -487,18 +469,9 @@ BiomeResult checkBiomeRequirements(
 
         if (verbose)
             printf("[%s] : %s\n", c->name, passed ? "PASS" : "FAIL");
-        if (!c->group) {
-            if (!passed) {
-                out.allPassed = 0;
-                goto cleanup;
-            }
-        } else {
-            int successful, pending;
-            groupProgress(criteria, &out, c->group, &successful, &pending);
-            if (successful + pending < c->groupMinCount) {
-                out.allPassed = 0;
-                goto cleanup;
-            }
+        if (!criterionGroupRecord(groups, c->groupIndex, passed)) {
+            out.allPassed = 0;
+            goto cleanup;
         }
     }
 cleanup:

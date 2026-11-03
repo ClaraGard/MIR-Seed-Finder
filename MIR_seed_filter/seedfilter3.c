@@ -170,16 +170,27 @@ static void write_structure_results(FILE *out, uint64_t seed,
  */
 static int write_vault_results(FILE *out, uint64_t seed,
                                const CriteriaConfig *config,
-                               const VaultLootEngine *engine)
+                               const VaultLootEngine *engine,
+                               const unsigned char *statuses)
 {
+    size_t passed = 0, failed = 0;
+    for (size_t i = 0; i < config->vaultLoot.count; ++i) {
+        passed += statuses[i] == 1;
+        failed += statuses[i] == 2;
+    }
     fprintf(out, "VAULT_LOOT seed=%" PRId64
-                 " passed=%zu failed=0 evaluated=%zu total=%zu\n",
-            seed_as_i64(seed), config->vaultLoot.count,
-            config->vaultLoot.count, config->vaultLoot.count);
+                 " passed=%zu failed=%zu evaluated=%zu total=%zu\n",
+            seed_as_i64(seed), passed, failed,
+            passed + failed, config->vaultLoot.count);
 
     for (size_t i = 0; i < config->vaultLoot.count; ++i) {
         const VaultLootCriterion *criterion = &config->vaultLoot.items[i];
         const VaultLootRule *rule = &criterion->rule;
+        if (statuses[i] != 1) {
+            fprintf(out, "  [%s] status=%s\n", criterion->name,
+                    statuses[i] == 2 ? "FAIL (group alternative)" : "NOT EVALUATED (group satisfied)");
+            continue;
+        }
         if (rule->repetitions <= 0 ||
             (size_t)rule->repetitions > SIZE_MAX / sizeof(int64_t))
             return 0;
@@ -224,13 +235,33 @@ static int test_seed(uint64_t seed, int smallBiomes,
                      const VaultLootEngine *vaultEngine,
                      size_t biomethreshold, FILE *out)
 {
-    if (config->vaultLoot.count > 0) {
-        int vaultMatch = vault_loot_filter_match_config(vaultEngine, seed, config);
-        if (vaultMatch != 1) {
-            if (vaultMatch < 0)
-                fprintf(stderr, "Vault loot criteria error for seed %" PRIu64 "\n", seed);
-            return vaultMatch < 0 ? -1 : 0;
+    /* One group counter per named group, on the stack. No per-seed heap
+     * allocations or string lookups, regardless of cross-phase membership. */
+    CriterionGroupProgress groupProgress[config->groupCount ? config->groupCount : 1];
+    for (size_t i = 0; i < config->groupCount; ++i) {
+        groupProgress[i].passed = 0;
+        groupProgress[i].remaining = config->groups[i].memberCount;
+    }
+    CriterionGroupRuntime groups = {
+        config->groups, groupProgress, config->groupCount
+    };
+
+    /* Vault members can be optional when they belong to mixed groups.
+     * 0=skipped, 1=pass, 2=fail. Only write diagnostics for FOUND seeds. */
+    unsigned char vaultStatuses[config->vaultLoot.count ? config->vaultLoot.count : 1];
+    memset(vaultStatuses, 0, sizeof(vaultStatuses));
+    for (size_t i = 0; i < config->vaultLoot.count; ++i) {
+        const VaultLootCriterion *criterion = &config->vaultLoot.items[i];
+        if (!criterionGroupShouldCheck(&groups, criterion->groupIndex))
+            continue;
+        int match = vault_loot_filter_match(vaultEngine, seed, &criterion->rule);
+        if (match < 0) {
+            fprintf(stderr, "Vault loot criterion error for seed %" PRIu64 "\n", seed);
+            return -1;
         }
+        vaultStatuses[i] = match ? 1 : 2;
+        if (!criterionGroupRecord(&groups, criterion->groupIndex, match))
+            return 0;
     }
 
     Generator ow, nether, end;
@@ -244,30 +275,13 @@ static int test_seed(uint64_t seed, int smallBiomes,
 
     StructureResult distances = checkStructureDistanceRequirements(
         &config->structuresDistance, MC, seed,
-        &ow, &nether, &end, 0);
+        &ow, &nether, &end, &groups, 0);
     if (distances.hasError) {
         fprintf(stderr, "Structure distance criteria error for seed %" PRIu64 "\n", seed);
         freeStructureResult(&distances);
         return 0;
     }
     if (!distances.allPassed) {
-        freeStructureResult(&distances);
-        return 0;
-    }
-
-    BiomeResult biomes = checkBiomeRequirements(
-        &config->biomes, &ow, &nether, &end,
-        seed, 16, 0);
-    if (biomes.hasError) {
-        fprintf(stderr, "Biome criteria error for seed %" PRIu64 "\n", seed);
-        freeBiomeResult(&biomes);
-        freeStructureResult(&distances);
-        return 0;
-    }
-    if (!biomes.allPassed) {
-        if (biomes.passedCount >= biomethreshold)
-            write_biome_results(out, seed, "BIOME_DEBUG", &biomes);
-        freeBiomeResult(&biomes);
         freeStructureResult(&distances);
         return 0;
     }
@@ -286,9 +300,26 @@ static int test_seed(uint64_t seed, int smallBiomes,
         return 0;
     }
 
+    BiomeResult biomes = checkBiomeRequirements(
+        &config->biomes, &ow, &nether, &end,
+        seed, 16, &groups, 0);
+    if (biomes.hasError) {
+        fprintf(stderr, "Biome criteria error for seed %" PRIu64 "\n", seed);
+        freeBiomeResult(&biomes);
+        freeStructureResult(&distances);
+        return 0;
+    }
+    if (!biomes.allPassed) {
+        if (biomes.passedCount >= biomethreshold)
+            write_biome_results(out, seed, "BIOME_DEBUG", &biomes);
+        freeBiomeResult(&biomes);
+        freeStructureResult(&distances);
+        return 0;
+    }
+
     StructureResult amounts = checkStructureAmountRequirements(
         &config->structuresAmount, MC, seed,
-        &ow, &nether, &end, 0);
+        &ow, &nether, &end, &groups, 0);
     if (amounts.hasError) {
         fprintf(stderr, "Structure amount criteria error for seed %" PRIu64 "\n", seed);
         freeStructureResult(&amounts);
@@ -305,11 +336,22 @@ static int test_seed(uint64_t seed, int smallBiomes,
         return 0;
     }
 
+    if (!criterionGroupsSatisfied(&groups)) {
+        freeStructureResult(&amounts);
+        freeBiomeResult(&biomes);
+        freeStructureResult(&distances);
+        return 0;
+    }
+
     fprintf(out, "FOUND seed=%" PRId64 "\n", seed_as_i64(seed));
+    for (size_t i = 0; i < config->groupCount; ++i)
+        fprintf(out, "GROUP [%s] passed=%d required=%d members=%d status=PASS\n",
+                config->groups[i].name, groupProgress[i].passed,
+                config->groups[i].minCount, config->groups[i].memberCount);
     fprintf(out, "SPAWN_HEIGHT pos=(%d,%d) approx_y=%.2f min_y=%d status=PASS\n",
             spawn.x, spawn.z, (double)approxSpawnY, MIN_SPAWN_SURFACE_Y);
     if (config->vaultLoot.count > 0 &&
-        !write_vault_results(out, seed, config, vaultEngine)) {
+        !write_vault_results(out, seed, config, vaultEngine, vaultStatuses)) {
         fprintf(stderr, "Vault loot reporting error for seed %" PRIu64 "\n", seed);
         freeStructureResult(&amounts);
         freeBiomeResult(&biomes);

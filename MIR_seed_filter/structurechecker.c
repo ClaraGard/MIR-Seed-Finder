@@ -288,7 +288,7 @@ static StructureResult newResult(size_t count)
 StructureResult checkStructureDistanceRequirements(
     const StructureDistanceCriteria *criteria, int mc, uint64_t seed,
     Generator *ow, Generator *nether, Generator *end,
-    int verbose)
+    CriterionGroupRuntime *groups, int verbose)
 {
     if (!criteria || !ow || !nether || !end) {
         StructureResult error = {0};
@@ -301,6 +301,7 @@ StructureResult checkStructureDistanceRequirements(
     for (size_t i = 0; i < criteria->count; ++i) {
         r.checks[i].name = criteria->items[i].name;
         r.checks[i].distance = -1.0;
+        if (!criterionGroupShouldCheck(groups, criteria->items[i].groupIndex)) continue;
         if (criteria->items[i].structureId == End_City) needsCity = 1;
         if (criterionUsesFirstEndGateway(criteria->items[i].dimension,
                         criteria->items[i].x, criteria->items[i].z))
@@ -312,6 +313,7 @@ StructureResult checkStructureDistanceRequirements(
     for (size_t i = 0; i < criteria->count; ++i) {
         const StructureDistanceCriterion *c = &criteria->items[i];
         StructureCheckEntry *entry = &r.checks[i];
+        if (!criterionGroupShouldCheck(groups, c->groupIndex)) continue;
         if (c->dimension < 0 || c->dimension > 2) {
             entry->status = STRUCTURE_CHECK_ERROR;
             r.hasError = 1;
@@ -334,7 +336,10 @@ StructureResult checkStructureDistanceRequirements(
         if (verbose) fprintf(stderr, "[%s] structure distance %.2f : %s\n",
                              c->name, entry->distance,
                              passed < 0 ? "ERROR" : passed ? "PASS" : "FAIL");
-        if (passed <= 0) { r.allPassed = 0; break; }
+        if (passed < 0 || !criterionGroupRecord(groups, c->groupIndex, passed > 0)) {
+            r.allPassed = 0;
+            break;
+        }
     }
     return r;
 }
@@ -342,7 +347,7 @@ StructureResult checkStructureDistanceRequirements(
 StructureResult checkStructureAmountRequirements(
     const StructureAmountCriteria *criteria, int mc, uint64_t seed,
     Generator *ow, Generator *nether, Generator *end,
-    int verbose)
+    CriterionGroupRuntime *groups, int verbose)
 {
     if (!criteria || !ow || !nether || !end) {
         StructureResult error = {0};
@@ -354,6 +359,7 @@ StructureResult checkStructureAmountRequirements(
     int needsCity = 0, needsSpawn = 0;
     for (size_t i = 0; i < criteria->count; ++i) {
         r.checks[i].name = criteria->items[i].name;
+        if (!criterionGroupShouldCheck(groups, criteria->items[i].groupIndex)) continue;
         if (criteria->items[i].structureId == End_City) needsCity = 1;
         if (criterionUsesFirstEndGateway(criteria->items[i].dimension,
                         criteria->items[i].x, criteria->items[i].z))
@@ -365,6 +371,7 @@ StructureResult checkStructureAmountRequirements(
     for (size_t i = 0; i < criteria->count; ++i) {
         const StructureAmountCriterion *c = &criteria->items[i];
         StructureCheckEntry *entry = &r.checks[i];
+        if (!criterionGroupShouldCheck(groups, c->groupIndex)) continue;
         if (c->dimension < 0 || c->dimension > 2) {
             entry->status = STRUCTURE_CHECK_ERROR;
             r.hasError = 1;
@@ -389,7 +396,10 @@ StructureResult checkStructureAmountRequirements(
                              c->name, entry->countExact ? "" : ">=",
                              entry->count,
                              passed < 0 ? "ERROR" : passed ? "PASS" : "FAIL");
-        if (passed <= 0) { r.allPassed = 0; break; }
+        if (passed < 0 || !criterionGroupRecord(groups, c->groupIndex, passed > 0)) {
+            r.allPassed = 0;
+            break;
+        }
     }
     return r;
 }

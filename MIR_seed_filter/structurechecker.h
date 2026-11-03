@@ -58,12 +58,12 @@ void freeStructureResult(StructureResult *result);
 StructureResult checkStructureDistanceRequirements(
     const StructureDistanceCriteria *criteria, int mc, uint64_t seed,
     Generator *overworld, Generator *nether, Generator *end,
-    int verbose);
+    CriterionGroupRuntime *groups, int verbose);
 
 StructureResult checkStructureAmountRequirements(
     const StructureAmountCriteria *criteria, int mc, uint64_t seed,
     Generator *overworld, Generator *nether, Generator *end,
-    int verbose);
+    CriterionGroupRuntime *groups, int verbose);
 
 Pos firstLinkedEndGateway(int mc, uint64_t seed,
                           const SurfaceNoise *endSurface);

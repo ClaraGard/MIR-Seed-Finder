@@ -10,6 +10,7 @@ docs/LayerSummary.toc
 *.a
 *.out
 *.txt
+!sample_seeds/*.txt
 *.tmp
 *.exe
 *.so

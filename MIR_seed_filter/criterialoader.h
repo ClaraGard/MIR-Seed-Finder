@@ -35,7 +35,7 @@ typedef struct {
     BiomeDimension dimension;
     int x, z;
     char *group;                 /* optional shared group, e.g. four quadrants */
-    int groupMinCount;           /* derived exclusively from top-level groups */
+    int groupIndex;              /* -1 = mandatory; >=0 = shared group index */
     int difficulty;              /* larger value = checked earlier within biome phase */
     int radius;                  /* half-width of query square, in blocks */
     double minArea, maxArea;     /* -1 disables a bound */
@@ -52,6 +52,8 @@ typedef struct {
     BiomeDimension dimension;
     int x, z;
     int minDistance, maxDistance; /* blocks, -1 disables a bound */
+    char *group;                 /* optional shared group across all criterion types */
+    int groupIndex;              /* -1 = mandatory */
     int difficulty;              /* larger value = checked earlier within distance phase */
 } StructureDistanceCriterion;
 
@@ -67,6 +69,8 @@ typedef struct {
     int x, z;
     int countRadius;             /* square half-width in blocks; -1 = unbounded */
     int minCount, maxCount;      /* -1 disables a bound */
+    char *group;
+    int groupIndex;              /* -1 = mandatory */
     int difficulty;              /* larger value = checked earlier within amount phase */
 } StructureAmountCriterion;
 
@@ -75,10 +79,12 @@ typedef struct {
     size_t count;
 } StructureAmountCriteria;
 
-/* JSON section "vault_loot". Every criterion must pass (AND). */
+/* JSON section "vault_loot": ungrouped criteria are mandatory. */
 typedef struct {
     char *name;
     VaultLootRule rule;
+    char *group;
+    int groupIndex;              /* -1 = mandatory */
     int difficulty;              /* larger value = checked earlier within vault phase */
 } VaultLootCriterion;
 
@@ -87,12 +93,62 @@ typedef struct {
     size_t count;
 } VaultLootCriteria;
 
+typedef struct {
+    char *name;
+    int minCount;
+    int memberCount;
+} CriterionGroup;
+
+/* Per-seed counts. Held on the worker stack: no per-seed group heap allocation
+ * or name comparisons. Groups can contain criteria from ANY phase. */
+typedef struct {
+    int passed;
+    int remaining;
+} CriterionGroupProgress;
+
+typedef struct {
+    const CriterionGroup *definitions;
+    CriterionGroupProgress *progress;
+    size_t count;
+} CriterionGroupRuntime;
+
+static inline int criterionGroupShouldCheck(const CriterionGroupRuntime *state,
+                                            int groupIndex)
+{
+    return groupIndex < 0 || !state ||
+        state->progress[groupIndex].passed < state->definitions[groupIndex].minCount;
+}
+
+/* Returns false if an ungrouped criterion fails or if a group is now
+ * mathematically impossible. Skipped members do not consume votes. */
+static inline int criterionGroupRecord(CriterionGroupRuntime *state,
+                                       int groupIndex, int passed)
+{
+    if (groupIndex < 0) return passed;
+    if (!state) return 0;
+    CriterionGroupProgress *g = &state->progress[groupIndex];
+    --g->remaining;
+    if (passed) ++g->passed;
+    return g->passed + g->remaining >= state->definitions[groupIndex].minCount;
+}
+
+static inline int criterionGroupsSatisfied(const CriterionGroupRuntime *state)
+{
+    if (!state) return 1;
+    for (size_t i = 0; i < state->count; ++i)
+        if (state->progress[i].passed < state->definitions[i].minCount)
+            return 0;
+    return 1;
+}
+
 /* Spawn surface height is mandatory and hardcoded in seedfilter3.c. */
 typedef struct CriteriaConfig {
     BiomeCriteria biomes;
     StructureDistanceCriteria structuresDistance;
     StructureAmountCriteria structuresAmount;
     VaultLootCriteria vaultLoot;
+    CriterionGroup *groups;
+    size_t groupCount;
 } CriteriaConfig;
 
 /* Returns 1 on success, 0 on parse/validation/I/O failure. Initialize config to {0}. */

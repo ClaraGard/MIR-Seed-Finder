@@ -61,6 +61,7 @@ BiomeResult checkBiomeRequirements(const BiomeCriteria *criteria,
                            const Generator *overworld,
                            const Generator *nether,
                            const Generator *end,
-                           uint64_t seed, int scale, int verbose);
+                           uint64_t seed, int scale,
+                           CriterionGroupRuntime *groups, int verbose);
 
 #endif

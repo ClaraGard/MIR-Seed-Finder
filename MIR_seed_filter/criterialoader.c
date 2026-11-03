@@ -164,14 +164,30 @@ static int validBounds(double min, double max)
            (min == -1 || max == -1 || min <= max);
 }
 
+static int readCriterionGroup(const cJSON *obj, char **group,
+                              int *groupIndex, const char *name,
+                              char *err, size_t cap)
+{
+    const cJSON *item = field(obj, "group");
+    *groupIndex = -1;
+    if (field(obj, "group_min_count")) {
+        setError(err, cap, "'%s' uses obsolete group_min_count; use root groups.", name);
+        return 0;
+    }
+    if (!item) return 1;
+    if (!cJSON_IsString(item) || !item->valuestring[0] ||
+        !(*group = copyString(item->valuestring))) {
+        setError(err, cap, "Invalid group in '%s'.", name);
+        return 0;
+    }
+    return 1;
+}
+
 static int readBiome(const cJSON *obj, BiomeCriterion *c,
                      char *err, size_t cap)
 {
     const cJSON *origin = field(obj, "origin");
     const cJSON *ids = field(obj, "biome_ids");
-    const cJSON *group = field(obj, "group");
-    /* Per-criterion group_min_count was removed; the root groups object
-     * is now the sole source of a group's required passed-criterion count. */
     if (!readName(obj, &c->name) || !cJSON_IsObject(origin) ||
         !cJSON_IsArray(ids) || !readDimension(origin, &c->dimension) ||
         !readOrigin(origin, c->dimension, &c->x, &c->z, 0) ||
@@ -185,15 +201,8 @@ static int readBiome(const cJSON *obj, BiomeCriterion *c,
                  c->name ? c->name : "(unnamed)");
         return 0;
     }
-    if (field(obj, "group_min_count")) {
-        setError(err, cap, "'%s' uses obsolete group_min_count; declare the threshold in top-level groups.", c->name);
-        return 0;
-    }
-    if (group && (!cJSON_IsString(group) || !group->valuestring[0] ||
-                  !(c->group = copyString(group->valuestring)))) {
-        setError(err, cap, "Invalid biome group in '%s'.", c->name);
-        return 0;
-    }
+    if (!readCriterionGroup(obj, &c->group, &c->groupIndex,
+                            c->name, err, cap)) return 0;
     size_t n = (size_t)cJSON_GetArraySize(ids);
     if (!n || n > SIZE_MAX / sizeof(int)) {
         setError(err, cap, "Invalid biome_ids size in '%s'.", c->name);
@@ -233,7 +242,8 @@ static int readDistance(const cJSON *obj, StructureDistanceCriterion *c,
                  c->name ? c->name : "(unnamed)");
         return 0;
     }
-    return 1;
+    return readCriterionGroup(obj, &c->group, &c->groupIndex,
+                              c->name, err, cap);
 }
 
 static int readAmount(const cJSON *obj, StructureAmountCriterion *c,
@@ -253,7 +263,8 @@ static int readAmount(const cJSON *obj, StructureAmountCriterion *c,
                  c->name ? c->name : "(unnamed)");
         return 0;
     }
-    return 1;
+    return readCriterionGroup(obj, &c->group, &c->groupIndex,
+                              c->name, err, cap);
 }
 
 /* The fork provides item_name2global_id() for all known Minecraft items.
@@ -350,6 +361,8 @@ static int readVaultLoot(const cJSON *obj, VaultLootCriterion *c,
                  c->name ? c->name : "(unnamed)");
         return 0;
     }
+    if (!readCriterionGroup(obj, &c->group, &c->groupIndex,
+                            c->name, err, cap)) return 0;
     if (!repetitions) r->repetitions = 1;
     if (r->repetitions < 1 ||
         r->vaults_per_window > INT_MAX / r->repetitions) {
@@ -409,21 +422,30 @@ void freeBiomeCriteria(BiomeCriteria *c)
 
 static void freeDistances(StructureDistanceCriteria *c)
 {
-    for (size_t i = 0; i < c->count; i++) free(c->items[i].name);
+    for (size_t i = 0; i < c->count; i++) {
+        free(c->items[i].name);
+        free(c->items[i].group);
+    }
     free(c->items);
     *c = (StructureDistanceCriteria){0};
 }
 
 static void freeAmounts(StructureAmountCriteria *c)
 {
-    for (size_t i = 0; i < c->count; i++) free(c->items[i].name);
+    for (size_t i = 0; i < c->count; i++) {
+        free(c->items[i].name);
+        free(c->items[i].group);
+    }
     free(c->items);
     *c = (StructureAmountCriteria){0};
 }
 
 static void freeVaults(VaultLootCriteria *c)
 {
-    for (size_t i = 0; i < c->count; i++) free(c->items[i].name);
+    for (size_t i = 0; i < c->count; i++) {
+        free(c->items[i].name);
+        free(c->items[i].group);
+    }
     free(c->items);
     *c = (VaultLootCriteria){0};
 }
@@ -435,6 +457,12 @@ void freeCriteriaConfig(CriteriaConfig *c)
     freeDistances(&c->structuresDistance);
     freeAmounts(&c->structuresAmount);
     freeVaults(&c->vaultLoot);
+    if (c->groups)
+        for (size_t i = 0; i < c->groupCount; ++i)
+            free(c->groups[i].name);
+    free(c->groups);
+    c->groups = NULL;
+    c->groupCount = 0;
 }
 
 int loadCriteriaConfig(const char *filename, CriteriaConfig *out,
@@ -521,47 +549,6 @@ int loadCriteriaConfig(const char *filename, CriteriaConfig *out,
             goto failed;
         i++;
     }
-    /* Each member names one group declared in the root groups object.
-     * Count passing CRITERIA, not biome IDs/patches/occurrences.
-     * A criterion with multiple biome_ids is still exactly one group vote. */
-    const cJSON *groupDefinition;
-    cJSON_ArrayForEach(groupDefinition, groups) {
-        int threshold;
-        if (!groupDefinition->string || !groupDefinition->string[0] ||
-            !asInteger(groupDefinition, &threshold) || threshold < 1) {
-            setError(err, cap, "Invalid groups entry (expected name: positive integer).");
-            goto failed;
-        }
-        for (const cJSON *duplicate = groupDefinition->next; duplicate;
-             duplicate = duplicate->next) {
-            if (duplicate->string &&
-                !strcmp(groupDefinition->string, duplicate->string)) {
-                setError(err, cap, "Duplicate groups entry '%s'.", groupDefinition->string);
-                goto failed;
-            }
-        }
-        size_t members = 0;
-        for (size_t j = 0; j < out->biomes.count; ++j) {
-            BiomeCriterion *member = &out->biomes.items[j];
-            if (member->group && !strcmp(member->group, groupDefinition->string)) {
-                member->groupMinCount = threshold;
-                ++members;
-            }
-        }
-        if (members < (size_t)threshold) {
-            setError(err, cap, "Group '%s' requires %d passing criteria but has only %zu members.",
-                     groupDefinition->string, threshold, members);
-            goto failed;
-        }
-    }
-    for (size_t j = 0; j < out->biomes.count; ++j) {
-        const BiomeCriterion *member = &out->biomes.items[j];
-        if (member->group && member->groupMinCount == 0) {
-            setError(err, cap, "Biome criterion '%s' references undeclared group '%s'.",
-                     member->name, member->group);
-            goto failed;
-        }
-    }
     i = 0;
     cJSON_ArrayForEach(entry, distances) {
         if (!cJSON_IsObject(entry) ||
@@ -583,6 +570,76 @@ int loadCriteriaConfig(const char *filename, CriteriaConfig *out,
             goto failed;
         i++;
     }
+
+    /* Validate all named groups only after loading EVERY phase. Each criterion
+     * (not each biome ID, loot item, or discovered structure) gets one vote.
+     * All matching is done now, never in the per-seed hot loop. */
+    out->groupCount = groups ? (size_t)cJSON_GetArraySize(groups) : 0;
+    if (out->groupCount > 1024) {
+        setError(err, cap, "Too many groups (max 1024).");
+        goto failed;
+    }
+    if (out->groupCount) {
+        out->groups = calloc(out->groupCount, sizeof(*out->groups));
+        if (!out->groups) {
+            setError(err, cap, "Out of memory allocating groups.");
+            goto failed;
+        }
+    }
+    size_t g = 0;
+    const cJSON *groupDefinition;
+    cJSON_ArrayForEach(groupDefinition, groups) {
+        int threshold;
+        if (!groupDefinition->string || !groupDefinition->string[0] ||
+            !asInteger(groupDefinition, &threshold) || threshold < 1) {
+            setError(err, cap, "Invalid groups entry (expected name: positive integer).");
+            goto failed;
+        }
+        for (size_t j = 0; j < g; ++j) {
+            if (!strcmp(out->groups[j].name, groupDefinition->string)) {
+                setError(err, cap, "Duplicate groups entry '%s'.", groupDefinition->string);
+                goto failed;
+            }
+        }
+        CriterionGroup *target = &out->groups[g];
+        target->name = copyString(groupDefinition->string);
+        if (!target->name) goto failed;
+        target->minCount = threshold;
+#define REGISTER_MEMBERS(array) do { \
+        for (size_t j = 0; j < (array).count; ++j) { \
+            if ((array).items[j].group && \
+                !strcmp((array).items[j].group, target->name)) { \
+                (array).items[j].groupIndex = (int)g; \
+                ++target->memberCount; \
+            } \
+        } \
+    } while (0)
+        REGISTER_MEMBERS(out->vaultLoot);
+        REGISTER_MEMBERS(out->structuresDistance);
+        REGISTER_MEMBERS(out->biomes);
+        REGISTER_MEMBERS(out->structuresAmount);
+#undef REGISTER_MEMBERS
+        if (target->minCount > target->memberCount) {
+            setError(err, cap, "Group '%s' needs %d passing criteria but has only %d members.",
+                     target->name, target->minCount, target->memberCount);
+            goto failed;
+        }
+        ++g;
+    }
+#define CHECK_UNKNOWN_GROUP(array) do { \
+        for (size_t j = 0; j < (array).count; ++j) { \
+            if ((array).items[j].group && (array).items[j].groupIndex < 0) { \
+                setError(err, cap, "Criterion '%s' references undeclared group '%s'.", \
+                         (array).items[j].name, (array).items[j].group); \
+                goto failed; \
+            } \
+        } \
+    } while (0)
+    CHECK_UNKNOWN_GROUP(out->vaultLoot);
+    CHECK_UNKNOWN_GROUP(out->structuresDistance);
+    CHECK_UNKNOWN_GROUP(out->biomes);
+    CHECK_UNKNOWN_GROUP(out->structuresAmount);
+#undef CHECK_UNKNOWN_GROUP
 
     /* Sort within each stage ONLY; never move checks between stages. */
     STABLE_SORT_BY_DIFFICULTY(out->vaultLoot.items, out->vaultLoot.count, VaultLootCriterion);
