@@ -220,5 +220,7 @@
       "max_distance": -1
     }
   ],
-  "structures_amount": []
+  "structures_amount": [],
+  "vault_loot": []
+
 }

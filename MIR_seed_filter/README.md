@@ -2,7 +2,7 @@
 
 A multithreaded Minecraft seed search tool written in C, built on [Cubiomes](https://github.com/Cubitect/cubiomes). It tests randomly generated 64-bit seeds against configurable biome-area and structure requirements defined in JSON.
 
-The current source targets **Minecraft Java Edition 1.21** (`#define MC MC_1_21`). If you are targeting a different version, review the version selection and compatibility of the Cubiomes code before building.
+The current `seedfilter3.c` targets **Minecraft Java Edition 26.3** (`#define MC MC_26_3`). Vault loot sequence results still need to be verified against Minecraft itself.
 
 ## Features
 
@@ -16,27 +16,31 @@ The current source targets **Minecraft Java Edition 1.21** (`#define MC MC_1_21`
 ## Requirements
 
 - A C compiler such as GCC (MinGW-w64 on Windows).
-- The Cubiomes sources and the project's custom `.c`/`.h` files in your build directory.
-- `cJSON.c` and `cJSON.h`.
+- Cubiomes source code in the parent directory and the custom `.c`/`.h` files in `MIR_seed_filter/`.
+- cubiomes supplies cJSON in `loot/cjson/`; do not compile a duplicate.
 - On Windows, the system BCrypt library (linked with `-lbcrypt`).
 
-## Building
+## Building (MSYS2 UCRT64 on Windows)
 
-Run the following command from the directory containing the source files.
+The MIR source files live in `MIR_seed_filter/`, separate from the cubiomes library.
+The library uses its own copy of cJSON (`loot/cjson`); do not add a separate
+`cJSON.c` to MIR builds or compile the old `seedfilter2.c`.
 
-### Windows (MinGW-w64 / GCC)
-
-```bash
-gcc -O3 -o seedfilter.exe seedfilter3.c biomes.c biomenoise.c finders.c generator.c layers.c noise.c quadbase.c util.c biomeareachecker.c criterialoader.c structurechecker.c cJSON.c -lm -lbcrypt
-```
-
-### Linux (GCC)
+In the MSYS2 **UCRT64** terminal, from the `cubiomes/` directory:
 
 ```bash
-gcc -O3 -o seedfilter seedfilter3.c biomes.c biomenoise.c finders.c generator.c layers.c noise.c quadbase.c util.c biomeareachecker.c criterialoader.c structurechecker.c cJSON.c -lm
+# Only needed once if a previous build accidentally included MIR sources:
+make -f makefile clean
+
+# Build the cubiomes library and MIR/seedfilter3:
+make -C MIR_seed_filter -j8
 ```
 
-The Linux implementation uses `getrandom()`, so this command is intended for Linux rather than macOS. If you have renamed `seedfilter3.c` or your source files, update the command accordingly. You can add `-march=native` for a machine-specific optimized build.
+This produces `MIR_seed_filter/seedfilter3.exe`. Later, simply rerun
+`make -C MIR_seed_filter -j8` after editing a source file. If you modify
+cubiomes library sources, rebuild with `make -f makefile release -j8` first.
+
+For Linux, the same Makefile produces `MIR_seed_filter/seedfilter3`.
 
 ## Running
 
@@ -44,7 +48,7 @@ The Linux implementation uses `getrandom()`, so this command is intended for Lin
 seedfilter <number-of-seeds> <criteria.json> <biomethreshold> <output-file> <processes> [true|false]
 ```
 
-On Windows, use `seedfilter.exe`; on Linux, use `./seedfilter`.
+From the repository root, use `./MIR_seed_filter/seedfilter3.exe` on Windows or `./MIR_seed_filter/seedfilter3` on Linux.
 
 | Argument | Meaning |
 | --- | --- |
@@ -55,16 +59,16 @@ On Windows, use `seedfilter.exe`; on Linux, use `./seedfilter`.
 | `processes` | Number of parallel worker processes. |
 | `true|false` | Optional small-biomes mode; defaults to `false`. Also accepts `1` or `0`. |
 
-**Example (Windows):**
+**Example (Windows UCRT64, from `cubiomes/`):**
 
 ```bash
-./seedfilter.exe 1000000 filters.json 5 results.txt 8 false
+./MIR_seed_filter/seedfilter3.exe 1000000 MIR_seed_filter/criterias/longue.json 5 MIR_seed_filter/results.txt 8 false
 ```
 
-**Example (Linux):**
+**Example (Linux, from `cubiomes/`):**
 
 ```bash
-./seedfilter 1000000 filters.json 5 results.txt 8 false
+./MIR_seed_filter/seedfilter3 1000000 MIR_seed_filter/criterias/longue.json 5 MIR_seed_filter/results.txt 8 false
 ```
 
 This tests **1,000,000 seeds in total** using **8 processes**, loads `filters.json`, and saves fully matching seeds plus qualifying diagnostic entries to `results.txt`.
@@ -73,11 +77,12 @@ Each worker generates its own pseudorandom sequence, initialized from operating-
 
 ## Creating filter JSON files
 
-The JSON root object contains three arrays:
+The JSON root object supports four arrays:
 
 - `biomes` — biome area requirements (**required**, but may be empty).
 - `structures_distance` — nearest-structure distance requirements (optional).
 - `structures_amount` — structure count requirements (optional).
+- `vault_loot` — conditions on sequential normal or ominous vault openings (optional).
 
 **All criteria must pass** for a seed to be written as `FOUND`. Within a *single* `biome_ids` array, however, the IDs are treated as alternatives: the filter measures the **combined area** of any of those biomes. To require separate biome types, put them in separate criteria.
 
@@ -284,3 +289,34 @@ The output file is overwritten on a new run. Temporary worker outputs are combin
 - Multiple entries in `biomes` enforce **AND** logic; multiple IDs within one entry enforce **OR/combined-area** logic. This matters when requiring multiple wood-supporting biomes or separate biome families.
 - Standard JSON does not support comments or trailing commas.
 - This is a seed-based **approximation/search** tool. Structure viability and sampled biome coverage are not a substitute for checking important finds in the actual Minecraft version and world settings you intend to play.
+
+## Vault loot criteria (26.3)
+
+Optional `vault_loot` entries are ANDed with all other criteria. Each rule
+requires at least `min_count` copies in EACH non-overlapping group of
+`vaults_per_window` consecutive openings, repeated `repetitions` times.
+Omitting `repetitions` is the same as `1`. The first opening is #1.
+
+Example: at least two Heavy Cores in openings 1–10, 11–20, 21–30, 31–40:
+
+```json
+"vault_loot": [
+  {
+    "name": "heavy_core_every_10",
+    "vault_type": "ominous",
+    "item": "minecraft:heavy_core",
+    "min_count": 2,
+    "vaults_per_window": 10,
+    "repetitions": 4
+  }
+]
+```
+
+Replace `item` with `"enchantment": "minecraft:wind_burst"` for an
+enchantment requirement. See `criterias/vault_example.json` for a standalone
+JSON example. Your `longue.json` already includes both the 2-heavy-cores-per-10
+ominous vaults rule (4 repetitions) and a Wind Burst rule. Your `courte.json` and
+`intermédiaire.json` currently have empty `vault_loot` arrays.
+
+The generator uses a C simulation of Minecraft loot sequences. Verify its
+results against the target Minecraft version before relying on the predictions.

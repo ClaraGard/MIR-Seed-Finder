@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <limits.h>
+#include "vault_loot_filter.h"
 
 /* Shared, parsed criterion definitions: no cJSON dependency in checkers. */
 typedef enum {
@@ -69,10 +70,22 @@ typedef struct {
     size_t count;
 } StructureAmountCriteria;
 
+/* JSON section "vault_loot". Every criterion must pass (AND). */
 typedef struct {
+    char *name;
+    VaultLootRule rule;
+} VaultLootCriterion;
+
+typedef struct {
+    VaultLootCriterion *items;
+    size_t count;
+} VaultLootCriteria;
+
+typedef struct CriteriaConfig {
     BiomeCriteria biomes;
     StructureDistanceCriteria structuresDistance;
     StructureAmountCriteria structuresAmount;
+    VaultLootCriteria vaultLoot;
 } CriteriaConfig;
 
 /* Returns 1 on success, 0 on parse/validation/I/O failure. Initialize config to {0}. */

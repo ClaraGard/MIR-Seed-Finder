@@ -1,6 +1,7 @@
 #include "criterialoader.h"
 #include "finders.h"
-#include "cJSON.h"
+#include "loot/cjson/cJSON.h"
+#include "loot/items.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -232,6 +233,128 @@ static int readAmount(const cJSON *obj, StructureAmountCriterion *c,
     return 1;
 }
 
+/* The fork provides item_name2global_id() for all known Minecraft items.
+ * Both "heavy_core" and "minecraft:heavy_core" are accepted. */
+static int readVaultItemId(const char *name)
+{
+    if (strncmp(name, "minecraft:", 10) == 0)
+        return item_name2global_id(name);
+    if (strchr(name, ':') != NULL)
+        return ITEM_UNKNOWN;  /* only minecraft namespace is supported */
+    size_t len = strlen(name);
+    if (len > 200) return ITEM_UNKNOWN;
+    char qualified[211];
+    memcpy(qualified, "minecraft:", 10);
+    memcpy(qualified + 10, name, len + 1);
+    return item_name2global_id(qualified);
+}
+
+/* Minecraft enchantment resource IDs -> cubiomes enum Enchantment.
+ * Keep in sync with loot/loot_functions.h from branch mc-26.3. */
+static int readVaultEnchantmentId(const char *name)
+{
+    static const struct { const char *name; int id; } names[] = {
+        {"protection", PROTECTION},
+        {"fire_protection", FIRE_PROTECTION},
+        {"blast_protection", BLAST_PROTECTION},
+        {"projectile_protection", PROJECTILE_PROTECTION},
+        {"respiration", RESPIRATION},
+        {"aqua_affinity", AQUA_AFFINITY},
+        {"thorns", THORNS},
+        {"swift_sneak", SWIFT_SNEAK},
+        {"feather_falling", FEATHER_FALLING},
+        {"depth_strider", DEPTH_STRIDER},
+        {"frost_walker", FROST_WALKER},
+        {"soul_speed", SOUL_SPEED},
+        {"sharpness", SHARPNESS},
+        {"smite", SMITE},
+        {"bane_of_arthropods", BANE_OF_ARTHROPODS},
+        {"knockback", KNOCKBACK},
+        {"fire_aspect", FIRE_ASPECT},
+        {"looting", LOOTING},
+        {"sweeping_edge", SWEEPING_EDGE},
+        {"efficiency", EFFICIENCY},
+        {"silk_touch", SILK_TOUCH},
+        {"fortune", FORTUNE},
+        {"luck_of_the_sea", LUCK_OF_THE_SEA},
+        {"lure", LURE},
+        {"power", POWER},
+        {"punch", PUNCH},
+        {"flame", FLAME},
+        {"infinity", INFINITY_ENCHANTMENT},
+        {"quick_charge", QUICK_CHARGE},
+        {"multishot", MULTISHOT},
+        {"piercing", PIERCING},
+        {"impaling", IMPALING},
+        {"riptide", RIPTIDE},
+        {"loyalty", LOYALTY},
+        {"channeling", CHANNELING},
+        {"density", DENSITY},
+        {"breach", BREACH},
+        {"wind_burst", WIND_BURST},
+        {"mending", MENDING},
+        {"unbreaking", UNBREAKING},
+        {"vanishing_curse", CURSE_OF_VANISHING},
+        {"binding_curse", CURSE_OF_BINDING},
+        {"lunge", LUNGE}
+    };
+    const char *plain = name;
+    if (strncmp(plain, "minecraft:", 10) == 0)
+        plain += 10;
+    else if (strchr(plain, ':') != NULL)
+        return NO_ENCHANTMENT;
+    for (size_t i = 0; i < sizeof(names)/sizeof(names[0]); ++i)
+        if (strcmp(plain, names[i].name) == 0) return names[i].id;
+    return NO_ENCHANTMENT;
+}
+
+static int readVaultLoot(const cJSON *obj, VaultLootCriterion *c,
+                         char *err, size_t cap)
+{
+    const cJSON *vaultType = field(obj, "vault_type");
+    const cJSON *item = field(obj, "item");
+    const cJSON *enchantment = field(obj, "enchantment");
+    const cJSON *repetitions = field(obj, "repetitions");
+    VaultLootRule *r = &c->rule;
+
+    if (!readName(obj, &c->name) || !cJSON_IsString(vaultType) ||
+        !readInt(obj, "min_count", &r->min_count) || r->min_count < 1 ||
+        !readInt(obj, "vaults_per_window", &r->vaults_per_window) ||
+        r->vaults_per_window < 1 ||
+        (repetitions && !asInteger(repetitions, &r->repetitions))) {
+        setError(err, cap, "Invalid vault loot criterion '%s'.",
+                 c->name ? c->name : "(unnamed)");
+        return 0;
+    }
+    if (!repetitions) r->repetitions = 1;
+    if (r->repetitions < 1 ||
+        r->vaults_per_window > INT_MAX / r->repetitions) {
+        setError(err, cap, "Invalid window count in vault loot criterion '%s'.", c->name);
+        return 0;
+    }
+    if (!strcmp(vaultType->valuestring, "normal"))
+        r->vault_kind = VAULT_LOOT_NORMAL;
+    else if (!strcmp(vaultType->valuestring, "ominous"))
+        r->vault_kind = VAULT_LOOT_OMINOUS;
+    else {
+        setError(err, cap, "Unknown vault_type in '%s' (expected normal or ominous).", c->name);
+        return 0;
+    }
+    if (cJSON_IsString(item) && !enchantment) {
+        r->target_kind = VAULT_LOOT_TARGET_ITEM;
+        r->target_id = readVaultItemId(item->valuestring);
+        if (r->target_id >= 0 && r->target_id < NUM_ITEMS) return 1;
+    } else if (cJSON_IsString(enchantment) && !item) {
+        r->target_kind = VAULT_LOOT_TARGET_ENCHANTMENT;
+        r->target_id = readVaultEnchantmentId(enchantment->valuestring);
+        if (r->target_id > NO_ENCHANTMENT && r->target_id <= LUNGE) return 1;
+    }
+    setError(err, cap,
+             "Vault loot criterion '%s' requires exactly one known item or enchantment.",
+             c->name);
+    return 0;
+}
+
 void freeBiomeCriteria(BiomeCriteria *c)
 {
     if (!c) return;
@@ -257,12 +380,20 @@ static void freeAmounts(StructureAmountCriteria *c)
     *c = (StructureAmountCriteria){0};
 }
 
+static void freeVaults(VaultLootCriteria *c)
+{
+    for (size_t i = 0; i < c->count; i++) free(c->items[i].name);
+    free(c->items);
+    *c = (VaultLootCriteria){0};
+}
+
 void freeCriteriaConfig(CriteriaConfig *c)
 {
     if (!c) return;
     freeBiomeCriteria(&c->biomes);
     freeDistances(&c->structuresDistance);
     freeAmounts(&c->structuresAmount);
+    freeVaults(&c->vaultLoot);
 }
 
 int loadCriteriaConfig(const char *filename, CriteriaConfig *out,
@@ -307,15 +438,18 @@ int loadCriteriaConfig(const char *filename, CriteriaConfig *out,
     const cJSON *biomes = field(root, "biomes");
     const cJSON *distances = field(root, "structures_distance");
     const cJSON *amounts = field(root, "structures_amount");
+    const cJSON *vaults = field(root, "vault_loot");
     if (!cJSON_IsArray(biomes) ||
         (distances && !cJSON_IsArray(distances)) ||
-        (amounts && !cJSON_IsArray(amounts))) {
-        setError(err, cap, "JSON requires a biomes array; structure arrays must be arrays when present.");
+        (amounts && !cJSON_IsArray(amounts)) ||
+        (vaults && !cJSON_IsArray(vaults))) {
+        setError(err, cap, "JSON requires a biomes array; optional structure/vault_loot fields must be arrays.");
         goto failed;
     }
     out->biomes.count = (size_t)cJSON_GetArraySize(biomes);
     out->structuresDistance.count = (size_t)cJSON_GetArraySize(distances);
     out->structuresAmount.count = (size_t)cJSON_GetArraySize(amounts);
+    out->vaultLoot.count = (size_t)cJSON_GetArraySize(vaults);
     if (out->biomes.count)
         out->biomes.items = calloc(out->biomes.count, sizeof(*out->biomes.items));
     if (out->structuresDistance.count)
@@ -324,9 +458,12 @@ int loadCriteriaConfig(const char *filename, CriteriaConfig *out,
     if (out->structuresAmount.count)
         out->structuresAmount.items = calloc(out->structuresAmount.count,
                                              sizeof(*out->structuresAmount.items));
+    if (out->vaultLoot.count)
+        out->vaultLoot.items = calloc(out->vaultLoot.count, sizeof(*out->vaultLoot.items));
     if ((out->biomes.count && !out->biomes.items) ||
         (out->structuresDistance.count && !out->structuresDistance.items) ||
-        (out->structuresAmount.count && !out->structuresAmount.items)) {
+        (out->structuresAmount.count && !out->structuresAmount.items) ||
+        (out->vaultLoot.count && !out->vaultLoot.items)) {
         setError(err, cap, "Out of memory allocating criteria.");
         goto failed;
     }
@@ -351,6 +488,14 @@ int loadCriteriaConfig(const char *filename, CriteriaConfig *out,
             goto failed;
         i++;
     }
+    i = 0;
+    cJSON_ArrayForEach(entry, vaults) {
+        if (!cJSON_IsObject(entry) ||
+            !readVaultLoot(entry, &out->vaultLoot.items[i], err, cap))
+            goto failed;
+        i++;
+    }
+
     cJSON_Delete(root);
     return 1;
 

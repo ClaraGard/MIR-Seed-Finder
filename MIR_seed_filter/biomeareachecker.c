@@ -241,7 +241,6 @@ int checkBiomeAreaConditions(
         (!hasMax || remaining <= maxSize))
         return 1;
 
-    const double fullCellArea = (double)scale * scale;
 
     for (int iz = z0; iz < z1; ++iz) {
         long long cellTop =

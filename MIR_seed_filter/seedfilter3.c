@@ -6,6 +6,9 @@
 #include "util.h"
 #include "biomeareachecker.h"
 #include "criterialoader.h"
+#include "vault_loot_filter.h"
+#include "loot/items.h"
+#include "loot/loot_functions.h"
 #include "structurechecker.h"
 #include "rng.h"
 
@@ -29,7 +32,7 @@
 #include <sys/random.h>
 #endif
 
-#define MC MC_1_21
+#define MC MC_26_3
 
 static int64_t seed_as_i64(uint64_t bits)
 {
@@ -158,11 +161,75 @@ static void write_structure_results(FILE *out, uint64_t seed,
     fputc('\n', out);
 }
 
-/* Cheap distance filters first, then biome maps, finally unbounded counts. */
-static int test_seed(uint64_t seed, int smallBiomes,
-                     const CriteriaConfig *config, size_t biomethreshold,
-                     FILE *out)
+/* Detailed vault output is computed only for FOUND seeds so normal searches
+ * avoid allocating per-window counters for millions of rejected seeds.
+ * A rule is evaluated from its sequence start, just as it is during filtering.
+ */
+static int write_vault_results(FILE *out, uint64_t seed,
+                               const CriteriaConfig *config,
+                               const VaultLootEngine *engine)
 {
+    fprintf(out, "VAULT_LOOT seed=%" PRId64
+                 " passed=%zu failed=0 evaluated=%zu total=%zu\n",
+            seed_as_i64(seed), config->vaultLoot.count,
+            config->vaultLoot.count, config->vaultLoot.count);
+
+    for (size_t i = 0; i < config->vaultLoot.count; ++i) {
+        const VaultLootCriterion *criterion = &config->vaultLoot.items[i];
+        const VaultLootRule *rule = &criterion->rule;
+        if (rule->repetitions <= 0 ||
+            (size_t)rule->repetitions > SIZE_MAX / sizeof(int64_t))
+            return 0;
+
+        int64_t *counts = malloc((size_t)rule->repetitions * sizeof(*counts));
+        if (!counts)
+            return 0;
+        int result = vault_loot_filter_window_counts(
+            engine, seed, rule, counts, (size_t)rule->repetitions);
+        if (result != 1) {
+            free(counts);
+            return 0; /* A prior match should always produce the same result. */
+        }
+
+        const char *target_name = rule->target_kind == VAULT_LOOT_TARGET_ENCHANTMENT
+            ? get_enchantment_name((enum Enchantment)rule->target_id)
+            : global_id2item_name(rule->target_id, MC);
+        fprintf(out, "  [%s] type=%s target=%s:%s min_count=%d "
+                     "vaults_per_window=%d repetitions=%d status=PASS\n",
+                criterion->name ? criterion->name : "(unnamed)",
+                rule->vault_kind == VAULT_LOOT_OMINOUS ? "ominous" : "normal",
+                rule->target_kind == VAULT_LOOT_TARGET_ENCHANTMENT ? "enchantment" : "item",
+                target_name ? target_name : "(unknown)",
+                rule->min_count, rule->vaults_per_window, rule->repetitions);
+
+        for (int w = 0; w < rule->repetitions; ++w) {
+            int64_t from = (int64_t)w * rule->vaults_per_window + 1;
+            int64_t to = from + rule->vaults_per_window - 1;
+            fprintf(out, "    openings=%" PRId64 "-%" PRId64
+                         " count=%" PRId64 " required>=%d status=PASS\n",
+                    from, to, counts[w], rule->min_count);
+        }
+        free(counts);
+    }
+    fputc('\n', out);
+    return !ferror(out);
+}
+
+/* Vaults first: reject nonmatching seeds before generating biome/structure maps. */
+static int test_seed(uint64_t seed, int smallBiomes,
+                     const CriteriaConfig *config,
+                     const VaultLootEngine *vaultEngine,
+                     size_t biomethreshold, FILE *out)
+{
+    if (config->vaultLoot.count > 0) {
+        int vaultMatch = vault_loot_filter_match_config(vaultEngine, seed, config);
+        if (vaultMatch != 1) {
+            if (vaultMatch < 0)
+                fprintf(stderr, "Vault loot criteria error for seed %" PRIu64 "\n", seed);
+            return vaultMatch < 0 ? -1 : 0;
+        }
+    }
+
     Generator ow, nether, end;
     setupGenerator(&ow, MC, 0);
     setupGenerator(&nether, MC, 0);
@@ -222,6 +289,14 @@ static int test_seed(uint64_t seed, int smallBiomes,
     }
 
     fprintf(out, "FOUND seed=%" PRId64 "\n", seed_as_i64(seed));
+    if (config->vaultLoot.count > 0 &&
+        !write_vault_results(out, seed, config, vaultEngine)) {
+        fprintf(stderr, "Vault loot reporting error for seed %" PRIu64 "\n", seed);
+        freeStructureResult(&amounts);
+        freeBiomeResult(&biomes);
+        freeStructureResult(&distances);
+        return -1;
+    }
     write_structure_results(out, seed, "STRUCTURES_DISTANCE", &distances, 0);
     write_biome_results(out, seed, "BIOMES", &biomes);
     write_structure_results(out, seed, "STRUCTURES_AMOUNT", &amounts, 1);
@@ -292,6 +367,15 @@ static int run_worker(int argc, char **argv)
         return 2;
     }
 
+    /* Worker processes have independent address spaces. Initialize the
+     * loot-table templates once per worker, not once per seed. */
+    VaultLootEngine vaultEngine = {0};
+    if (criteria.vaultLoot.count > 0 && !vault_loot_engine_init(&vaultEngine)) {
+        fprintf(stderr, "Could not initialize vault loot tables.\n");
+        freeCriteriaConfig(&criteria);
+        return 2;
+    }
+
     FILE *out = fopen(argv[5], "w");
 
     if (!out) {
@@ -312,8 +396,14 @@ static int run_worker(int argc, char **argv)
     for (uint64_t i = 0; i < count; i++) {
         uint64_t seed = xNextLong(&rng);
 
-        test_seed(seed, smallBiomes, &criteria,
-                (size_t)threshold64, out);
+        int matched = test_seed(seed, smallBiomes, &criteria,
+                                &vaultEngine, (size_t)threshold64, out);
+        if (matched < 0) {
+            /* An invalid vault evaluation is a worker failure, not a miss. */
+            fclose(out);
+            freeCriteriaConfig(&criteria);
+            return 2;
+        }
 
         if ((i + 1) % 100000 == 0) {
             fprintf(stderr,

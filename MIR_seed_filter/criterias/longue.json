@@ -131,5 +131,23 @@
       "min_count": 25,
       "max_count": -1
     }
+  ],
+  "vault_loot": [
+    {
+      "name": "Two heavy cores per ten ominous vaults, four times",
+      "vault_type": "ominous",
+      "item": "minecraft:heavy_core",
+      "min_count": 2,
+      "vaults_per_window": 10,
+      "repetitions": 4
+    },
+    {
+      "name": "One wind burst in first ten ominous vaults",
+      "vault_type": "ominous",
+      "enchantment": "minecraft:wind_burst",
+      "min_count": 1,
+      "vaults_per_window": 10,
+      "repetitions": 1
+    }
   ]
 }
