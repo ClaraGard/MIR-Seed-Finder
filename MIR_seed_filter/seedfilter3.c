@@ -33,6 +33,8 @@
 #endif
 
 #define MC MC_26_3
+/* Mandatory for every tested seed; intentionally NOT configurable by JSON. */
+#define MIN_SPAWN_SURFACE_Y 64
 
 static int64_t seed_as_i64(uint64_t bits)
 {
@@ -119,9 +121,10 @@ static void write_biome_results(
             break;
         }
 
-        fprintf(out, "  [%s] area=%.2f blocks^2 status=%s\n",
-            check->name ? check->name : "(unnamed)",
-            check->area, status);
+        /* Area checks exit as soon as a bound is met or impossible, so
+         * they do not compute an exact area. Avoid printing a fake value. */
+        fprintf(out, "  [%s] status=%s\n",
+            check->name ? check->name : "(unnamed)", status);
     }
 
     fputc('\n', out);
@@ -269,6 +272,20 @@ static int test_seed(uint64_t seed, int smallBiomes,
         return 0;
     }
 
+    /* Mandatory spawn altitude prefilter, after structure distance checks.
+     * Cubiomes gives an approximate surface Y, not exact Minecraft blocks. */
+    Pos spawn = getSpawn(&ow);
+    float approxSpawnY = -1.0f;
+    SurfaceNoise noise;
+    initSurfaceNoise(&noise, DIM_OVERWORLD, seed);
+    if (mapApproxHeight(&approxSpawnY, NULL, &ow, &noise,
+                        spawn.x >> 2, spawn.z >> 2, 1, 1) != 0 ||
+        !isfinite(approxSpawnY) ||
+        approxSpawnY < MIN_SPAWN_SURFACE_Y) {
+        freeStructureResult(&distances);
+        return 0;
+    }
+
     StructureResult amounts = checkStructureAmountRequirements(
         &config->structuresAmount, MC, seed,
         &ow, &nether, &end, 0);
@@ -289,6 +306,8 @@ static int test_seed(uint64_t seed, int smallBiomes,
     }
 
     fprintf(out, "FOUND seed=%" PRId64 "\n", seed_as_i64(seed));
+    fprintf(out, "SPAWN_HEIGHT pos=(%d,%d) approx_y=%.2f min_y=%d status=PASS\n",
+            spawn.x, spawn.z, (double)approxSpawnY, MIN_SPAWN_SURFACE_Y);
     if (config->vaultLoot.count > 0 &&
         !write_vault_results(out, seed, config, vaultEngine)) {
         fprintf(stderr, "Vault loot reporting error for seed %" PRIu64 "\n", seed);

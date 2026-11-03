@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
+#include <limits.h>
 #include "finders.h"
 #include "generator.h"
 #include "biomeareachecker.h"
@@ -319,12 +321,10 @@ int checkBiomeAreaConditions(
 }
 
 
+/* Cache each generated biome map. Larger maps can satisfy later, smaller
+ * queries (including quadrant origins) without regenerating the same terrain. */
 typedef struct {
     const Generator *generator;
-    int centerX;
-    int centerZ;
-    int radius;
-    int scale;
     BiomeMap map;
 } BiomeMapCacheEntry;
 
@@ -336,72 +336,66 @@ static const Generator *getDimensionGenerator(
 {
     switch (dimension) {
         case CRITERION_DIM_OVERWORLD: return overworld;
-        case CRITERION_DIM_NETHER:    return nether;
-        case CRITERION_DIM_END:       return end;
-        default:            return NULL;
+        case CRITERION_DIM_NETHER: return nether;
+        case CRITERION_DIM_END: return end;
+        default: return NULL;
     }
+}
+
+static int mapContains(const BiomeMap *map, int centerX, int centerZ, int radius)
+{
+    const long long minX = (long long)map->x0 * map->scale;
+    const long long minZ = (long long)map->z0 * map->scale;
+    const long long maxX = ((long long)map->x0 + map->sx) * map->scale;
+    const long long maxZ = ((long long)map->z0 + map->sz) * map->scale;
+    return map->ids && (long long)centerX - radius >= minX &&
+           (long long)centerZ - radius >= minZ &&
+           (long long)centerX + radius <= maxX &&
+           (long long)centerZ + radius <= maxZ;
 }
 
 static BiomeMap *getCachedBiomeMap(
-    BiomeMapCacheEntry *cache,
-    size_t *cacheCount,
-    size_t cacheCapacity,
-    const Generator *generator,
-    int centerX,
-    int centerZ,
-    int radius,
-    int scale)
+    BiomeMapCacheEntry *cache, size_t *cacheCount, size_t cacheCapacity,
+    const Generator *generator, int centerX, int centerZ, int radius, int scale)
 {
-    for (size_t i = 0; i < *cacheCount; i++) {
-        BiomeMapCacheEntry *entry = &cache[i];
-
-        if (entry->generator == generator &&
-            entry->centerX == centerX &&
-            entry->centerZ == centerZ &&
-            entry->radius == radius &&
-            entry->scale == scale) {
-            return &entry->map;
-        }
+    for (size_t i = 0; i < *cacheCount; ++i) {
+        if (cache[i].generator == generator &&
+            mapContains(&cache[i].map, centerX, centerZ, radius))
+            return &cache[i].map;
     }
-
-    if (*cacheCount >= cacheCapacity)
+    if (*cacheCount >= cacheCapacity || radius > (INT_MAX / 2) - scale)
         return NULL;
-
-    BiomeMapCacheEntry *entry = &cache[*cacheCount];
-
-    entry->generator = generator;
-    entry->centerX = centerX;
-    entry->centerZ = centerZ;
-    entry->radius = radius;
-    entry->scale = scale;
-
-    int width = radius * 2;
-
-    entry->map = generateBiomeMap(
-        generator,
-        centerX,
-        centerZ,
-        width,
-        width,
-        scale
-    );
-
-    if (!entry->map.ids)
+    BiomeMap map = generateBiomeMap(generator, centerX, centerZ,
+                                    2 * (radius + scale),
+                                    2 * (radius + scale), scale);
+    if (!map.ids || !mapContains(&map, centerX, centerZ, radius)) {
+        freeBiomeMap(&map);
         return NULL;
-
-    (*cacheCount)++;
-    return &entry->map;
+    }
+    cache[*cacheCount].generator = generator;
+    cache[*cacheCount].map = map;
+    return &cache[(*cacheCount)++].map;
 }
 
-/*
- * Checks all biome requirements.
- *
- * End spawn:true markers resolve to the seed-dependent first gateway.
- * Configure each Generator for the appropriate dimension before calling.
- *
- * scale should be one of the scales supported by generateBiomeMap(),
- * such as 1, 4, 16, 64, or 256.
- */
+/* How many group members have passed, and how many remain unevaluated?
+ * A criterion with a group may fail individually without rejecting the seed. */
+static void groupProgress(const BiomeCriteria *criteria,
+                          const BiomeResult *result, const char *group,
+                          int *passed, int *pending)
+{
+    *passed = *pending = 0;
+    for (size_t i = 0; i < criteria->count; ++i) {
+        if (!criteria->items[i].group ||
+            strcmp(criteria->items[i].group, group)) continue;
+        if (result->checks[i].status == BIOME_CHECK_PASSED) ++*passed;
+        if (result->checks[i].status == BIOME_CHECK_NOT_EVALUATED) ++*pending;
+    }
+}
+
+/* Lazy map generation with priority order determined during JSON loading.
+ * A small map need not be inflated by a later 5000-block biome requirement.
+ * Group members each contribute at most one passing criterion, regardless
+ * of how many biome IDs the criterion contains. */
 BiomeResult checkBiomeRequirements(
     const BiomeCriteria *criteria,
     const Generator *overworld,
@@ -412,306 +406,104 @@ BiomeResult checkBiomeRequirements(
     int verbose)
 {
     BiomeResult out = {0};
-    out.allPassed = 0;
-
-    if (!criteria || scale <= 0)
-        goto error;
-
-    if (scale != 1 && scale != 4 && scale != 16 &&
-        scale != 64 && scale != 256)
-        goto error;
-
+    if (!criteria || (scale != 1 && scale != 4 && scale != 16 &&
+                      scale != 64 && scale != 256)) {
+        out.hasError = 1;
+        return out;
+    }
     out.checkCount = criteria->count;
     out.allPassed = 1;
-
-    out.checks = calloc(
-        criteria->count, sizeof(BiomeCheckResult));
-
-    if (criteria->count > 0 && !out.checks)
-        goto error;
-
-    for (size_t i = 0; i < criteria->count; i++) {
+    out.checks = calloc(criteria->count ? criteria->count : 1,
+                        sizeof(*out.checks));
+    BiomeMapCacheEntry *cache = calloc(criteria->count ? criteria->count : 1,
+                                       sizeof(*cache));
+    if (!out.checks || !cache) {
+        out.hasError = 1;
+        out.allPassed = 0;
+        free(cache);
+        return out;
+    }
+    for (size_t i = 0; i < criteria->count; ++i) {
         out.checks[i].name = criteria->items[i].name;
-        out.checks[i].status = BIOME_CHECK_NOT_EVALUATED;
-        out.checks[i].area = 0.0;
+        out.checks[i].area = -1.0; /* early-exit area checker doesn't tally it */
     }
 
-    BiomeMapCacheEntry *cache = calloc(
-        criteria->count, sizeof(BiomeMapCacheEntry));
-
-    if (criteria->count > 0 && !cache)
-        goto error;
-
     size_t cacheCount = 0;
-
-    /* The End gateway position changes with the seed; only compute it when
-       an End biome criterion actually uses the loader's reserved marker. */
+    int endGatewayResolved = 0;
     Pos endGateway = {0, 0};
     for (size_t i = 0; i < criteria->count; ++i) {
         const BiomeCriterion *c = &criteria->items[i];
-        if (criterionUsesFirstEndGateway(c->dimension, c->x, c->z)) {
-            if (!end) {
-                out.hasError = 1;
-                out.allPassed = 0;
-                goto cleanup;
-            }
-            endGateway = firstLinkedEndGateway(end->mc, seed, NULL);
-            break;
+        BiomeCheckResult *check = &out.checks[i];
+        if (c->group) {
+            int passed, pending;
+            groupProgress(criteria, &out, c->group, &passed, &pending);
+            if (passed >= c->groupMinCount)
+                continue; /* group already satisfied */
         }
-    }
-
-    /*
-     * Dimension indices:
-     *   0 = Overworld
-     *   1 = Nether
-     *   2 = End
-     */
-    int hasDimension[3] = {0};
-    int minX[3], minZ[3], maxX[3], maxZ[3];
-
-    /*
-     * Pass 1: calculate the combined bounds required by all
-     * criteria in each dimension.
-     */
-    for (size_t i = 0; i < criteria->count; i++) {
-        const BiomeCriterion *criterion = &criteria->items[i];
-
-        int dim;
-
-        switch (criterion->dimension) {
-            case CRITERION_DIM_OVERWORLD:
-                dim = 0;
-                break;
-
-            case CRITERION_DIM_NETHER:
-                dim = 1;
-                break;
-
-            case CRITERION_DIM_END:
-                dim = 2;
-                break;
-
-            default:
-                out.hasError = 1;
-                out.allPassed = 0;
-                goto cleanup;
-        }
-
         const Generator *generator = getDimensionGenerator(
-            criterion->dimension, overworld, nether, end);
-
+            c->dimension, overworld, nether, end);
         if (!generator) {
             out.hasError = 1;
             out.allPassed = 0;
+            check->status = BIOME_CHECK_ERROR;
             goto cleanup;
         }
-
-        int useGateway = criterionUsesFirstEndGateway(
-            criterion->dimension, criterion->x, criterion->z);
-        int centerX = useGateway ? endGateway.x : criterion->x;
-        int centerZ = useGateway ? endGateway.z : criterion->z;
-        int radius = criterion->radius;
-
-        int left   = centerX - radius;
-        int right  = centerX + radius;
-        int top    = centerZ - radius;
-        int bottom = centerZ + radius;
-
-        if (!hasDimension[dim]) {
-            minX[dim] = left;
-            maxX[dim] = right;
-            minZ[dim] = top;
-            maxZ[dim] = bottom;
-            hasDimension[dim] = 1;
-        } else {
-            if (left   < minX[dim]) minX[dim] = left;
-            if (right  > maxX[dim]) maxX[dim] = right;
-            if (top    < minZ[dim]) minZ[dim] = top;
-            if (bottom > maxZ[dim]) maxZ[dim] = bottom;
-        }
-    }
-
-    /*
-     * Pass 2: calculate the map parameters for each used dimension.
-     */
-    int mapCenterX[3] = {0};
-    int mapCenterZ[3] = {0};
-    int mapSide[3] = {0};
-
-    for (int dim = 0; dim < 3; dim++) {
-        if (!hasDimension[dim])
-            continue;
-
-        int spanX = maxX[dim] - minX[dim];
-        int spanZ = maxZ[dim] - minZ[dim];
-
-        mapCenterX[dim] = minX[dim] + spanX / 2;
-        mapCenterZ[dim] = minZ[dim] + spanZ / 2;
-
-        int halfX = (spanX + 1) / 2;
-        int halfZ = (spanZ + 1) / 2;
-
-        mapSide[dim] = (halfX > halfZ ? halfX : halfZ) + scale;
-    }
-
-    /*
-     * Pass 3: order dimensions by ascending map size.
-     *
-     * The dimension requiring the smallest map is processed first.
-     * Ties preserve the original dimension order.
-     */
-    int dimensionOrder[3];
-    int dimensionCount = 0;
-
-    for (int dim = 0; dim < 3; dim++) {
-        if (hasDimension[dim])
-            dimensionOrder[dimensionCount++] = dim;
-    }
-
-    for (int i = 0; i < dimensionCount - 1; i++) {
-        for (int j = i + 1; j < dimensionCount; j++) {
-            if (mapSide[dimensionOrder[j]] <
-                mapSide[dimensionOrder[i]]) {
-                int temp = dimensionOrder[i];
-                dimensionOrder[i] = dimensionOrder[j];
-                dimensionOrder[j] = temp;
+        int centerX = c->x, centerZ = c->z;
+        if (criterionUsesFirstEndGateway(c->dimension, c->x, c->z)) {
+            if (!endGatewayResolved) {
+                endGateway = firstLinkedEndGateway(end->mc, seed, NULL);
+                endGatewayResolved = 1;
             }
+            centerX = endGateway.x;
+            centerZ = endGateway.z;
         }
-    }
-
-    /*
-     * Pass 4: process one dimension completely before moving
-     * to the next.
-     *
-     * For each dimension:
-     *   1. Generate its biome map.
-     *   2. Evaluate every criterion belonging to that dimension.
-     *   3. Stop immediately if any criterion fails.
-     *
-     * Larger maps are therefore generated only when all criteria
-     * in the smaller-map dimensions have passed.
-     */
-    for (int order = 0; order < dimensionCount; order++) {
-        int dim = dimensionOrder[order];
-
-        BiomeDimension dimension;
-
-        switch (dim) {
-            case 0:
-                dimension = CRITERION_DIM_OVERWORLD;
-                break;
-
-            case 1:
-                dimension = CRITERION_DIM_NETHER;
-                break;
-
-            default:
-                dimension = CRITERION_DIM_END;
-                break;
-        }
-
-        const Generator *generator = getDimensionGenerator(
-            dimension, overworld, nether, end);
-
-        /*
-         * Generate or retrieve the map for this dimension.
-         * No maps for subsequent dimensions are generated yet.
-         */
-        BiomeMap *map = getCachedBiomeMap(
-            cache, &cacheCount, criteria->count,
-            generator,
-            mapCenterX[dim],
-            mapCenterZ[dim],
-            mapSide[dim],
-            scale);
-
+        BiomeMap *map = getCachedBiomeMap(cache, &cacheCount,
+                                           criteria->count, generator,
+                                           centerX, centerZ, c->radius, scale);
         if (!map) {
+            if (verbose)
+                fprintf(stderr, "[%s] biome map generation failed\n", c->name);
+            out.hasError = 1;
+            out.allPassed = 0;
+            check->status = BIOME_CHECK_ERROR;
+            goto cleanup;
+        }
+        int passed = checkBiomeAreaConditions(
+            map, c->biomeIds, c->biomeIdCount,
+            centerX, centerZ, c->radius * 2, c->radius * 2,
+            c->minArea, c->maxArea);
+        if (passed < 0) {
+            if (verbose)
+                fprintf(stderr, "[%s] biome area check failed\n", c->name);
+            check->status = BIOME_CHECK_ERROR;
             out.hasError = 1;
             out.allPassed = 0;
             goto cleanup;
         }
+        check->status = passed ? BIOME_CHECK_PASSED : BIOME_CHECK_FAILED;
+        ++out.evaluatedCount;
+        if (passed) ++out.passedCount;
+        else ++out.failedCount;
 
-        /*
-         * Evaluate every criterion belonging to this dimension.
-         */
-        for (size_t i = 0; i < criteria->count; i++) {
-            const BiomeCriterion *criterion = &criteria->items[i];
-
-            if ((int)criterion->dimension != dim)
-                continue;
-
-            int useGateway = criterionUsesFirstEndGateway(
-                criterion->dimension, criterion->x, criterion->z);
-            int centerX = useGateway ? endGateway.x : criterion->x;
-            int centerZ = useGateway ? endGateway.z : criterion->z;
-            int width = criterion->radius * 2;
-
-            /* OR semantics: sum all matching biomes in one map pass,
-               counting each sampled cell only once. */
-            int passed = checkBiomeAreaConditions(
-                map,
-                criterion->biomeIds,
-                criterion->biomeIdCount,
-                centerX,
-                centerZ,
-                width,
-                width,
-                criterion->minArea,
-                criterion->maxArea
-            );
-
-            if (passed < 0) {
-                if (verbose) {
-                    fprintf(stderr,
-                        "[%s] ERROR: checkBiomeAreaConditions failed "
-                        "(center=%d,%d, radius=%d)\n",
-                        criterion->name,
-                        centerX, centerZ,
-                        criterion->radius);
-                }
-
-                out.checks[i].status = BIOME_CHECK_ERROR;
-                out.checks[i].area = -1.0;
-                out.hasError = 1;
+        if (verbose)
+            printf("[%s] : %s\n", c->name, passed ? "PASS" : "FAIL");
+        if (!c->group) {
+            if (!passed) {
                 out.allPassed = 0;
                 goto cleanup;
             }
-
-            /* Record this check's result. */
-            BiomeCheckResult *check = &out.checks[i];
-
-            check->status = passed
-                ? BIOME_CHECK_PASSED
-                : BIOME_CHECK_FAILED;
-
-            out.evaluatedCount++;
-
-            if (passed) {
-                out.passedCount++;
-            } else {
-                out.failedCount++;
+        } else {
+            int successful, pending;
+            groupProgress(criteria, &out, c->group, &successful, &pending);
+            if (successful + pending < c->groupMinCount) {
                 out.allPassed = 0;
                 goto cleanup;
             }
-
-            if (verbose) {
-                printf("[%s] : %s\n",
-                    criterion->name,
-                    passed ? "PASS" : "FAIL");
-            }
-
         }
     }
-
 cleanup:
-    for (size_t i = 0; i < cacheCount; i++)
+    for (size_t i = 0; i < cacheCount; ++i)
         freeBiomeMap(&cache[i].map);
-
     free(cache);
-    return out;
-
-error:
-    out.hasError = 1;
-    out.allPassed = 0;
     return out;
 }

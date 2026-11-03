@@ -34,6 +34,9 @@ typedef struct {
     size_t biomeIdCount;
     BiomeDimension dimension;
     int x, z;
+    char *group;                 /* optional shared group, e.g. four quadrants */
+    int groupMinCount;           /* derived exclusively from top-level groups */
+    int difficulty;              /* larger value = checked earlier within biome phase */
     int radius;                  /* half-width of query square, in blocks */
     double minArea, maxArea;     /* -1 disables a bound */
 } BiomeCriterion;
@@ -49,6 +52,7 @@ typedef struct {
     BiomeDimension dimension;
     int x, z;
     int minDistance, maxDistance; /* blocks, -1 disables a bound */
+    int difficulty;              /* larger value = checked earlier within distance phase */
 } StructureDistanceCriterion;
 
 typedef struct {
@@ -63,6 +67,7 @@ typedef struct {
     int x, z;
     int countRadius;             /* square half-width in blocks; -1 = unbounded */
     int minCount, maxCount;      /* -1 disables a bound */
+    int difficulty;              /* larger value = checked earlier within amount phase */
 } StructureAmountCriterion;
 
 typedef struct {
@@ -74,6 +79,7 @@ typedef struct {
 typedef struct {
     char *name;
     VaultLootRule rule;
+    int difficulty;              /* larger value = checked earlier within vault phase */
 } VaultLootCriterion;
 
 typedef struct {
@@ -81,6 +87,7 @@ typedef struct {
     size_t count;
 } VaultLootCriteria;
 
+/* Spawn surface height is mandatory and hardcoded in seedfilter3.c. */
 typedef struct CriteriaConfig {
     BiomeCriteria biomes;
     StructureDistanceCriteria structuresDistance;

@@ -48,6 +48,14 @@ static int readInt(const cJSON *obj, const char *name, int *value)
     return asInteger(field(obj, name), value);
 }
 
+/* Optional integer priority, defaulting to 0. Larger means tested first.
+ * The arrays are sorted once at load time, never for each seed. */
+static int readDifficulty(const cJSON *obj, int *value)
+{
+    const cJSON *item = field(obj, "difficulty");
+    return !item || asInteger(item, value);
+}
+
 static int readDouble(const cJSON *obj, const char *name, double *value)
 {
     const cJSON *item = field(obj, name);
@@ -161,6 +169,9 @@ static int readBiome(const cJSON *obj, BiomeCriterion *c,
 {
     const cJSON *origin = field(obj, "origin");
     const cJSON *ids = field(obj, "biome_ids");
+    const cJSON *group = field(obj, "group");
+    /* Per-criterion group_min_count was removed; the root groups object
+     * is now the sole source of a group's required passed-criterion count. */
     if (!readName(obj, &c->name) || !cJSON_IsObject(origin) ||
         !cJSON_IsArray(ids) || !readDimension(origin, &c->dimension) ||
         !readOrigin(origin, c->dimension, &c->x, &c->z, 0) ||
@@ -168,9 +179,19 @@ static int readBiome(const cJSON *obj, BiomeCriterion *c,
         c->radius > INT_MAX / 4 ||
         !readDouble(obj, "min_area", &c->minArea) ||
         !readDouble(obj, "max_area", &c->maxArea) ||
-        !validBounds(c->minArea, c->maxArea)) {
+        !validBounds(c->minArea, c->maxArea) ||
+        !readDifficulty(obj, &c->difficulty)) {
         setError(err, cap, "Invalid biome criterion '%s'.",
                  c->name ? c->name : "(unnamed)");
+        return 0;
+    }
+    if (field(obj, "group_min_count")) {
+        setError(err, cap, "'%s' uses obsolete group_min_count; declare the threshold in top-level groups.", c->name);
+        return 0;
+    }
+    if (group && (!cJSON_IsString(group) || !group->valuestring[0] ||
+                  !(c->group = copyString(group->valuestring)))) {
+        setError(err, cap, "Invalid biome group in '%s'.", c->name);
         return 0;
     }
     size_t n = (size_t)cJSON_GetArraySize(ids);
@@ -206,7 +227,8 @@ static int readDistance(const cJSON *obj, StructureDistanceCriterion *c,
         !readOrigin(obj, c->dimension, &c->x, &c->z, 0) ||
         !readInt(obj, "min_distance", &c->minDistance) ||
         !readInt(obj, "max_distance", &c->maxDistance) ||
-        !validBounds(c->minDistance, c->maxDistance)) {
+        !validBounds(c->minDistance, c->maxDistance) ||
+        !readDifficulty(obj, &c->difficulty)) {
         setError(err, cap, "Invalid structure distance criterion '%s'.",
                  c->name ? c->name : "(unnamed)");
         return 0;
@@ -225,7 +247,8 @@ static int readAmount(const cJSON *obj, StructureAmountCriterion *c,
         !readInt(obj, "min_count", &c->minCount) ||
         !readInt(obj, "max_count", &c->maxCount) ||
         !validBounds(c->minCount, c->maxCount) ||
-        (c->countRadius == -1 && c->maxCount != -1)) {
+        (c->countRadius == -1 && c->maxCount != -1) ||
+        !readDifficulty(obj, &c->difficulty)) {
         setError(err, cap, "Invalid structure amount criterion '%s' (unbounded radius requires max_count:-1).",
                  c->name ? c->name : "(unnamed)");
         return 0;
@@ -321,7 +344,8 @@ static int readVaultLoot(const cJSON *obj, VaultLootCriterion *c,
         !readInt(obj, "min_count", &r->min_count) || r->min_count < 1 ||
         !readInt(obj, "vaults_per_window", &r->vaults_per_window) ||
         r->vaults_per_window < 1 ||
-        (repetitions && !asInteger(repetitions, &r->repetitions))) {
+        (repetitions && !asInteger(repetitions, &r->repetitions)) ||
+        !readDifficulty(obj, &c->difficulty)) {
         setError(err, cap, "Invalid vault loot criterion '%s'.",
                  c->name ? c->name : "(unnamed)");
         return 0;
@@ -355,11 +379,28 @@ static int readVaultLoot(const cJSON *obj, VaultLootCriterion *c,
     return 0;
 }
 
+/* Stable insertion-sort: equal priorities retain their JSON relative order.
+ * This is performed exactly once, after loading/validating a config. */
+#define STABLE_SORT_BY_DIFFICULTY(items, count, type)              \
+    do {                                                         \
+        for (size_t sort_i = 1; sort_i < (count); ++sort_i) {     \
+            type entry = (items)[sort_i];                         \
+            size_t sort_j = sort_i;                               \
+            while (sort_j > 0 &&                                 \
+                   (items)[sort_j - 1].difficulty < entry.difficulty) { \
+                (items)[sort_j] = (items)[sort_j - 1];            \
+                --sort_j;                                         \
+            }                                                    \
+            (items)[sort_j] = entry;                              \
+        }                                                        \
+    } while (0)
+
 void freeBiomeCriteria(BiomeCriteria *c)
 {
     if (!c) return;
     for (size_t i = 0; i < c->count; i++) {
         free(c->items[i].name);
+        free(c->items[i].group);
         free(c->items[i].biomeIds);
     }
     free(c->items);
@@ -435,11 +476,17 @@ int loadCriteriaConfig(const char *filename, CriteriaConfig *out,
         return 0;
     }
 
+    const cJSON *groups = field(root, "groups");
     const cJSON *biomes = field(root, "biomes");
     const cJSON *distances = field(root, "structures_distance");
     const cJSON *amounts = field(root, "structures_amount");
     const cJSON *vaults = field(root, "vault_loot");
-    if (!cJSON_IsArray(biomes) ||
+    if (field(root, "spawn_height")) {
+        setError(err, cap, "spawn_height is no longer configurable: spawn surface Y >= 64 is always required by the C filter.");
+        goto failed;
+    }
+    if ((groups && !cJSON_IsObject(groups)) ||
+        !cJSON_IsArray(biomes) ||
         (distances && !cJSON_IsArray(distances)) ||
         (amounts && !cJSON_IsArray(amounts)) ||
         (vaults && !cJSON_IsArray(vaults))) {
@@ -474,6 +521,47 @@ int loadCriteriaConfig(const char *filename, CriteriaConfig *out,
             goto failed;
         i++;
     }
+    /* Each member names one group declared in the root groups object.
+     * Count passing CRITERIA, not biome IDs/patches/occurrences.
+     * A criterion with multiple biome_ids is still exactly one group vote. */
+    const cJSON *groupDefinition;
+    cJSON_ArrayForEach(groupDefinition, groups) {
+        int threshold;
+        if (!groupDefinition->string || !groupDefinition->string[0] ||
+            !asInteger(groupDefinition, &threshold) || threshold < 1) {
+            setError(err, cap, "Invalid groups entry (expected name: positive integer).");
+            goto failed;
+        }
+        for (const cJSON *duplicate = groupDefinition->next; duplicate;
+             duplicate = duplicate->next) {
+            if (duplicate->string &&
+                !strcmp(groupDefinition->string, duplicate->string)) {
+                setError(err, cap, "Duplicate groups entry '%s'.", groupDefinition->string);
+                goto failed;
+            }
+        }
+        size_t members = 0;
+        for (size_t j = 0; j < out->biomes.count; ++j) {
+            BiomeCriterion *member = &out->biomes.items[j];
+            if (member->group && !strcmp(member->group, groupDefinition->string)) {
+                member->groupMinCount = threshold;
+                ++members;
+            }
+        }
+        if (members < (size_t)threshold) {
+            setError(err, cap, "Group '%s' requires %d passing criteria but has only %zu members.",
+                     groupDefinition->string, threshold, members);
+            goto failed;
+        }
+    }
+    for (size_t j = 0; j < out->biomes.count; ++j) {
+        const BiomeCriterion *member = &out->biomes.items[j];
+        if (member->group && member->groupMinCount == 0) {
+            setError(err, cap, "Biome criterion '%s' references undeclared group '%s'.",
+                     member->name, member->group);
+            goto failed;
+        }
+    }
     i = 0;
     cJSON_ArrayForEach(entry, distances) {
         if (!cJSON_IsObject(entry) ||
@@ -496,6 +584,11 @@ int loadCriteriaConfig(const char *filename, CriteriaConfig *out,
         i++;
     }
 
+    /* Sort within each stage ONLY; never move checks between stages. */
+    STABLE_SORT_BY_DIFFICULTY(out->vaultLoot.items, out->vaultLoot.count, VaultLootCriterion);
+    STABLE_SORT_BY_DIFFICULTY(out->structuresDistance.items, out->structuresDistance.count, StructureDistanceCriterion);
+    STABLE_SORT_BY_DIFFICULTY(out->biomes.items, out->biomes.count, BiomeCriterion);
+    STABLE_SORT_BY_DIFFICULTY(out->structuresAmount.items, out->structuresAmount.count, StructureAmountCriterion);
     cJSON_Delete(root);
     return 1;
 
