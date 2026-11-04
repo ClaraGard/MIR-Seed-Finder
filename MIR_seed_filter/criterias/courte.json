@@ -10,7 +10,7 @@
         "z": 0
       },
       "radius": 100,
-      "min_area": 15000,
+      "min_area": 5000,
       "max_area": -1,
       "difficulty": 90
     },
@@ -39,7 +39,7 @@
       "difficulty": 12
     },
     {
-      "name": "red_forest_near_spawn",
+      "name": "crimson_forest_near_spawn",
       "biome_ids": [171],
       "origin": {
         "dimension": "nether",
@@ -184,7 +184,19 @@
       "difficulty": 48
     },
     {
-      "name": "desert_near_spawn",
+      "name": "desert_distance",
+      "biome_ids": [2, 17, 130],
+      "origin": {
+        "dimension": "overworld",
+        "spawn": true
+      },
+      "radius": 150,
+      "min_area": 5000,
+      "max_area": -1,
+      "difficulty": 79
+    },
+    {
+      "name": "desert_area",
       "biome_ids": [2, 17, 130],
       "origin": {
         "dimension": "overworld",
@@ -209,7 +221,7 @@
     },
     {
       "name": "forbidden_biomes_near_spawn",
-      "biome_ids": [24, 10, 44, 45, 46, 47, 48, 49, 50, 14, 15, 11, 12, 13, 26, 30, 31, 140, 158, 179, 181, 6, 134, 184, 21, 22, 149, 151, 168, 169, 177, 178, 179, 180, 181, 182],
+      "biome_ids": [24, 10, 44, 45, 46, 47, 48, 49, 50, 14, 15, 11, 12, 13, 26, 30, 31, 140, 158, 6, 134, 184, 21, 22, 149, 151, 168, 169, 177, 178, 179, 180, 181, 182],
       "origin": {
         "dimension": "overworld",
         "spawn": true
@@ -262,7 +274,7 @@
       "dimension": "nether",
       "x": 0,
       "z": 0,
-      "min_distance": 75,
+      "min_distance": 30,
       "max_distance": 200,
       "difficulty": 65
     },

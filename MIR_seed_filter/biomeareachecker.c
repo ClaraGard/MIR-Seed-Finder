@@ -441,7 +441,8 @@ BiomeResult checkBiomeRequirements(
         }
         BiomeMap *map = getCachedBiomeMap(cache, &cacheCount,
                                            criteria->count, generator,
-                                           centerX, centerZ, c->radius, scale);
+                                           centerX, centerZ, c->radius, 
+                                           radius < 100 ? scale / 4 : scale);
         if (!map) {
             if (verbose)
                 fprintf(stderr, "[%s] biome map generation failed\n", c->name);
