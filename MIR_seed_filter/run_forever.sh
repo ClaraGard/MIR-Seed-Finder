@@ -53,8 +53,8 @@ while true; do
                 ;;
         esac
 
-        FULL_FILE="full_${preset}.txt"
-        REL_FILE="MIR_seed_filter/$FULL_FILE"
+        FULL_FILE="$REPO_DIR/sample_seeds/${preset}_26_3.txt"
+        REL_FILE="sample_seeds/${preset}_26_3.txt"
 
         # Temporary batch file
         BATCH_FILE="$(mktemp "$SCRIPT_DIR/batch_${preset}_XXXXXXXX.txt")"
