@@ -124,6 +124,9 @@ static inline int criterionGroupShouldCheck(const CriterionGroupRuntime *state,
 static inline int criterionGroupRecord(CriterionGroupRuntime *state,
                                        int groupIndex, int passed)
 {
+    /* -2: independent statistics mode. Evaluate the next criterion even
+     * when this one fails. Normal seedfilter3 never produces this index. */
+    if (groupIndex == -2) return 1;
     if (groupIndex < 0) return passed;
     if (!state) return 0;
     CriterionGroupProgress *g = &state->progress[groupIndex];

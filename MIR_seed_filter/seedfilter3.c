@@ -361,6 +361,7 @@ static int test_seed(uint64_t seed, int smallBiomes,
     write_structure_results(out, seed, "STRUCTURES_DISTANCE", &distances, 0);
     write_biome_results(out, seed, "BIOMES", &biomes);
     write_structure_results(out, seed, "STRUCTURES_AMOUNT", &amounts, 1);
+    fprintf(out, "--------------------------------------\n");
     fflush(out);
     freeStructureResult(&amounts);
     freeBiomeResult(&biomes);
