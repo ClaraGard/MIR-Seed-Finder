@@ -400,11 +400,20 @@
       "difficulty": 95
     },
     {
-      "name": "minimum_desert_pyramids",
+      "name": "minimum_desert_pyramids_small",
       "structure_id": "desert_pyramid",
       "dimension": "overworld",
-      "count_radius": 10000,
-      "min_count": 25,
+      "count_radius": 5000,
+      "min_count": 15,
+      "max_count": -1,
+      "difficulty": 80
+    },
+    {
+      "name": "minimum_desert_pyramids_large",
+      "structure_id": "desert_pyramid",
+      "dimension": "overworld",
+      "count_radius": 9000,
+      "min_count": 30,
       "max_count": -1,
       "difficulty": 80
     },
