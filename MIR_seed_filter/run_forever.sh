@@ -7,7 +7,6 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
 cd "$SCRIPT_DIR"
 
-SEED_COUNT=10000000000
 PROCESSES=2
 BIOME_THRESHOLD=999
 
@@ -38,6 +37,7 @@ while true; do
             courte)
                 JSON="criterias/courte.json"
                 SMALL_BIOMES=true
+                SEED_COUNT=1000000000
                 ;;
             intermediaire)
                 if [[ -f "criterias/intermédiaire.json" ]]; then
@@ -46,10 +46,12 @@ while true; do
                     JSON="criterias/intermediaire.json"
                 fi
                 SMALL_BIOMES=true
+                SEED_COUNT=1000000000
                 ;;
             longue)
                 JSON="criterias/longue.json"
                 SMALL_BIOMES=false
+                SEED_COUNT=10000000000
                 ;;
         esac
 

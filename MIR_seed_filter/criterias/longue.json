@@ -15,7 +15,7 @@
       "radius": 100,
       "min_area": 4000,
       "max_area": -1,
-      "difficulty": 90
+      "difficulty": 91
     },
     {
       "name": "warped_forest_area",
@@ -28,7 +28,7 @@
       "radius": 150,
       "min_area": 15000,
       "max_area": -1,
-      "difficulty": 80
+      "difficulty": 65
     },
     {
       "name": "wood_near_spawn",
@@ -40,7 +40,7 @@
       "radius": 75,
       "min_area": 1,
       "max_area": -1,
-      "difficulty": 12
+      "difficulty": 34
     },
     {
       "name": "food_biome_near_spawn",
@@ -52,7 +52,7 @@
       "radius": 75,
       "min_area": 1,
       "max_area": -1,
-      "difficulty": 12
+      "difficulty": 27
     },
     {
       "name": "forbidden_biomes_near_spawn",
@@ -64,7 +64,7 @@
       "radius": 50,
       "min_area": -1,
       "max_area": 0,
-      "difficulty": 65
+      "difficulty": 61
     },
     {
       "name": "forbidden_water_biomes_near_spawn",
@@ -76,7 +76,7 @@
       "radius": 10,
       "min_area": -1,
       "max_area": 0,
-      "difficulty": 65
+      "difficulty": 41
     },
     {
       "name": "forbidden_basalt_near_nether_origin",
@@ -89,7 +89,7 @@
       "radius": 100,
       "min_area": -1,
       "max_area": 0,
-      "difficulty": 75
+      "difficulty": 48
     },
     {
       "name": "mesa_area",
@@ -102,7 +102,7 @@
       "radius": 5000,
       "min_area": 10000,
       "max_area": -1,
-      "difficulty": 90
+      "difficulty": 10
     },
     {
       "name": "mangrove_wood_area",
@@ -115,7 +115,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 86
+      "difficulty": 12
     },
     {
       "name": "pale_oak_wood_area",
@@ -128,7 +128,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 85
+      "difficulty": 9
     },
     {
       "name": "poplar_wood_area",
@@ -141,7 +141,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 83
+      "difficulty": 8
     },
     {
       "name": "cherry_wood_area",
@@ -154,7 +154,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 76
+      "difficulty": 7
     },
     {
       "name": "mushroom_fields_-_-",
@@ -168,7 +168,7 @@
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
-      "difficulty": 95
+      "difficulty": 66
     },
     {
       "name": "mushroom_fields_+_-",
@@ -182,7 +182,7 @@
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
-      "difficulty": 95
+      "difficulty": 67
     },
     {
       "name": "mushroom_fields_-_+",
@@ -196,7 +196,7 @@
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
-      "difficulty": 95
+      "difficulty": 68
     },
     {
       "name": "mushroom_fields_+_+",
@@ -210,7 +210,7 @@
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
-      "difficulty": 95
+      "difficulty": 69
     },
     {
       "name": "dark_oak_wood_area",
@@ -223,7 +223,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 35
+      "difficulty": 4
     },
     {
       "name": "jungle_wood_area",
@@ -236,7 +236,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 60
+      "difficulty": 5
     },
     {
       "name": "acacia_wood_area",
@@ -249,7 +249,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 35
+      "difficulty": 3
     },
     {
       "name": "bamboo_area",
@@ -262,7 +262,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 48
+      "difficulty": 6
     },
     {
       "name": "spruce_wood_area",
@@ -275,7 +275,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 10
+      "difficulty": 1
     },
     {
       "name": "birch_wood_area",
@@ -288,7 +288,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 2
+      "difficulty": 0
     },
     {
       "name": "oak_wood_area",
@@ -301,7 +301,7 @@
       "radius": 5000,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 1
+      "difficulty": 2
     }
   ],
   "structures_distance": [
@@ -313,7 +313,7 @@
       "z": 0,
       "min_distance": -1,
       "max_distance": 100,
-      "difficulty": 75
+      "difficulty": 97
     },
     {
       "name": "bastion_distance",
@@ -323,7 +323,7 @@
       "z": 0,
       "min_distance": 30,
       "max_distance": 200,
-      "difficulty": 65
+      "difficulty": 75
     },
     {
       "name": "desert_pyramid_not_too_close",
@@ -332,7 +332,7 @@
       "spawn": true,
       "min_distance": 300,
       "max_distance": -1,
-      "difficulty": 45
+      "difficulty": 11
     },
     {
       "name": "shipwreck_not_too_close",
@@ -341,7 +341,7 @@
       "spawn": true,
       "min_distance": 150,
       "max_distance": -1,
-      "difficulty": 40
+      "difficulty": 13
     },
     {
       "name": "end_city_near_spawn",
@@ -350,7 +350,7 @@
       "spawn": true,
       "min_distance": -1,
       "max_distance": 175,
-      "difficulty": 90
+      "difficulty": 96
     },
     {
       "name": "village_not_too_close_to_origin",
@@ -360,7 +360,7 @@
       "z": 0,
       "min_distance": 300,
       "max_distance": -1,
-      "difficulty": 45
+      "difficulty": 19
     }
   ],
   "structures_amount": [
@@ -374,7 +374,7 @@
       "min_count": 1,
       "max_count": -1,
       "group": "mansion_quadrants",
-      "difficulty": 95
+      "difficulty": 92
     },
     {
       "name": "mansion_+_-",
@@ -386,7 +386,7 @@
       "min_count": 1,
       "max_count": -1,
       "group": "mansion_quadrants",
-      "difficulty": 95
+      "difficulty": 93
     },
     {
       "name": "mansion_-_+",
@@ -398,7 +398,7 @@
       "min_count": 1,
       "max_count": -1,
       "group": "mansion_quadrants",
-      "difficulty": 95
+      "difficulty": 94
     },
     {
       "name": "mansion_+_+",
@@ -419,7 +419,7 @@
       "count_radius": 5000,
       "min_count": 15,
       "max_count": -1,
-      "difficulty": 80
+      "difficulty": 83
     },
     {
       "name": "minimum_desert_pyramids_large",
@@ -428,7 +428,7 @@
       "count_radius": 9000,
       "min_count": 30,
       "max_count": -1,
-      "difficulty": 80
+      "difficulty": 76
     },
     {
       "name": "minimum_four_villages_near_origin",
@@ -439,7 +439,7 @@
       "count_radius": 1000,
       "min_count": 4,
       "max_count": -1,
-      "difficulty": 80
+      "difficulty": 55
     }
   ],
   "vault_loot": [

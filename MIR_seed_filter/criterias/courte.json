@@ -12,7 +12,7 @@
       "radius": 100,
       "min_area": 5000,
       "max_area": -1,
-      "difficulty": 90
+      "difficulty": 91
     },
     {
       "name": "wood_near_spawn",
@@ -24,7 +24,7 @@
       "radius": 100,
       "min_area": 5000,
       "max_area": -1,
-      "difficulty": 12
+      "difficulty": 45
     },
     {
       "name": "food_biome_near_spawn",
@@ -36,7 +36,7 @@
       "radius": 100,
       "min_area": 5000,
       "max_area": -1,
-      "difficulty": 12
+      "difficulty": 34
     },
     {
       "name": "crimson_forest_near_spawn",
@@ -49,7 +49,7 @@
       "radius": 150,
       "min_area": 5000,
       "max_area": -1,
-      "difficulty": 70
+      "difficulty": 43
     },
     {
       "name": "oak_wood_area",
@@ -61,7 +61,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 1
+      "difficulty": 0
     },
     {
       "name": "spruce_wood_area",
@@ -73,7 +73,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 10
+      "difficulty": 2
     },
     {
       "name": "birch_wood_area",
@@ -85,7 +85,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 2
+      "difficulty": 1
     },
     {
       "name": "jungle_wood_area",
@@ -97,7 +97,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 60
+      "difficulty": 4
     },
     {
       "name": "acacia_wood_area",
@@ -109,7 +109,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 35
+      "difficulty": 3
     },
     {
       "name": "dark_oak_wood_area",
@@ -121,7 +121,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 35
+      "difficulty": 5
     },
     {
       "name": "mangrove_wood_area",
@@ -133,7 +133,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 86
+      "difficulty": 57
     },
     {
       "name": "cherry_wood_area",
@@ -145,7 +145,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 76
+      "difficulty": 32
     },
     {
       "name": "pale_oak_wood_area",
@@ -157,7 +157,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 85
+      "difficulty": 69
     },
     {
       "name": "poplar_wood_area",
@@ -169,7 +169,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 83
+      "difficulty": 8
     },
     {
       "name": "bamboo_area",
@@ -181,7 +181,7 @@
       "radius": 1500,
       "min_area": 3000,
       "max_area": -1,
-      "difficulty": 48
+      "difficulty": 7
     },
     {
       "name": "desert_distance",
@@ -193,7 +193,7 @@
       "radius": 150,
       "min_area": 5000,
       "max_area": -1,
-      "difficulty": 79
+      "difficulty": 83
     },
     {
       "name": "desert_area",
@@ -205,7 +205,7 @@
       "radius": 250,
       "min_area": 20000,
       "max_area": -1,
-      "difficulty": 78
+      "difficulty": 72
     },
     {
       "name": "mesa_area",
@@ -217,7 +217,7 @@
       "radius": 1000,
       "min_area": 10000,
       "max_area": -1,
-      "difficulty": 90
+      "difficulty": 47
     },
     {
       "name": "forbidden_biomes_near_spawn",
@@ -229,7 +229,7 @@
       "radius": 50,
       "min_area": -1,
       "max_area": 0,
-      "difficulty": 65
+      "difficulty": 61
     },
     {
       "name": "forbidden_water_biomes_near_spawn",
@@ -241,7 +241,7 @@
       "radius": 10,
       "min_area": -1,
       "max_area": 0,
-      "difficulty": 65
+      "difficulty": 41
     },
     {
       "name": "forbidden_basalt_near_nether_origin",
@@ -254,7 +254,7 @@
       "radius": 100,
       "min_area": -1,
       "max_area": 0,
-      "difficulty": 75
+      "difficulty": 48
     }
   ],
   "structures_distance": [
@@ -266,7 +266,7 @@
       "z": 0,
       "min_distance": -1,
       "max_distance": 100,
-      "difficulty": 75
+      "difficulty": 95
     },
     {
       "name": "bastion_distance",
@@ -276,7 +276,7 @@
       "z": 0,
       "min_distance": 30,
       "max_distance": 200,
-      "difficulty": 65
+      "difficulty": 76
     },
     {
       "name": "desert_pyramid_not_too_close",
@@ -285,7 +285,7 @@
       "spawn": true,
       "min_distance": 300,
       "max_distance": -1,
-      "difficulty": 45
+      "difficulty": 6
     },
     {
       "name": "shipwreck_not_too_close",
@@ -294,7 +294,7 @@
       "spawn": true,
       "min_distance": 150,
       "max_distance": -1,
-      "difficulty": 40
+      "difficulty": 11
     },
     {
       "name": "village_not_too_close_to_origin",
@@ -304,7 +304,7 @@
       "z": 0,
       "min_distance": 300,
       "max_distance": -1,
-      "difficulty": 45
+      "difficulty": 19
     }
   ],
   "structures_amount": [
@@ -317,7 +317,7 @@
       "count_radius": 1000,
       "min_count": 4,
       "max_count": -1,
-      "difficulty": 80
+      "difficulty": 55
     }
   ],
   "vault_loot": []
