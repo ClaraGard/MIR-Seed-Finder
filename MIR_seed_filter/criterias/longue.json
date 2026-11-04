@@ -1,6 +1,7 @@
 {
   "groups": {
-    "mushroom_quadrants": 2
+    "mushroom_quadrants": 2,
+    "mansion_quadrants": 3
   },
   "biomes": [
     {
@@ -143,56 +144,56 @@
       "difficulty": 76
     },
     {
-      "name": "mushroom_fields_north_west",
+      "name": "mushroom_fields_-_-",
       "biome_ids": [14],
       "origin": {
         "dimension": "overworld",
-        "x": -2000,
-        "z": -2000
+        "x": -4000,
+        "z": -4000
       },
-      "radius": 2000,
+      "radius": 4000,
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
       "difficulty": 95
     },
     {
-      "name": "mushroom_fields_north_east",
+      "name": "mushroom_fields_+_-",
       "biome_ids": [14],
       "origin": {
         "dimension": "overworld",
-        "x": 2000,
-        "z": -2000
+        "x": 4000,
+        "z": -4000
       },
-      "radius": 2000,
+      "radius": 4000,
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
       "difficulty": 95
     },
     {
-      "name": "mushroom_fields_south_west",
+      "name": "mushroom_fields_-_+",
       "biome_ids": [14],
       "origin": {
         "dimension": "overworld",
-        "x": -2000,
-        "z": 2000
+        "x": -4000,
+        "z": 4000
       },
-      "radius": 2000,
+      "radius": 4000,
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
       "difficulty": 95
     },
     {
-      "name": "mushroom_fields_south_east",
+      "name": "mushroom_fields_+_+",
       "biome_ids": [14],
       "origin": {
         "dimension": "overworld",
-        "x": 2000,
-        "z": 2000
+        "x": 4000,
+        "z": 4000
       },
-      "radius": 2000,
+      "radius": 4000,
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
@@ -351,13 +352,52 @@
   ],
   "structures_amount": [
     {
-      "name": "minimum_mansions",
+      "name": "mansion_-_-",
       "structure_id": "mansion",
       "dimension": "overworld",
-      "count_radius": 10000,
-      "min_count": 4,
+      "x": -4000,
+      "z": -4000,
+      "count_radius": 4000,
+      "min_count": 1,
       "max_count": -1,
-      "difficulty": 80
+      "group": "mansion_quadrants",
+      "difficulty": 95
+    },
+    {
+      "name": "mansion_+_-",
+      "structure_id": "mansion",
+      "dimension": "overworld",
+      "x": 4000,
+      "z": -4000,
+      "count_radius": 4000,
+      "min_count": 1,
+      "max_count": -1,
+      "group": "mansion_quadrants",
+      "difficulty": 95
+    },
+    {
+      "name": "mansion_-_+",
+      "structure_id": "mansion",
+      "dimension": "overworld",
+      "x": -4000,
+      "z": 4000,
+      "count_radius": 4000,
+      "min_count": 1,
+      "max_count": -1,
+      "group": "mansion_quadrants",
+      "difficulty": 95
+    },
+    {
+      "name": "mansion_+_+",
+      "structure_id": "mansion",
+      "dimension": "overworld",
+      "x": 4000,
+      "z": 4000,
+      "count_radius": 4000,
+      "min_count": 1,
+      "max_count": -1,
+      "group": "mansion_quadrants",
+      "difficulty": 95
     },
     {
       "name": "minimum_desert_pyramids",
