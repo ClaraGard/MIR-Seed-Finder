@@ -359,7 +359,7 @@ static BiomeMap *getCachedBiomeMap(
     const Generator *generator, int centerX, int centerZ, int radius, int scale)
 {
     for (size_t i = 0; i < *cacheCount; ++i) {
-        if (cache[i].generator == generator &&
+        if (cache[i].generator == generator && cache[i].map.scale == scale &&
             mapContains(&cache[i].map, centerX, centerZ, radius))
             return &cache[i].map;
     }
@@ -442,7 +442,7 @@ BiomeResult checkBiomeRequirements(
         BiomeMap *map = getCachedBiomeMap(cache, &cacheCount,
                                            criteria->count, generator,
                                            centerX, centerZ, c->radius, 
-                                           radius < 100 ? scale / 4 : scale);
+                                           c->radius < 100 && scale > 1 ? scale / 4 : scale);
         if (!map) {
             if (verbose)
                 fprintf(stderr, "[%s] biome map generation failed\n", c->name);
