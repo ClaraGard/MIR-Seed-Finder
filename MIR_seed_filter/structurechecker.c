@@ -255,22 +255,31 @@ typedef struct {
     Pos endGateway;
     SurfaceNoise endSurface;
     int hasEndSurface;
+    int hasEndGateway;
 } CheckContext;
 
-static void prepareContext(CheckContext *ctx, int mc, uint64_t seed,
-                           Generator *ow, Generator *nether, Generator *end,
-                           int needsEndCity, int needsEndGateway)
+/* Cheap initialization: expensive End terrain/gateway work is deferred until
+ * an evaluated criterion actually requires it. */
+static void prepareContext(CheckContext *ctx,
+                           Generator *ow, Generator *nether, Generator *end)
 {
     *ctx = (CheckContext){0};
     ctx->generator[0] = ow;
     ctx->generator[1] = nether;
     ctx->generator[2] = end;
-    if (needsEndCity || needsEndGateway) {
+}
+
+static void prepareEndContextIfNeeded(CheckContext *ctx, int mc, uint64_t seed,
+                                      int needsEndCity, int needsEndGateway)
+{
+    if ((needsEndCity || needsEndGateway) && !ctx->hasEndSurface) {
         initSurfaceNoise(&ctx->endSurface, DIM_END, seed);
         ctx->hasEndSurface = 1;
     }
-    if (needsEndGateway)
+    if (needsEndGateway && !ctx->hasEndGateway) {
         ctx->endGateway = firstLinkedEndGateway(mc, seed, &ctx->endSurface);
+        ctx->hasEndGateway = 1;
+    }
 }
 
 static StructureResult newResult(size_t count)
@@ -297,19 +306,12 @@ StructureResult checkStructureDistanceRequirements(
     }
     StructureResult r = newResult(criteria->count);
     if (r.hasError) return r;
-    int needsCity = 0, needsSpawn = 0;
     for (size_t i = 0; i < criteria->count; ++i) {
         r.checks[i].name = criteria->items[i].name;
         r.checks[i].distance = -1.0;
-        if (!criterionGroupShouldCheck(groups, criteria->items[i].groupIndex)) continue;
-        if (criteria->items[i].structureId == End_City) needsCity = 1;
-        if (criterionUsesFirstEndGateway(criteria->items[i].dimension,
-                        criteria->items[i].x, criteria->items[i].z))
-            needsSpawn = 1;
     }
     CheckContext ctx;
-    prepareContext(&ctx, mc, seed, ow, nether, end,
-                   needsCity, needsSpawn);
+    prepareContext(&ctx, ow, nether, end);
     for (size_t i = 0; i < criteria->count; ++i) {
         const StructureDistanceCriterion *c = &criteria->items[i];
         StructureCheckEntry *entry = &r.checks[i];
@@ -320,8 +322,10 @@ StructureResult checkStructureDistanceRequirements(
             r.allPassed = 0;
             break;
         }
-        Pos origin = criterionUsesFirstEndGateway(c->dimension, c->x, c->z)
-            ? ctx.endGateway : (Pos){c->x, c->z};
+        int usesGateway = criterionUsesFirstEndGateway(c->dimension, c->x, c->z);
+        prepareEndContextIfNeeded(&ctx, mc, seed,
+                                  c->structureId == End_City, usesGateway);
+        Pos origin = usesGateway ? ctx.endGateway : (Pos){c->x, c->z};
         int passed = checkStructureDistance(c->structureId, mc, seed,
                         ctx.generator[c->dimension],
                         ctx.hasEndSurface ? &ctx.endSurface : NULL,
@@ -356,18 +360,10 @@ StructureResult checkStructureAmountRequirements(
     }
     StructureResult r = newResult(criteria->count);
     if (r.hasError) return r;
-    int needsCity = 0, needsSpawn = 0;
-    for (size_t i = 0; i < criteria->count; ++i) {
+    for (size_t i = 0; i < criteria->count; ++i)
         r.checks[i].name = criteria->items[i].name;
-        if (!criterionGroupShouldCheck(groups, criteria->items[i].groupIndex)) continue;
-        if (criteria->items[i].structureId == End_City) needsCity = 1;
-        if (criterionUsesFirstEndGateway(criteria->items[i].dimension,
-                        criteria->items[i].x, criteria->items[i].z))
-            needsSpawn = 1;
-    }
     CheckContext ctx;
-    prepareContext(&ctx, mc, seed, ow, nether, end,
-                   needsCity, needsSpawn);
+    prepareContext(&ctx, ow, nether, end);
     for (size_t i = 0; i < criteria->count; ++i) {
         const StructureAmountCriterion *c = &criteria->items[i];
         StructureCheckEntry *entry = &r.checks[i];
@@ -378,8 +374,10 @@ StructureResult checkStructureAmountRequirements(
             r.allPassed = 0;
             break;
         }
-        Pos origin = criterionUsesFirstEndGateway(c->dimension, c->x, c->z)
-            ? ctx.endGateway : (Pos){c->x, c->z};
+        int usesGateway = criterionUsesFirstEndGateway(c->dimension, c->x, c->z);
+        prepareEndContextIfNeeded(&ctx, mc, seed,
+                                  c->structureId == End_City, usesGateway);
+        Pos origin = usesGateway ? ctx.endGateway : (Pos){c->x, c->z};
         int passed = checkStructureCount(c->structureId, mc, seed,
                         ctx.generator[c->dimension],
                         ctx.hasEndSurface ? &ctx.endSurface : NULL,

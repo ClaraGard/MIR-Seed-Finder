@@ -291,7 +291,7 @@
       "spawn": true,
       "min_distance": -1,
       "max_distance": 175,
-      "difficulty": 95
+      "difficulty": 0
     },
     {
       "name": "village_not_too_close_to_origin",
