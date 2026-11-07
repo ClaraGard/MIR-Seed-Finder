@@ -1,0 +1,2016 @@
+FOUND seed=-3598841253525133060
+SPAWN_HEIGHT pos=(-16,16) approx_y=65.95 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-3598841253525133060 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(48,16) distance=50.60 status=PASS
+  [end_city_near_spawn] pos=(1040,96) distance=96.01 status=PASS
+  [bastion_distance] pos=(-96,32) distance=101.19 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-3598841253525133060 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-3598841253525133060 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=5770501868398006145
+SPAWN_HEIGHT pos=(96,64) approx_y=67.00 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=5770501868398006145 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,48) distance=50.60 status=PASS
+  [end_city_near_spawn] pos=(368,-1152) distance=153.57 status=PASS
+  [bastion_distance] pos=(-112,48) distance=121.85 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=5770501868398006145 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=5770501868398006145 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=7822886156867776849
+SPAWN_HEIGHT pos=(0,0) approx_y=89.41 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=7822886156867776849 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,0) distance=32.00 status=PASS
+  [end_city_near_spawn] pos=(992,688) distance=124.78 status=PASS
+  [bastion_distance] pos=(-96,64) distance=115.38 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=7822886156867776849 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=7822886156867776849 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-9041227245690929219
+SPAWN_HEIGHT pos=(0,0) approx_y=70.43 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-9041227245690929219 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(64,32) distance=71.55 status=PASS
+  [end_city_near_spawn] pos=(1056,384) distance=109.88 status=PASS
+  [bastion_distance] pos=(112,-112) distance=158.39 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-9041227245690929219 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-9041227245690929219 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-397880450868067139
+SPAWN_HEIGHT pos=(0,0) approx_y=75.96 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-397880450868067139 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,64) distance=65.97 status=PASS
+  [end_city_near_spawn] pos=(-272,1056) distance=39.81 status=PASS
+  [bastion_distance] pos=(48,-192) distance=197.91 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-397880450868067139 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-397880450868067139 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=273531082589314511
+SPAWN_HEIGHT pos=(0,0) approx_y=66.67 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=273531082589314511 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,-80) distance=81.58 status=PASS
+  [end_city_near_spawn] pos=(736,-912) distance=68.24 status=PASS
+  [bastion_distance] pos=(-160,-96) distance=186.59 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=273531082589314511 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=273531082589314511 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-1776797134799400220
+SPAWN_HEIGHT pos=(0,0) approx_y=66.75 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-1776797134799400220 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(96,0) distance=96.00 status=PASS
+  [end_city_near_spawn] pos=(400,1008) distance=113.45 status=PASS
+  [bastion_distance] pos=(48,-128) distance=136.70 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-1776797134799400220 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-1776797134799400220 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=50713753231302545
+SPAWN_HEIGHT pos=(0,0) approx_y=75.89 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=50713753231302545 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(80,0) distance=80.00 status=PASS
+  [end_city_near_spawn] pos=(1040,384) distance=66.40 status=PASS
+  [bastion_distance] pos=(-112,64) distance=129.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=50713753231302545 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=50713753231302545 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-4367171142168904345
+SPAWN_HEIGHT pos=(16,32) approx_y=65.62 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-4367171142168904345 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,80) distance=81.58 status=PASS
+  [end_city_near_spawn] pos=(704,-880) distance=55.00 status=PASS
+  [bastion_distance] pos=(-192,16) distance=192.67 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-4367171142168904345 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-4367171142168904345 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=1099198075086435401
+SPAWN_HEIGHT pos=(0,0) approx_y=74.53 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=1099198075086435401 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(64,32) distance=71.55 status=PASS
+  [end_city_near_spawn] pos=(720,736) distance=139.62 status=PASS
+  [bastion_distance] pos=(-96,-144) distance=173.07 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=1099198075086435401 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=1099198075086435401 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=8921037974699897916
+SPAWN_HEIGHT pos=(0,0) approx_y=87.41 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=8921037974699897916 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,-80) distance=86.16 status=PASS
+  [end_city_near_spawn] pos=(336,1008) distance=40.01 status=PASS
+  [bastion_distance] pos=(-128,0) distance=128.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=8921037974699897916 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=8921037974699897916 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=302167668518307091
+SPAWN_HEIGHT pos=(0,0) approx_y=66.34 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=302167668518307091 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,96) distance=96.00 status=PASS
+  [end_city_near_spawn] pos=(1040,64) distance=81.40 status=PASS
+  [bastion_distance] pos=(-160,32) distance=163.17 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=302167668518307091 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=302167668518307091 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=6559680127952709342
+SPAWN_HEIGHT pos=(0,0) approx_y=68.33 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=6559680127952709342 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(80,16) distance=81.58 status=PASS
+  [end_city_near_spawn] pos=(-1168,368) distance=136.12 status=PASS
+  [bastion_distance] pos=(32,-192) distance=194.65 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=6559680127952709342 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=6559680127952709342 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=8965193549250889752
+SPAWN_HEIGHT pos=(0,0) approx_y=66.30 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=8965193549250889752 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,0) distance=0.00 status=PASS
+  [end_city_near_spawn] pos=(64,-1232) distance=69.35 status=PASS
+  [bastion_distance] pos=(-96,48) distance=107.33 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=8965193549250889752 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=8965193549250889752 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=4349670509007643616
+SPAWN_HEIGHT pos=(0,0) approx_y=121.29 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=4349670509007643616 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(48,16) distance=50.60 status=PASS
+  [end_city_near_spawn] pos=(672,1024) distance=104.39 status=PASS
+  [bastion_distance] pos=(-96,-112) distance=147.51 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=4349670509007643616 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=4349670509007643616 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-6624863923952348153
+SPAWN_HEIGHT pos=(0,0) approx_y=67.86 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-6624863923952348153 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,64) distance=64.00 status=PASS
+  [end_city_near_spawn] pos=(-560,1024) distance=158.50 status=PASS
+  [bastion_distance] pos=(0,-112) distance=112.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-6624863923952348153 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-6624863923952348153 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=3461601168926053725
+SPAWN_HEIGHT pos=(-16,16) approx_y=66.54 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=3461601168926053725 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(-96,0) distance=96.00 status=PASS
+  [end_city_near_spawn] pos=(736,-912) distance=116.21 status=PASS
+  [bastion_distance] pos=(32,112) distance=116.48 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=3461601168926053725 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=3461601168926053725 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=7927720065815942411
+SPAWN_HEIGHT pos=(-16,-16) approx_y=66.61 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=7927720065815942411 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,-96) distance=96.00 status=PASS
+  [end_city_near_spawn] pos=(64,1024) distance=81.15 status=PASS
+  [bastion_distance] pos=(16,32) distance=35.78 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=7927720065815942411 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=7927720065815942411 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=5921027530667309484
+SPAWN_HEIGHT pos=(0,0) approx_y=66.61 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=5921027530667309484 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,-96) distance=97.32 status=PASS
+  [end_city_near_spawn] pos=(1056,-320) distance=115.00 status=PASS
+  [bastion_distance] pos=(80,160) distance=178.89 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=5921027530667309484 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=5921027530667309484 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-5387518804813849671
+SPAWN_HEIGHT pos=(0,0) approx_y=66.59 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-5387518804813849671 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(-96,0) distance=96.00 status=PASS
+  [end_city_near_spawn] pos=(688,-880) distance=68.15 status=PASS
+  [bastion_distance] pos=(96,-80) distance=124.96 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-5387518804813849671 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-5387518804813849671 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-5346687724801792418
+SPAWN_HEIGHT pos=(-32,-80) approx_y=131.97 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-5346687724801792418 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(48,16) distance=50.60 status=PASS
+  [end_city_near_spawn] pos=(720,752) distance=167.59 status=PASS
+  [bastion_distance] pos=(0,-176) distance=176.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-5346687724801792418 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-5346687724801792418 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-8758993119273902669
+SPAWN_HEIGHT pos=(0,0) approx_y=66.53 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-8758993119273902669 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,-80) distance=81.58 status=PASS
+  [end_city_near_spawn] pos=(368,1024) distance=21.10 status=PASS
+  [bastion_distance] pos=(-112,-128) distance=170.08 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-8758993119273902669 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-8758993119273902669 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=5992100135099984616
+SPAWN_HEIGHT pos=(0,0) approx_y=66.84 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=5992100135099984616 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(80,48) distance=93.30 status=PASS
+  [end_city_near_spawn] pos=(1024,-224) distance=114.35 status=PASS
+  [bastion_distance] pos=(144,-80) distance=164.73 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=5992100135099984616 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=5992100135099984616 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-7244330895390965477
+SPAWN_HEIGHT pos=(0,0) approx_y=86.66 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-7244330895390965477 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,-96) distance=97.32 status=PASS
+  [end_city_near_spawn] pos=(1008,672) distance=131.40 status=PASS
+  [bastion_distance] pos=(96,32) distance=101.19 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-7244330895390965477 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-7244330895390965477 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-326353051439380531
+SPAWN_HEIGHT pos=(0,0) approx_y=74.26 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-326353051439380531 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(64,64) distance=90.51 status=PASS
+  [end_city_near_spawn] pos=(-928,704) distance=97.95 status=PASS
+  [bastion_distance] pos=(160,-80) distance=178.89 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-326353051439380531 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-326353051439380531 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=8002738395538867465
+SPAWN_HEIGHT pos=(0,-16) approx_y=67.01 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=8002738395538867465 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,64) distance=71.55 status=PASS
+  [end_city_near_spawn] pos=(672,-896) distance=108.30 status=PASS
+  [bastion_distance] pos=(128,-128) distance=181.02 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=8002738395538867465 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=8002738395538867465 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-1343058253380074276
+SPAWN_HEIGHT pos=(0,0) approx_y=66.80 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-1343058253380074276 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,16) distance=16.00 status=PASS
+  [end_city_near_spawn] pos=(-224,1040) distance=126.37 status=PASS
+  [bastion_distance] pos=(-128,-80) distance=150.94 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-1343058253380074276 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-1343058253380074276 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=1142374488265976612
+SPAWN_HEIGHT pos=(0,0) approx_y=66.75 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=1142374488265976612 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,16) distance=35.78 status=PASS
+  [end_city_near_spawn] pos=(-880,688) distance=80.21 status=PASS
+  [bastion_distance] pos=(-80,-128) distance=150.94 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=1142374488265976612 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=1142374488265976612 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-7964538484334992525
+SPAWN_HEIGHT pos=(0,0) approx_y=74.00 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-7964538484334992525 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,-80) distance=80.00 status=PASS
+  [end_city_near_spawn] pos=(992,-320) distance=49.37 status=PASS
+  [bastion_distance] pos=(48,64) distance=80.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-7964538484334992525 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-7964538484334992525 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-713767768725034419
+SPAWN_HEIGHT pos=(-48,-32) approx_y=66.58 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-713767768725034419 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,96) distance=96.00 status=PASS
+  [end_city_near_spawn] pos=(-272,1040) distance=104.92 status=PASS
+  [bastion_distance] pos=(-144,-80) distance=164.73 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-713767768725034419 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-713767768725034419 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-216772714463313113
+SPAWN_HEIGHT pos=(48,112) approx_y=104.32 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-216772714463313113 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,-96) distance=97.32 status=PASS
+  [end_city_near_spawn] pos=(688,1008) distance=66.12 status=PASS
+  [bastion_distance] pos=(144,32) distance=147.51 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-216772714463313113 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-216772714463313113 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=6259012299398466102
+SPAWN_HEIGHT pos=(16,0) approx_y=66.08 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=6259012299398466102 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(80,48) distance=93.30 status=PASS
+  [end_city_near_spawn] pos=(-304,1312) distance=103.86 status=PASS
+  [bastion_distance] pos=(160,-112) distance=195.30 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=6259012299398466102 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=6259012299398466102 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=4695357037340750188
+SPAWN_HEIGHT pos=(0,0) approx_y=78.37 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=4695357037340750188 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,48) distance=48.00 status=PASS
+  [end_city_near_spawn] pos=(80,1056) distance=102.46 status=PASS
+  [bastion_distance] pos=(160,-80) distance=178.89 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=4695357037340750188 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=4695357037340750188 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-10494724337949748
+SPAWN_HEIGHT pos=(0,-16) approx_y=65.70 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-10494724337949748 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,48) distance=50.60 status=PASS
+  [end_city_near_spawn] pos=(-240,1040) distance=67.60 status=PASS
+  [bastion_distance] pos=(-80,-160) distance=178.89 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-10494724337949748 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-10494724337949748 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=8025607255795383378
+SPAWN_HEIGHT pos=(0,0) approx_y=67.63 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=8025607255795383378 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,80) distance=81.58 status=PASS
+  [end_city_near_spawn] pos=(-880,736) distance=66.57 status=PASS
+  [bastion_distance] pos=(0,-192) distance=192.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=8025607255795383378 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=8025607255795383378 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-6284350469538591332
+SPAWN_HEIGHT pos=(0,0) approx_y=76.22 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-6284350469538591332 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(64,64) distance=90.51 status=PASS
+  [end_city_near_spawn] pos=(-928,736) distance=57.98 status=PASS
+  [bastion_distance] pos=(48,-128) distance=136.70 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-6284350469538591332 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-6284350469538591332 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=2127516731402524786
+SPAWN_HEIGHT pos=(0,0) approx_y=81.66 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=2127516731402524786 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(-80,16) distance=81.58 status=PASS
+  [end_city_near_spawn] pos=(1024,-256) distance=50.22 status=PASS
+  [bastion_distance] pos=(80,48) distance=93.30 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=2127516731402524786 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=2127516731402524786 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=3506267262982710424
+SPAWN_HEIGHT pos=(0,16) approx_y=65.59 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=3506267262982710424 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(-96,16) distance=97.32 status=PASS
+  [end_city_near_spawn] pos=(-880,720) distance=157.18 status=PASS
+  [bastion_distance] pos=(160,-96) distance=186.59 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=3506267262982710424 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=3506267262982710424 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=2483175721583263224
+SPAWN_HEIGHT pos=(0,0) approx_y=86.76 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=2483175721583263224 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(80,16) distance=81.58 status=PASS
+  [end_city_near_spawn] pos=(1040,-592) distance=149.68 status=PASS
+  [bastion_distance] pos=(-96,112) distance=147.51 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=2483175721583263224 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=2483175721583263224 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-4389627729412681756
+SPAWN_HEIGHT pos=(0,32) approx_y=92.47 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-4389627729412681756 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(-96,0) distance=96.00 status=PASS
+  [end_city_near_spawn] pos=(1072,-240) distance=97.67 status=PASS
+  [bastion_distance] pos=(128,0) distance=128.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-4389627729412681756 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-4389627729412681756 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=8026609530114945699
+SPAWN_HEIGHT pos=(0,0) approx_y=66.08 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=8026609530114945699 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(96,16) distance=97.32 status=PASS
+  [end_city_near_spawn] pos=(704,-912) distance=66.71 status=PASS
+  [bastion_distance] pos=(144,-128) distance=192.67 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=8026609530114945699 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=8026609530114945699 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-2321693245516880411
+SPAWN_HEIGHT pos=(0,0) approx_y=79.30 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-2321693245516880411 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(64,16) distance=65.97 status=PASS
+  [end_city_near_spawn] pos=(736,-912) distance=105.80 status=PASS
+  [bastion_distance] pos=(-192,16) distance=192.67 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-2321693245516880411 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-2321693245516880411 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=2612559817978730629
+SPAWN_HEIGHT pos=(0,-32) approx_y=67.00 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=2612559817978730629 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,0) distance=32.00 status=PASS
+  [end_city_near_spawn] pos=(704,960) distance=62.20 status=PASS
+  [bastion_distance] pos=(-112,-144) distance=182.43 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=2612559817978730629 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=2612559817978730629 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-3496910197582184359
+SPAWN_HEIGHT pos=(0,0) approx_y=69.54 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-3496910197582184359 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(-80,32) distance=86.16 status=PASS
+  [end_city_near_spawn] pos=(1344,32) distance=65.00 status=PASS
+  [bastion_distance] pos=(96,-128) distance=160.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-3496910197582184359 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-3496910197582184359 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=8345415534004286442
+SPAWN_HEIGHT pos=(0,0) approx_y=66.37 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=8345415534004286442 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,0) distance=32.00 status=PASS
+  [end_city_near_spawn] pos=(-1184,32) distance=149.62 status=PASS
+  [bastion_distance] pos=(-96,48) distance=107.33 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=8345415534004286442 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=8345415534004286442 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-2190480490291316573
+SPAWN_HEIGHT pos=(0,0) approx_y=77.17 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-2190480490291316573 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,16) distance=35.78 status=PASS
+  [end_city_near_spawn] pos=(736,736) distance=169.33 status=PASS
+  [bastion_distance] pos=(-80,-128) distance=150.94 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-2190480490291316573 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-2190480490291316573 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-9100780999879136691
+SPAWN_HEIGHT pos=(0,0) approx_y=70.66 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-9100780999879136691 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(48,0) distance=48.00 status=PASS
+  [end_city_near_spawn] pos=(-848,752) distance=130.12 status=PASS
+  [bastion_distance] pos=(-96,-160) distance=186.59 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-9100780999879136691 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-9100780999879136691 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=7699188215915674984
+SPAWN_HEIGHT pos=(32,-16) approx_y=65.89 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=7699188215915674984 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(80,16) distance=81.58 status=PASS
+  [end_city_near_spawn] pos=(1024,-224) distance=124.85 status=PASS
+  [bastion_distance] pos=(32,-128) distance=131.94 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=7699188215915674984 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=7699188215915674984 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=5605298125553399204
+SPAWN_HEIGHT pos=(0,0) approx_y=69.34 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=5605298125553399204 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,32) distance=45.25 status=PASS
+  [end_city_near_spawn] pos=(320,1280) distance=80.43 status=PASS
+  [bastion_distance] pos=(-96,48) distance=107.33 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=5605298125553399204 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=5605298125553399204 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=4293326813446293371
+SPAWN_HEIGHT pos=(0,16) approx_y=66.11 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=4293326813446293371 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,16) distance=35.78 status=PASS
+  [end_city_near_spawn] pos=(-576,-896) distance=63.95 status=PASS
+  [bastion_distance] pos=(-128,-112) distance=170.08 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=4293326813446293371 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=4293326813446293371 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-9042463418404449801
+SPAWN_HEIGHT pos=(0,0) approx_y=73.08 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-9042463418404449801 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,32) distance=32.00 status=PASS
+  [end_city_near_spawn] pos=(-288,1056) distance=89.16 status=PASS
+  [bastion_distance] pos=(-160,96) distance=186.59 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-9042463418404449801 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-9042463418404449801 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-12271539881669302
+SPAWN_HEIGHT pos=(16,0) approx_y=73.01 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-12271539881669302 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(-80,48) distance=93.30 status=PASS
+  [end_city_near_spawn] pos=(-880,1008) distance=171.77 status=PASS
+  [bastion_distance] pos=(128,144) distance=192.67 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-12271539881669302 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-12271539881669302 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=3255088322587878050
+SPAWN_HEIGHT pos=(0,0) approx_y=73.78 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=3255088322587878050 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(48,-80) distance=93.30 status=PASS
+  [end_city_near_spawn] pos=(-1184,16) distance=131.22 status=PASS
+  [bastion_distance] pos=(0,192) distance=192.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=3255088322587878050 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=3255088322587878050 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=3035390528139641871
+SPAWN_HEIGHT pos=(0,0) approx_y=66.54 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=3035390528139641871 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,0) distance=0.00 status=PASS
+  [end_city_near_spawn] pos=(112,1040) distance=138.72 status=PASS
+  [bastion_distance] pos=(-112,64) distance=129.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=3035390528139641871 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=3035390528139641871 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=9068881952158355686
+SPAWN_HEIGHT pos=(16,-48) approx_y=70.63 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=9068881952158355686 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,64) distance=71.55 status=PASS
+  [end_city_near_spawn] pos=(-896,-576) distance=83.38 status=PASS
+  [bastion_distance] pos=(128,-96) distance=160.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=9068881952158355686 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=9068881952158355686 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-5085228267640299556
+SPAWN_HEIGHT pos=(240,432) approx_y=71.33 min_y=64 status=PASS
+STRUCTURES_DISTANCE seed=-5085228267640299556 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,48) distance=57.69 status=PASS
+  [end_city_near_spawn] pos=(64,1040) distance=160.02 status=PASS
+  [bastion_distance] pos=(-160,112) distance=195.30 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+
+BIOMES seed=-5085228267640299556 passed=20 failed=0 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [desert_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [cherry_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+  [dark_oak_wood_area] status=PASS
+  [jungle_wood_area] status=PASS
+  [oak_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-5085228267640299556 passed=1 failed=0 evaluated=1 total=1
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
