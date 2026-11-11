@@ -1,11 +1,18 @@
 /*
  * MIR seedstats — independent selectivity measurement for MC 26.3.
  * Reuses exactly the same criterion loaders/checkers as seedfilter3.c.
+ * CSV includes per-criterion standalone CPU-time benchmarks: at most
+ * 256 sampled seeds per worker to keep timing overhead bounded.
+ * Unlike batch evaluation, standalone biome checks cannot reuse maps.
  *
  * Build with MIR_seed_filter/Makefile (seedstats target).
  * One special checker groupIndex (-2) disables early rejection ONLY for
  * this executable. See the tiny change in criterialoader.h.
  */
+#ifndef _WIN32
+#define _POSIX_C_SOURCE 200809L /* clock_gettime() */
+#endif
+
 #include "finders.h"
 #include "generator.h"
 #include "biomes.h"
@@ -25,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -40,6 +48,9 @@
 #define MC MC_26_3
 #define MIN_SPAWN_SURFACE_Y 64
 #define STATS_INDEPENDENT_GROUP_INDEX (-2)
+/* Standalone timing on at most this many random seeds per worker.
+ * This keeps profiling overhead bounded even for billions of samples. */
+#define MAX_TIMED_SAMPLES_PER_WORKER 256
 
 typedef struct {
     uint64_t passed;
@@ -52,6 +63,7 @@ typedef struct {
     uint64_t samples;
     uint64_t criteria;
     uint64_t groups;
+    uint64_t timedSamples;
 } WorkerHeader;
 
 typedef struct {
@@ -107,6 +119,29 @@ static int os_random_bytes(void *buf, size_t n)
     }
     return 1;
 #endif
+}
+
+/* High resolution clock. CPU time on POSIX isolates the worker from other
+ * workers running concurrently; on Windows QPC measures elapsed wall time. */
+static double profile_clock_seconds(void)
+{
+#ifdef _WIN32
+    static LARGE_INTEGER frequency = {0};
+    LARGE_INTEGER tick;
+    if (!frequency.QuadPart && !QueryPerformanceFrequency(&frequency)) return 0.0;
+    if (!QueryPerformanceCounter(&tick)) return 0.0;
+    return (double)tick.QuadPart / (double)frequency.QuadPart;
+#else
+    struct timespec ts;
+    if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) != 0) return 0.0;
+    return (double)ts.tv_sec + (double)ts.tv_nsec * 1e-9;
+#endif
+}
+
+static void add_timing(double *seconds, size_t index, double start)
+{
+    double elapsed = profile_clock_seconds() - start;
+    if (elapsed > 0) seconds[index] += elapsed;
 }
 
 static void record(Counts *c, int status)
@@ -167,10 +202,62 @@ static int *prepare_independent_checks(CriteriaConfig *c, Layout l)
     return memberGroups;
 }
 
+/* Benchmark criteria in isolation, using the very same checkers as the
+ * seed filter. The selectivity counts still come from the original batched
+ * evaluation, which retains shared biome maps and identical pass/fail logic.
+ *
+ * Standalone biome timing deliberately includes generating its own map; it
+ * therefore is not the incremental cost of a criterion after map reuse. */
+static void profile_sample(uint64_t seed, CriteriaConfig *c,
+                           const VaultLootEngine *engine, Layout l,
+                           Generator *ow, Generator *nether, Generator *end,
+                           double *seconds)
+{
+    double start;
+
+    for (size_t i = 0; i < c->vaultLoot.count; i++) {
+        start = profile_clock_seconds();
+        (void)vault_loot_filter_match(engine, seed, &c->vaultLoot.items[i].rule);
+        add_timing(seconds, l.vault + i, start);
+    }
+
+    for (size_t i = 0; i < c->structuresDistance.count; i++) {
+        StructureDistanceCriteria single = {&c->structuresDistance.items[i], 1};
+        start = profile_clock_seconds();
+        StructureResult r = checkStructureDistanceRequirements(
+            &single, MC, seed, ow, nether, end, NULL, 0);
+        freeStructureResult(&r);
+        add_timing(seconds, l.distance + i, start);
+    }
+
+    start = profile_clock_seconds();
+    (void)check_spawn_y(ow, seed);
+    add_timing(seconds, l.spawn, start);
+
+    for (size_t i = 0; i < c->biomes.count; i++) {
+        BiomeCriteria single = {&c->biomes.items[i], 1};
+        start = profile_clock_seconds();
+        BiomeResult r = checkBiomeRequirements(
+            &single, ow, nether, end, seed, 16, NULL, 0);
+        freeBiomeResult(&r);
+        add_timing(seconds, l.biome + i, start);
+    }
+
+    for (size_t i = 0; i < c->structuresAmount.count; i++) {
+        StructureAmountCriteria single = {&c->structuresAmount.items[i], 1};
+        start = profile_clock_seconds();
+        StructureResult r = checkStructureAmountRequirements(
+            &single, MC, seed, ow, nether, end, NULL, 0);
+        freeStructureResult(&r);
+        add_timing(seconds, l.amount + i, start);
+    }
+}
+
 static void process_sample(uint64_t seed, int smallBiomes, CriteriaConfig *c,
                            const VaultLootEngine *engine, Layout l,
                            const int *memberGroups, Counts *totals,
-                           int8_t *status, int *groupPasses, int *groupErrors)
+                           int8_t *status, int *groupPasses, int *groupErrors,
+                           double *timings, int profile)
 {
     /* All rules are evaluated regardless of other rules' outcomes. */
     for (size_t i = 0; i < c->vaultLoot.count; i++) {
@@ -237,6 +324,8 @@ static void process_sample(uint64_t seed, int smallBiomes, CriteriaConfig *c,
         else if (groupStatus < 0) anyError = 1;
     }
     record(&totals[l.overall], anyFailed ? 0 : anyError ? -1 : 1);
+
+    if (profile) profile_sample(seed, c, engine, l, &ow, &nether, &end, timings);
 }
 
 static int worker(uint64_t samples, const char *json, const char *tmp, int smallBiomes)
@@ -250,10 +339,11 @@ static int worker(uint64_t samples, const char *json, const char *tmp, int small
     Layout l = make_layout(&c);
     int *groupsByCriterion = prepare_independent_checks(&c, l);
     Counts *counts = calloc(l.total, sizeof(*counts));
+    double *timings = calloc(l.total, sizeof(*timings));
     int8_t *status = malloc((l.spawn ? l.spawn : 1) * sizeof(*status));
     int *groupPass = calloc(c.groupCount ? c.groupCount : 1, sizeof(*groupPass));
     int *groupErr = calloc(c.groupCount ? c.groupCount : 1, sizeof(*groupErr));
-    int ok = groupsByCriterion && counts && status && groupPass && groupErr;
+    int ok = groupsByCriterion && counts && timings && status && groupPass && groupErr;
     VaultLootEngine engine = {0};
     if (ok && c.vaultLoot.count && !vault_loot_engine_init(&engine)) {
         fprintf(stderr, "Could not initialize vault loot tables.\n");
@@ -267,19 +357,24 @@ static int worker(uint64_t samples, const char *json, const char *tmp, int small
     }
     if (ok) {
         xSetSeed(&rng, randomSeed);
+        uint64_t timedSamples = samples < MAX_TIMED_SAMPLES_PER_WORKER
+                              ? samples : MAX_TIMED_SAMPLES_PER_WORKER;
         for (uint64_t i = 0; i < samples; i++) {
             process_sample(xNextLong(&rng), smallBiomes, &c, &engine, l,
-                           groupsByCriterion, counts, status, groupPass, groupErr);
+                           groupsByCriterion, counts, status, groupPass, groupErr,
+                           timings, i < timedSamples);
             if ((i + 1) % 100000 == 0)
                 fprintf(stderr, "Worker sampled %" PRIu64 " seeds\n", i + 1);
         }
         FILE *f = fopen(tmp, "wb");
         if (!f) { perror("Opening worker stats"); ok = 0; }
         else {
-            WorkerHeader h = {{'M','I','R','S','T','A','T','1'}, samples,
-                              (uint64_t)l.spawn, (uint64_t)c.groupCount};
+            WorkerHeader h = {{'M','I','R','S','T','A','T','2'}, samples,
+                              (uint64_t)l.spawn, (uint64_t)c.groupCount,
+                              timedSamples};
             if (fwrite(&h, sizeof(h), 1, f) != 1 ||
-                fwrite(counts, sizeof(*counts), l.total, f) != l.total)
+                fwrite(counts, sizeof(*counts), l.total, f) != l.total ||
+                fwrite(timings, sizeof(*timings), l.total, f) != l.total)
                 ok = 0;
             if (fclose(f)) ok = 0;
         }
@@ -288,6 +383,7 @@ static int worker(uint64_t samples, const char *json, const char *tmp, int small
     free(groupPass);
     free(status);
     free(counts);
+    free(timings);
     free(groupsByCriterion);
     freeCriteriaConfig(&c);
     return ok ? 0 : 2;
@@ -327,7 +423,8 @@ static int compare_rows(const void *aa, const void *bb)
 }
 
 static void write_row(FILE *f, const Row *row, const Counts *s,
-                      uint64_t samples, size_t rank)
+                      uint64_t samples, size_t rank,
+                      double timedSeconds, uint64_t timedSamples)
 {
     uint64_t valid = s->passed + s->failed;
     fprintf(f, "%zu,", rank);
@@ -346,11 +443,14 @@ static void write_row(FILE *f, const Row *row, const Counts *s,
     if (valid) fprintf(f, "%.9f", 100.0 * (double)s->failed / (double)valid);
     fputc(',', f);
     if (s->passed) fprintf(f, "%.3f", (double)valid / (double)s->passed);
+    fprintf(f, ",%" PRIu64 ",%.6f,", timedSamples, timedSeconds * 1000.0);
+    if (timedSamples) fprintf(f, "%.6f", timedSeconds * 1e6 / (double)timedSamples);
     fputc('\n', f);
 }
 
 static int save_csv(const char *path, const CriteriaConfig *c, Layout l,
-                    const Counts *counts, uint64_t samples)
+                    const Counts *counts, const double *timings,
+                    uint64_t samples, uint64_t timedSamples)
 {
     Row *rows = calloc(l.overall ? l.overall : 1, sizeof(*rows));
     if (!rows) return 0;
@@ -376,41 +476,74 @@ static int save_csv(const char *path, const CriteriaConfig *c, Layout l,
         const CriterionGroup *g = &c->groups[i];
         rows[n++] = (Row){"group", g->name, NULL, g->minCount, l.groups + i, 0};
     }
+    /* Group cost = sum of costs for all its members (not short-circuited).
+     * The overall cost includes each atomic criterion once, plus spawn Y. */
+    double *rowTimings = calloc(l.total, sizeof(*rowTimings));
+    if (!rowTimings) { free(rows); return 0; }
+    memcpy(rowTimings, timings, l.total * sizeof(*rowTimings));
+    for (size_t i = 0; i < l.spawn; i++) {
+        int groupIndex = -1;
+        if (i < l.distance)
+            groupIndex = c->biomes.items[i - l.biome].groupIndex;
+        else if (i < l.amount)
+            groupIndex = c->structuresDistance.items[i - l.distance].groupIndex;
+        else if (i < l.vault)
+            groupIndex = c->structuresAmount.items[i - l.amount].groupIndex;
+        else
+            groupIndex = c->vaultLoot.items[i - l.vault].groupIndex;
+        if (groupIndex >= 0 && (size_t)groupIndex < c->groupCount)
+            rowTimings[l.groups + (size_t)groupIndex] += timings[i];
+        rowTimings[l.overall] += timings[i];
+    }
+    rowTimings[l.overall] += timings[l.spawn];
+
     sortCounts = counts;
     qsort(rows, n, sizeof(*rows), compare_rows);
     FILE *f = fopen(path, "w");
-    if (!f) { perror("Opening CSV"); free(rows); return 0; }
-    fprintf(f, "rank,type,name,group,group_min_count,configured_difficulty,sampled_seeds,passed,failed,errors,pass_rate_percent,reject_rate_percent,estimated_one_in\n");
-    for (size_t i = 0; i < n; i++) write_row(f, &rows[i], &counts[rows[i].position], samples, i + 1);
+    if (!f) { perror("Opening CSV"); free(rowTimings); free(rows); return 0; }
+    fprintf(f, "rank,type,name,group,group_min_count,configured_difficulty,sampled_seeds,passed,failed,errors,pass_rate_percent,reject_rate_percent,estimated_one_in,timing_samples,standalone_timed_total_ms,standalone_avg_us_per_seed\n");
+    for (size_t i = 0; i < n; i++)
+        write_row(f, &rows[i], &counts[rows[i].position], samples, i + 1,
+                  rowTimings[rows[i].position], timedSamples);
     Row overall = {"overall", "all_mandatory_and_groups_and_spawn", NULL, 0, l.overall, 0};
-    write_row(f, &overall, &counts[l.overall], samples, 0);
+    write_row(f, &overall, &counts[l.overall], samples, 0,
+              rowTimings[l.overall], timedSamples);
     int ok = !ferror(f);
     if (fclose(f)) ok = 0;
+    free(rowTimings);
     free(rows);
     return ok;
 }
 
-static int merge_stats(const char *path, Counts *all, Layout l,
-                       uint64_t expectedSamples, uint64_t groups)
+static int merge_stats(const char *path, Counts *all, double *allTimings, Layout l,
+                       uint64_t expectedSamples, uint64_t groups,
+                       uint64_t *totalTimedSamples)
 {
     FILE *f = fopen(path, "rb");
     if (!f) { perror("Reading worker stats"); return 0; }
     WorkerHeader h;
     int ok = fread(&h, sizeof(h), 1, f) == 1 &&
-             memcmp(h.magic, "MIRSTAT1", 8) == 0 &&
+             memcmp(h.magic, "MIRSTAT2", 8) == 0 &&
              h.criteria == l.spawn && h.groups == groups &&
              h.samples == expectedSamples;
     Counts *partial = calloc(l.total, sizeof(*partial));
-    if (!partial) ok = 0;
+    double *partialTimings = calloc(l.total, sizeof(*partialTimings));
+    if (!partial || !partialTimings) ok = 0;
     if (ok && fread(partial, sizeof(*partial), l.total, f) != l.total) ok = 0;
+    if (ok && fread(partialTimings, sizeof(*partialTimings), l.total, f) != l.total) ok = 0;
+    if (ok && (h.timedSamples == 0 || h.timedSamples > h.samples ||
+               h.timedSamples > MAX_TIMED_SAMPLES_PER_WORKER)) ok = 0;
     if (ok) {
         for (size_t i = 0; i < l.total; i++) {
             all[i].passed += partial[i].passed;
             all[i].failed += partial[i].failed;
             all[i].errors += partial[i].errors;
+            allTimings[i] += partialTimings[i];
         }
+        *totalTimedSamples += h.timedSamples;
     }
     free(partial);
+    free(partialTimings);
     fclose(f);
     return ok;
 }
@@ -444,6 +577,8 @@ int main(int argc, char **argv)
     }
     Layout l = make_layout(&c);
     Counts *total = calloc(l.total, sizeof(*total));
+    double *totalTimings = calloc(l.total, sizeof(*totalTimings));
+    uint64_t totalTimedSamples = 0;
     size_t workers = (size_t)(processes < samples ? processes : samples);
     char **tempPaths = calloc(workers, sizeof(*tempPaths));
 #ifdef _WIN32
@@ -451,9 +586,9 @@ int main(int argc, char **argv)
 #else
     pid_t *pids = calloc(workers, sizeof(*pids));
 #endif
-    if (!total || !tempPaths || !pids) {
+    if (!total || !totalTimings || !tempPaths || !pids) {
         fprintf(stderr, "Out of memory.\n");
-        free(total); free(tempPaths); free(pids); freeCriteriaConfig(&c);
+        free(total); free(totalTimings); free(tempPaths); free(pids); freeCriteriaConfig(&c);
         return 1;
     }
     int failed = 0;
@@ -501,15 +636,17 @@ int main(int argc, char **argv)
     if (!failed) {
         for (size_t i = 0; i < workers; i++) {
             uint64_t chunk = base + (i < remainder ? 1 : 0);
-            if (!merge_stats(tempPaths[i], total, l, chunk, c.groupCount))
+            if (!merge_stats(tempPaths[i], total, totalTimings, l, chunk,
+                             c.groupCount, &totalTimedSamples))
                 failed = 1;
         }
     }
-    if (!failed && !save_csv(argv[3], &c, l, total, samples)) failed = 1;
+    if (!failed && !save_csv(argv[3], &c, l, total, totalTimings,
+                             samples, totalTimedSamples)) failed = 1;
     if (!failed) fprintf(stderr, "Saved independent criterion statistics to %s\n", argv[3]);
     for (size_t i = 0; i < workers; i++) {
         if (tempPaths[i]) { remove(tempPaths[i]); free(tempPaths[i]); }
     }
-    free(pids); free(tempPaths); free(total); freeCriteriaConfig(&c);
+    free(pids); free(tempPaths); free(total); free(totalTimings); freeCriteriaConfig(&c);
     return failed ? 2 : 0;
 }

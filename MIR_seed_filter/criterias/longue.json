@@ -168,7 +168,7 @@
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
-      "difficulty": 66
+      "difficulty": 3
     },
     {
       "name": "mushroom_fields_+_-",
@@ -182,7 +182,7 @@
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
-      "difficulty": 67
+      "difficulty": 3
     },
     {
       "name": "mushroom_fields_-_+",
@@ -196,7 +196,7 @@
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
-      "difficulty": 68
+      "difficulty": 3
     },
     {
       "name": "mushroom_fields_+_+",
@@ -210,7 +210,7 @@
       "min_area": 1,
       "max_area": -1,
       "group": "mushroom_quadrants",
-      "difficulty": 69
+      "difficulty": 3
     },
     {
       "name": "acacia_wood_area",

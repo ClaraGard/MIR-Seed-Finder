@@ -81,7 +81,7 @@ while true; do
         longue)
             JSON="criterias/longue.json"
             SMALL_BIOMES=false
-            SEED_COUNT=100000000000
+            SEED_COUNT=30000000000
             ;;
     esac
 
