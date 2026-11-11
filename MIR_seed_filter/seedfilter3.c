@@ -554,7 +554,7 @@ static int run_worker(int argc, char **argv)
 static int merge_files(
     const char *output_path, char **temp_paths, int workers)
 {
-    FILE *out = fopen(output_path, "wb");
+    FILE *out = fopen(output_path, "ab");
 
     if (!out) {
         perror("Could not open final output file");
