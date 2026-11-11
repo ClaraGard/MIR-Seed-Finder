@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/random.h>
+#include <sys/select.h>
 #endif
 
 #define MC MC_26_3
@@ -402,12 +403,54 @@ static int parse_small_biomes(const char *s, int *value)
 }
 
 /*
+ * Workers write a small progress file at most about 100 times per run.
+ * The parent sums all worker counts and prints global 10% milestones.
+ * This avoids shared-memory synchronization or console I/O per seed.
+ */
+static int write_worker_progress(FILE *progress, uint64_t checked)
+{
+    rewind(progress);
+    if (fprintf(progress, "%" PRIu64 "\n", checked) < 0)
+        return 0;
+    return fflush(progress) == 0;
+}
+
+static uint64_t read_worker_progress(const char *path)
+{
+    FILE *progress = fopen(path, "r");
+    uint64_t checked = 0;
+
+    if (progress) {
+        if (fscanf(progress, "%" SCNu64, &checked) != 1)
+            checked = 0;
+        fclose(progress);
+    }
+    return checked;
+}
+
+/* Overflow-safe ceil(total * tenth / 10), for tenth in [1, 10]. */
+static uint64_t global_progress_target(uint64_t total, unsigned tenth)
+{
+    return (total / 10) * tenth + ((total % 10) * tenth + 9) / 10;
+}
+
+static void progress_poll_pause(void)
+{
+#ifdef _WIN32
+    Sleep(250);
+#else
+    struct timeval delay = {0, 250000};
+    (void)select(0, NULL, NULL, NULL, &delay);
+#endif
+}
+
+/*
  * Internal worker mode:
-* executable --worker COUNT CRITERIA THRESHOLD TEMP_FILE SMALL_BIOMES 
-*/
+ * executable --worker COUNT CRITERIA THRESHOLD TEMP_FILE SMALL_BIOMES PROGRESS_FILE
+ */
 static int run_worker(int argc, char **argv)
 {
-    if (argc != 7)
+    if (argc != 8)
         return 2;
 
     uint64_t count, threshold64;
@@ -446,14 +489,29 @@ static int run_worker(int argc, char **argv)
         return 2;
     }
 
-    Xoroshiro rng;
-
-    if (!init_rng(&rng)) {
-        fprintf(stderr, "Failed to initialize worker RNG.\n");
+    FILE *progress = fopen(argv[7], "w");
+    if (!progress || !write_worker_progress(progress, 0)) {
+        perror("Could not initialize worker progress");
+        if (progress)
+            fclose(progress);
         fclose(out);
         freeCriteriaConfig(&criteria);
         return 2;
     }
+
+    Xoroshiro rng;
+
+    if (!init_rng(&rng)) {
+        fprintf(stderr, "Failed to initialize worker RNG.\n");
+        fclose(progress);
+        fclose(out);
+        freeCriteriaConfig(&criteria);
+        return 2;
+    }
+
+    /* About one progress-file update per 1% of this worker's seeds. */
+    uint64_t report_interval = count / 100 + (count % 100 != 0);
+    uint64_t next_report = report_interval;
 
     for (uint64_t i = 0; i < count; i++) {
         uint64_t seed = xNextLong(&rng);
@@ -462,20 +520,30 @@ static int run_worker(int argc, char **argv)
                                 &vaultEngine, (size_t)threshold64, out);
         if (matched < 0) {
             /* An invalid vault evaluation is a worker failure, not a miss. */
+            fclose(progress);
             fclose(out);
             freeCriteriaConfig(&criteria);
             return 2;
         }
 
-        if ((i + 1) % 100000 == 0) {
-            fprintf(stderr,
-                "Worker checked %" PRIu64 " seeds\n",
-                i + 1);
+        uint64_t checked = i + 1;
+        if (checked >= next_report || checked == count) {
+            if (!write_worker_progress(progress, checked)) {
+                fprintf(stderr, "Could not update worker progress file.\n");
+                fclose(progress);
+                fclose(out);
+                freeCriteriaConfig(&criteria);
+                return 2;
+            }
+            next_report = count - checked <= report_interval
+                ? count : checked + report_interval;
         }
     }
 
     int failed = ferror(out);
 
+    if (fclose(progress) != 0)
+        failed = 1;
     if (fclose(out) != 0)
         failed = 1;
 
@@ -568,8 +636,11 @@ int main(int argc, char **argv)
         workers = (int)count;
 
     char **temp_paths = calloc((size_t)workers, sizeof(char *));
-    if (!temp_paths) {
+    char **progress_paths = calloc((size_t)workers, sizeof(char *));
+    if (!temp_paths || !progress_paths) {
         perror("calloc");
+        free(temp_paths);
+        free(progress_paths);
         return 1;
     }
 
@@ -577,17 +648,23 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < workers; i++) {
         temp_paths[i] = malloc(path_len);
+        progress_paths[i] = malloc(path_len);
 
-        if (!temp_paths[i]) {
+        if (!temp_paths[i] || !progress_paths[i]) {
             perror("malloc");
-            for (int j = 0; j < i; j++)
+            for (int j = 0; j <= i; j++) {
                 free(temp_paths[j]);
+                free(progress_paths[j]);
+            }
             free(temp_paths);
+            free(progress_paths);
             return 1;
         }
 
         snprintf(temp_paths[i], path_len,
                  "%s.worker.%d.tmp", argv[4], i);
+        snprintf(progress_paths[i], path_len,
+                 "%s.worker.%d.progress", argv[4], i);
     }
 
     uint64_t base = count / (uint64_t)workers;
@@ -601,9 +678,12 @@ int main(int argc, char **argv)
 
     if (!pids) {
         perror("calloc");
-        for (int i = 0; i < workers; i++)
+        for (int i = 0; i < workers; i++) {
             free(temp_paths[i]);
+            free(progress_paths[i]);
+        }
         free(temp_paths);
+        free(progress_paths);
         return 1;
     }
 
@@ -625,9 +705,13 @@ int main(int argc, char **argv)
                 "%" PRIu64, threshold64);
         snprintf(small_str, sizeof(small_str), "%d", smallBiomes);
 
+        /* Prevent a previous run's progress from being mistaken for this one. */
+        remove(progress_paths[i]);
+
         char *child_argv[] = {
             argv[0], "--worker", count_str,
-            argv[2], threshold_str, temp_paths[i], small_str, NULL
+            argv[2], threshold_str, temp_paths[i], small_str,
+            progress_paths[i], NULL
         };
 
 #ifdef _WIN32
@@ -659,23 +743,64 @@ int main(int argc, char **argv)
         launched++;
     }
 
-    for (int i = 0; i < launched; i++) {
+    /* Poll all workers without blocking on any one of them. Each worker's
+     * progress is added to the global total, even if workers run at different
+     * speeds. Polling four times a second is negligible for seed checking. */
+    unsigned next_tenth = 1;
+    int remaining = launched;
+
+    while (remaining > 0) {
+        for (int i = 0; i < launched; i++) {
+            if (!pids[i])
+                continue;
 #ifdef _WIN32
-        int status = 0;
-        if (_cwait(&status, pids[i], 0) == -1 || status != 0)
-            failed = 1;
+            HANDLE process = (HANDLE)pids[i];
+            DWORD status = WaitForSingleObject(process, 0);
+            if (status == WAIT_TIMEOUT)
+                continue;
+
+            DWORD exit_code = 1;
+            if (status != WAIT_OBJECT_0 ||
+                !GetExitCodeProcess(process, &exit_code) || exit_code != 0)
+                failed = 1;
+            CloseHandle(process);
 #else
-        int status = 0;
-        pid_t result;
+            int status = 0;
+            pid_t result;
+            do {
+                result = waitpid(pids[i], &status, WNOHANG);
+            } while (result < 0 && errno == EINTR);
 
-        do {
-            result = waitpid(pids[i], &status, 0);
-        } while (result < 0 && errno == EINTR);
-
-        if (result < 0 || !WIFEXITED(status) ||
-            WEXITSTATUS(status) != 0)
-            failed = 1;
+            if (result == 0)
+                continue;
+            if (result < 0 || !WIFEXITED(status) ||
+                WEXITSTATUS(status) != 0)
+                failed = 1;
 #endif
+            pids[i] = 0;
+            remaining--;
+        }
+
+        uint64_t global_checked = 0;
+        for (int i = 0; i < launched; i++) {
+            uint64_t chunk = base + ((uint64_t)i < remainder ? 1 : 0);
+            uint64_t checked = read_worker_progress(progress_paths[i]);
+            if (checked > chunk)
+                checked = chunk;
+            global_checked += checked;
+        }
+
+        while (next_tenth <= 10 &&
+               global_checked >= global_progress_target(count, next_tenth)) {
+            fprintf(stderr, "Overall progress: %u%% (%" PRIu64
+                    "/%" PRIu64 " seeds reached)\n",
+                    next_tenth * 10,
+                    global_progress_target(count, next_tenth), count);
+            next_tenth++;
+        }
+
+        if (remaining > 0)
+            progress_poll_pause();
     }
 
     if (!failed && launched == workers) {
@@ -691,10 +816,13 @@ int main(int argc, char **argv)
     for (int i = 0; i < workers; i++) {
         if (!failed)
             remove(temp_paths[i]);
+        remove(progress_paths[i]);
         free(temp_paths[i]);
+        free(progress_paths[i]);
     }
 
     free(temp_paths);
+    free(progress_paths);
     free(pids);
 
     return failed ? 1 : 0;
