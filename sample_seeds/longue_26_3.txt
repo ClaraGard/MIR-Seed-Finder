@@ -106,3 +106,464 @@ STRUCTURES_AMOUNT seed=-7447342610413858993 passed=6 failed=1 evaluated=7 total=
   [minimum_four_villages_near_origin] count=>=4 status=PASS
 
 --------------------------------------
+
+FOUND seed=-3622090933148010125
+GROUP [mushroom_quadrants] passed=2 required=2 members=4 status=PASS
+GROUP [mansion_quadrants] passed=3 required=3 members=4 status=PASS
+SPAWN_HEIGHT pos=(0,0) approx_y=88.62 min_y=64 status=PASS
+VAULT_LOOT seed=-3622090933148010125 passed=1 failed=0 evaluated=1 total=1
+  [Two heavy cores per ten ominous vaults, four times] type=ominous target=item:minecraft:heavy_core min_count=2 vaults_per_window=10 repetitions=4 status=PASS
+    openings=1-10 count=3 required>=2 status=PASS
+    openings=11-20 count=2 required>=2 status=PASS
+    openings=21-30 count=2 required>=2 status=PASS
+    openings=31-40 count=3 required>=2 status=PASS
+
+STRUCTURES_DISTANCE seed=-3622090933148010125 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,0) distance=0.00 status=PASS
+  [bastion_distance] pos=(-112,80) distance=137.64 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+  [end_city_near_spawn] pos=(-1216,48) distance=171.77 status=PASS
+
+BIOMES seed=-3622090933148010125 passed=18 failed=0 evaluated=18 total=20
+  [warped_forest_distance] status=PASS
+  [mushroom_fields_+_+] status=PASS
+  [mushroom_fields_-_+] status=PASS
+  [mushroom_fields_+_-] status=NOT EVALUATED
+  [mushroom_fields_-_-] status=NOT EVALUATED
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [cherry_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-3622090933148010125 passed=6 failed=0 evaluated=6 total=7
+  [mansion_+_+] count=>=1 status=PASS
+  [mansion_-_+] count=>=1 status=PASS
+  [mansion_+_-] count=>=1 status=PASS
+  [mansion_-_-] status=NOT EVALUATED
+  [minimum_desert_pyramids_small] count=>=15 status=PASS
+  [minimum_desert_pyramids_large] count=>=30 status=PASS
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-8627061226967621425
+GROUP [mushroom_quadrants] passed=2 required=2 members=4 status=PASS
+GROUP [mansion_quadrants] passed=3 required=3 members=4 status=PASS
+SPAWN_HEIGHT pos=(0,0) approx_y=99.34 min_y=64 status=PASS
+VAULT_LOOT seed=-8627061226967621425 passed=1 failed=0 evaluated=1 total=1
+  [Two heavy cores per ten ominous vaults, four times] type=ominous target=item:minecraft:heavy_core min_count=2 vaults_per_window=10 repetitions=4 status=PASS
+    openings=1-10 count=2 required>=2 status=PASS
+    openings=11-20 count=2 required>=2 status=PASS
+    openings=21-30 count=3 required>=2 status=PASS
+    openings=31-40 count=2 required>=2 status=PASS
+
+STRUCTURES_DISTANCE seed=-8627061226967621425 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,32) distance=45.25 status=PASS
+  [bastion_distance] pos=(-144,-96) distance=173.07 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+  [end_city_near_spawn] pos=(720,-880) distance=98.31 status=PASS
+
+BIOMES seed=-8627061226967621425 passed=18 failed=1 evaluated=19 total=20
+  [warped_forest_distance] status=PASS
+  [mushroom_fields_+_+] status=FAIL
+  [mushroom_fields_-_+] status=PASS
+  [mushroom_fields_+_-] status=PASS
+  [mushroom_fields_-_-] status=NOT EVALUATED
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [cherry_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-8627061226967621425 passed=6 failed=0 evaluated=6 total=7
+  [mansion_+_+] count=>=1 status=PASS
+  [mansion_-_+] count=>=1 status=PASS
+  [mansion_+_-] count=>=1 status=PASS
+  [mansion_-_-] status=NOT EVALUATED
+  [minimum_desert_pyramids_small] count=>=15 status=PASS
+  [minimum_desert_pyramids_large] count=>=30 status=PASS
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-8612165091370992609
+GROUP [mushroom_quadrants] passed=2 required=2 members=4 status=PASS
+GROUP [mansion_quadrants] passed=3 required=3 members=4 status=PASS
+SPAWN_HEIGHT pos=(0,0) approx_y=81.11 min_y=64 status=PASS
+VAULT_LOOT seed=-8612165091370992609 passed=1 failed=0 evaluated=1 total=1
+  [Two heavy cores per ten ominous vaults, four times] type=ominous target=item:minecraft:heavy_core min_count=2 vaults_per_window=10 repetitions=4 status=PASS
+    openings=1-10 count=3 required>=2 status=PASS
+    openings=11-20 count=2 required>=2 status=PASS
+    openings=21-30 count=3 required>=2 status=PASS
+    openings=31-40 count=2 required>=2 status=PASS
+
+STRUCTURES_DISTANCE seed=-8612165091370992609 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(64,0) distance=64.00 status=PASS
+  [bastion_distance] pos=(-112,-128) distance=170.08 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+  [end_city_near_spawn] pos=(1040,-576) distance=129.47 status=PASS
+
+BIOMES seed=-8612165091370992609 passed=18 failed=0 evaluated=18 total=20
+  [warped_forest_distance] status=PASS
+  [mushroom_fields_+_+] status=PASS
+  [mushroom_fields_-_+] status=PASS
+  [mushroom_fields_+_-] status=NOT EVALUATED
+  [mushroom_fields_-_-] status=NOT EVALUATED
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [cherry_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-8612165091370992609 passed=6 failed=1 evaluated=7 total=7
+  [mansion_+_+] count=>=1 status=PASS
+  [mansion_-_+] count=0 status=FAIL
+  [mansion_+_-] count=>=1 status=PASS
+  [mansion_-_-] count=>=1 status=PASS
+  [minimum_desert_pyramids_small] count=>=15 status=PASS
+  [minimum_desert_pyramids_large] count=>=30 status=PASS
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-2765222383100683532
+GROUP [mushroom_quadrants] passed=2 required=2 members=4 status=PASS
+GROUP [mansion_quadrants] passed=3 required=3 members=4 status=PASS
+SPAWN_HEIGHT pos=(-16,64) approx_y=65.55 min_y=64 status=PASS
+VAULT_LOOT seed=-2765222383100683532 passed=1 failed=0 evaluated=1 total=1
+  [Two heavy cores per ten ominous vaults, four times] type=ominous target=item:minecraft:heavy_core min_count=2 vaults_per_window=10 repetitions=4 status=PASS
+    openings=1-10 count=2 required>=2 status=PASS
+    openings=11-20 count=2 required>=2 status=PASS
+    openings=21-30 count=2 required>=2 status=PASS
+    openings=31-40 count=2 required>=2 status=PASS
+
+STRUCTURES_DISTANCE seed=-2765222383100683532 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,16) distance=16.00 status=PASS
+  [bastion_distance] pos=(-144,80) distance=164.73 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+  [end_city_near_spawn] pos=(-1216,80) distance=106.22 status=PASS
+
+BIOMES seed=-2765222383100683532 passed=18 failed=1 evaluated=19 total=20
+  [warped_forest_distance] status=PASS
+  [mushroom_fields_+_+] status=FAIL
+  [mushroom_fields_-_+] status=PASS
+  [mushroom_fields_+_-] status=PASS
+  [mushroom_fields_-_-] status=NOT EVALUATED
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [cherry_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-2765222383100683532 passed=6 failed=1 evaluated=7 total=7
+  [mansion_+_+] count=0 status=FAIL
+  [mansion_-_+] count=>=1 status=PASS
+  [mansion_+_-] count=>=1 status=PASS
+  [mansion_-_-] count=>=1 status=PASS
+  [minimum_desert_pyramids_small] count=>=15 status=PASS
+  [minimum_desert_pyramids_large] count=>=30 status=PASS
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=4027236626672953231
+GROUP [mushroom_quadrants] passed=2 required=2 members=4 status=PASS
+GROUP [mansion_quadrants] passed=3 required=3 members=4 status=PASS
+SPAWN_HEIGHT pos=(0,0) approx_y=67.17 min_y=64 status=PASS
+VAULT_LOOT seed=4027236626672953231 passed=1 failed=0 evaluated=1 total=1
+  [Two heavy cores per ten ominous vaults, four times] type=ominous target=item:minecraft:heavy_core min_count=2 vaults_per_window=10 repetitions=4 status=PASS
+    openings=1-10 count=2 required>=2 status=PASS
+    openings=11-20 count=2 required>=2 status=PASS
+    openings=21-30 count=3 required>=2 status=PASS
+    openings=31-40 count=3 required>=2 status=PASS
+
+STRUCTURES_DISTANCE seed=4027236626672953231 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,32) distance=45.25 status=PASS
+  [bastion_distance] pos=(-112,-144) distance=182.43 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+  [end_city_near_spawn] pos=(-896,688) distance=115.31 status=PASS
+
+BIOMES seed=4027236626672953231 passed=18 failed=0 evaluated=18 total=20
+  [warped_forest_distance] status=PASS
+  [mushroom_fields_+_+] status=PASS
+  [mushroom_fields_-_+] status=PASS
+  [mushroom_fields_+_-] status=NOT EVALUATED
+  [mushroom_fields_-_-] status=NOT EVALUATED
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [cherry_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=4027236626672953231 passed=6 failed=1 evaluated=7 total=7
+  [mansion_+_+] count=0 status=FAIL
+  [mansion_-_+] count=>=1 status=PASS
+  [mansion_+_-] count=>=1 status=PASS
+  [mansion_-_-] count=>=1 status=PASS
+  [minimum_desert_pyramids_small] count=>=15 status=PASS
+  [minimum_desert_pyramids_large] count=>=30 status=PASS
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-7257736088428674565
+GROUP [mushroom_quadrants] passed=2 required=2 members=4 status=PASS
+GROUP [mansion_quadrants] passed=3 required=3 members=4 status=PASS
+SPAWN_HEIGHT pos=(0,0) approx_y=77.21 min_y=64 status=PASS
+VAULT_LOOT seed=-7257736088428674565 passed=1 failed=0 evaluated=1 total=1
+  [Two heavy cores per ten ominous vaults, four times] type=ominous target=item:minecraft:heavy_core min_count=2 vaults_per_window=10 repetitions=4 status=PASS
+    openings=1-10 count=3 required>=2 status=PASS
+    openings=11-20 count=3 required>=2 status=PASS
+    openings=21-30 count=2 required>=2 status=PASS
+    openings=31-40 count=4 required>=2 status=PASS
+
+STRUCTURES_DISTANCE seed=-7257736088428674565 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(0,48) distance=48.00 status=PASS
+  [bastion_distance] pos=(-80,16) distance=81.58 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+  [end_city_near_spawn] pos=(416,1344) distance=154.06 status=PASS
+
+BIOMES seed=-7257736088428674565 passed=18 failed=0 evaluated=18 total=20
+  [warped_forest_distance] status=PASS
+  [mushroom_fields_+_+] status=PASS
+  [mushroom_fields_-_+] status=PASS
+  [mushroom_fields_+_-] status=NOT EVALUATED
+  [mushroom_fields_-_-] status=NOT EVALUATED
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [cherry_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-7257736088428674565 passed=6 failed=0 evaluated=6 total=7
+  [mansion_+_+] count=>=1 status=PASS
+  [mansion_-_+] count=>=1 status=PASS
+  [mansion_+_-] count=>=1 status=PASS
+  [mansion_-_-] status=NOT EVALUATED
+  [minimum_desert_pyramids_small] count=>=15 status=PASS
+  [minimum_desert_pyramids_large] count=>=30 status=PASS
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-1519127480909602320
+GROUP [mushroom_quadrants] passed=2 required=2 members=4 status=PASS
+GROUP [mansion_quadrants] passed=3 required=3 members=4 status=PASS
+SPAWN_HEIGHT pos=(0,0) approx_y=66.21 min_y=64 status=PASS
+VAULT_LOOT seed=-1519127480909602320 passed=1 failed=0 evaluated=1 total=1
+  [Two heavy cores per ten ominous vaults, four times] type=ominous target=item:minecraft:heavy_core min_count=2 vaults_per_window=10 repetitions=4 status=PASS
+    openings=1-10 count=3 required>=2 status=PASS
+    openings=11-20 count=2 required>=2 status=PASS
+    openings=21-30 count=2 required>=2 status=PASS
+    openings=31-40 count=2 required>=2 status=PASS
+
+STRUCTURES_DISTANCE seed=-1519127480909602320 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(32,16) distance=35.78 status=PASS
+  [bastion_distance] pos=(-112,112) distance=158.39 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+  [end_city_near_spawn] pos=(1040,-592) distance=128.81 status=PASS
+
+BIOMES seed=-1519127480909602320 passed=18 failed=2 evaluated=20 total=20
+  [warped_forest_distance] status=PASS
+  [mushroom_fields_+_+] status=PASS
+  [mushroom_fields_-_+] status=FAIL
+  [mushroom_fields_+_-] status=FAIL
+  [mushroom_fields_-_-] status=PASS
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [cherry_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-1519127480909602320 passed=6 failed=1 evaluated=7 total=7
+  [mansion_+_+] count=>=1 status=PASS
+  [mansion_-_+] count=>=1 status=PASS
+  [mansion_+_-] count=0 status=FAIL
+  [mansion_-_-] count=>=1 status=PASS
+  [minimum_desert_pyramids_small] count=>=15 status=PASS
+  [minimum_desert_pyramids_large] count=>=30 status=PASS
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=7923195714018754604
+GROUP [mushroom_quadrants] passed=2 required=2 members=4 status=PASS
+GROUP [mansion_quadrants] passed=3 required=3 members=4 status=PASS
+SPAWN_HEIGHT pos=(0,0) approx_y=66.33 min_y=64 status=PASS
+VAULT_LOOT seed=7923195714018754604 passed=1 failed=0 evaluated=1 total=1
+  [Two heavy cores per ten ominous vaults, four times] type=ominous target=item:minecraft:heavy_core min_count=2 vaults_per_window=10 repetitions=4 status=PASS
+    openings=1-10 count=2 required>=2 status=PASS
+    openings=11-20 count=2 required>=2 status=PASS
+    openings=21-30 count=3 required>=2 status=PASS
+    openings=31-40 count=2 required>=2 status=PASS
+
+STRUCTURES_DISTANCE seed=7923195714018754604 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(64,0) distance=64.00 status=PASS
+  [bastion_distance] pos=(-96,48) distance=107.33 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+  [end_city_near_spawn] pos=(336,1024) distance=40.01 status=PASS
+
+BIOMES seed=7923195714018754604 passed=18 failed=0 evaluated=18 total=20
+  [warped_forest_distance] status=PASS
+  [mushroom_fields_+_+] status=PASS
+  [mushroom_fields_-_+] status=PASS
+  [mushroom_fields_+_-] status=NOT EVALUATED
+  [mushroom_fields_-_-] status=NOT EVALUATED
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [cherry_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=7923195714018754604 passed=6 failed=1 evaluated=7 total=7
+  [mansion_+_+] count=>=1 status=PASS
+  [mansion_-_+] count=0 status=FAIL
+  [mansion_+_-] count=>=1 status=PASS
+  [mansion_-_-] count=>=1 status=PASS
+  [minimum_desert_pyramids_small] count=>=15 status=PASS
+  [minimum_desert_pyramids_large] count=>=30 status=PASS
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+FOUND seed=-6465984955538740982
+GROUP [mushroom_quadrants] passed=2 required=2 members=4 status=PASS
+GROUP [mansion_quadrants] passed=3 required=3 members=4 status=PASS
+SPAWN_HEIGHT pos=(0,0) approx_y=66.80 min_y=64 status=PASS
+VAULT_LOOT seed=-6465984955538740982 passed=1 failed=0 evaluated=1 total=1
+  [Two heavy cores per ten ominous vaults, four times] type=ominous target=item:minecraft:heavy_core min_count=2 vaults_per_window=10 repetitions=4 status=PASS
+    openings=1-10 count=2 required>=2 status=PASS
+    openings=11-20 count=2 required>=2 status=PASS
+    openings=21-30 count=2 required>=2 status=PASS
+    openings=31-40 count=3 required>=2 status=PASS
+
+STRUCTURES_DISTANCE seed=-6465984955538740982 passed=6 failed=0 evaluated=6 total=6
+  [fortress_near_nether_origin] pos=(16,64) distance=65.97 status=PASS
+  [bastion_distance] pos=(96,-128) distance=160.00 status=PASS
+  [village_not_too_close_to_origin] no structure in checked radius status=PASS
+  [shipwreck_not_too_close] no structure in checked radius status=PASS
+  [desert_pyramid_not_too_close] no structure in checked radius status=PASS
+  [end_city_near_spawn] pos=(-864,720) distance=117.18 status=PASS
+
+BIOMES seed=-6465984955538740982 passed=18 failed=1 evaluated=19 total=20
+  [warped_forest_distance] status=PASS
+  [mushroom_fields_+_+] status=PASS
+  [mushroom_fields_-_+] status=FAIL
+  [mushroom_fields_+_-] status=PASS
+  [mushroom_fields_-_-] status=NOT EVALUATED
+  [warped_forest_area] status=PASS
+  [forbidden_biomes_near_spawn] status=PASS
+  [forbidden_basalt_near_nether_origin] status=PASS
+  [forbidden_water_biomes_near_spawn] status=PASS
+  [wood_near_spawn] status=PASS
+  [food_biome_near_spawn] status=PASS
+  [mangrove_wood_area] status=PASS
+  [mesa_area] status=PASS
+  [pale_oak_wood_area] status=PASS
+  [poplar_wood_area] status=PASS
+  [cherry_wood_area] status=PASS
+  [bamboo_area] status=PASS
+  [acacia_wood_area] status=PASS
+  [spruce_wood_area] status=PASS
+  [birch_wood_area] status=PASS
+
+STRUCTURES_AMOUNT seed=-6465984955538740982 passed=6 failed=0 evaluated=6 total=7
+  [mansion_+_+] count=>=1 status=PASS
+  [mansion_-_+] count=>=1 status=PASS
+  [mansion_+_-] count=>=1 status=PASS
+  [mansion_-_-] status=NOT EVALUATED
+  [minimum_desert_pyramids_small] count=>=15 status=PASS
+  [minimum_desert_pyramids_large] count=>=30 status=PASS
+  [minimum_four_villages_near_origin] count=>=4 status=PASS
+
+--------------------------------------
+
